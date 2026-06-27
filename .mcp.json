@@ -1,0 +1,20 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "args": [
+                "artisan",
+                "boost:mcp"
+            ],
+            "command": "php"
+        },
+        "lerd": {
+            "args": [
+                "mcp"
+            ],
+            "command": "lerd",
+            "env": {
+                "LERD_SITE_PATH": "/home/kerban/dev/solamnia-portal"
+            }
+        }
+    }
+}
