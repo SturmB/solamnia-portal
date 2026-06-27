@@ -2,6 +2,16 @@
 
 Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
+## Account: switch to SturmB first
+
+This repo (`SturmB/solamnia-portal`) is private and owned by **SturmB**, but the machine's default `gh` account is `chrispmcgee`. Before any `gh` command here, run:
+
+```
+gh auth switch -u SturmB
+```
+
+Without this, `gh` runs as `chrispmcgee`, which has no access to the private repo and will fail. Git commits and push/fetch are already bound to SturmB independently (local `user.email` + the `github.com-personal` SSH remote), so only `gh` CLI calls need the switch.
+
 ## Conventions
 
 - **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
