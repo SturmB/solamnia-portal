@@ -1,4 +1,4 @@
-<!-- SEED: re-run /impeccable document once there's code to capture the actual tokens and components. -->
+<!-- Color & type resolved (Solamnia Violet + Marcellus/Instrument Sans). Components still pending: re-run /impeccable document in scan mode once real components exist. -->
 ---
 name: Solamnia Member Portal
 description: A members-only portal for a homelab — sleek, personal, faintly cinematic.
@@ -13,9 +13,9 @@ description: A members-only portal for a homelab — sleek, personal, faintly ci
 Solamnia began as a Plex media server, so its portal should feel like being
 handed a ticket to a small, private theater — dark, considered, and warm toward
 the few people who belong there. The surface is a dark base with near-neutral
-panels; a single projector-glow blue is the one chromatic voice, doing the work
-of identity, focus, and action. Nothing shouts. The delight is in the polish and
-the timing, not in decoration.
+panels; a single projector-glow violet — drawn from the brand mark — is the one
+chromatic voice, doing the work of identity, focus, and action. Nothing shouts.
+The delight is in the polish and the timing, not in decoration.
 
 This system explicitly rejects the acquisition-funnel look of corporate SaaS
 landing pages, the sterile gray of enterprise admin panels, and the loud,
@@ -35,23 +35,30 @@ not from copying Plex's palette.
 
 A committed strategy: one saturated accent on a dark neutral base.
 
-### Primary
-- **Projector-Glow Blue** *(hex to be resolved during implementation)*: the sole
-  chromatic voice. Used for primary actions, focus rings, current selection,
-  links, and the signature cursor-following glow on brand surfaces. Its rarity
-  is what gives it meaning.
+### Primary — Solamnia Violet
+The sole chromatic voice, drawn from the brand mark (`#400080`). One hue (~296),
+used as two tones so it can both fill and stay readable on the dark base:
+- **Deep Violet** — `oklch(0.32 0.176 296)` (the logo/emblem color). Solid fills,
+  primary buttons (white text, echoing the white-on-purple emblem), and the
+  "curtain" / drenched moments.
+- **Lit Violet** *(the projector glow)* — `oklch(0.72 0.15 296)`. Links, focus
+  rings, current selection, actionable text, and the signature cursor-following
+  glow on brand surfaces. Reads as *light* on the dark base and clears 4.5:1.
+
+Its rarity is what gives it meaning.
 
 ### Neutral
-- **Screening-Room Base** *(to be resolved)*: the dark body background — the
-  darkened theater.
-- **Panel Surface** *(to be resolved)*: a slightly lifted dark neutral for
+Tinted a whisper toward the brand hue (~296), never toward warm-by-default.
+- **Screening-Room Base** — `oklch(0.15 0.022 296)`: the dark body background —
+  the darkened theater.
+- **Panel Surface** — `oklch(0.20 0.028 296)`: a slightly lifted dark neutral for
   cards, toolbars, and the app shell; distinguished from the base by tone, not
-  by heavy borders.
-- **Ink / Muted Ink** *(to be resolved)*: text ramp. Body text must clear
-  4.5:1 against its surface; no light-gray-for-elegance.
+  by heavy borders. Next tonal step / hairline border: `oklch(0.30 0.035 296)`.
+- **Ink / Muted Ink** — `oklch(0.96 0.01 296)` / `oklch(0.72 0.02 296)`: text
+  ramp. Both clear 4.5:1 on base and surface; no light-gray-for-elegance.
 
 ### Named Rules
-**The One Voice Rule.** Projector-Glow Blue is the only chromatic color in the
+**The One Voice Rule.** Solamnia Violet is the only chromatic color in the
 system. If a screen needs a second color to make sense, that's a signal to
 promote to a full palette deliberately (a `colorize` pass) — not to sprinkle in
 ad-hoc hues.
@@ -63,17 +70,22 @@ greens must differ on more than hue.
 
 ## 3. Typography
 
-**Display Font:** *(to be chosen at implementation)* — a distinctive display
-face with genuine character; a type-literate visitor should notice it's *not*
-the usual Inter/Geist default. Candidates lean toward an unexpected serif or a
-characterful grotesque, not a safe geometric sans.
-**Body Font:** *(to be chosen)* — a clean humanist sans that keeps app UI,
-labels, and data unfussy and highly legible.
-**Label/Mono Font:** *(optional; to be decided)*
+**Display Font:** **Marcellus** (with **Marcellus SC** for small-caps) — an
+inscriptional roman that reads like lettering engraved on a brass plaque beside a
+private screening-room door. Distinctive and quietly cinematic, not the Inter/Geist
+default. One weight (400); its scale and the small-caps cut carry the contrast.
+Marcellus SC echoes the logo's small-caps wordmark and suits kickers and the
+tagline.
+**Body Font:** **Instrument Sans** — the starter kit's humanist sans, kept for app
+UI, labels, and data. (It's a common default; consistency and the fact that the
+distinctive voice already lives in Marcellus + the logo make it the right, quiet
+choice for body — the personality is deliberately up top, not in the paragraphs.)
+**Label/Mono Font:** *(none yet; add only if data/tabular UI needs it)*
 
-**Character:** A touch of personality up top, disappearing calm below. The
-pairing should contrast on an axis (serif + sans, or high-contrast display +
-humanist body), never two near-identical sans families.
+**Character:** A touch of personality up top, disappearing calm below — a
+serif + sans contrast axis (Marcellus display over Instrument Sans body), never
+two near-identical families. Marcellus is the brass plaque; the real logo is the
+brand mark; Instrument Sans is the interface getting out of the way.
 
 ### Hierarchy
 *(sizes to be set at implementation; product register wants a fixed rem scale,
@@ -94,8 +106,8 @@ display faces never appear on buttons, inputs, or data.
 Depth is conveyed on a dark surface primarily through **tonal layering** —
 panels sit above the base by being a step lighter, not by heavy drop shadows.
 Motion energy is Responsive, so surfaces are calm at rest. The one luminous
-material is the **projector glow**: a soft, diffuse light bloom in the accent
-blue, used sparingly (the cursor-following glow, focus states, the first-login
+material is the **projector glow**: a soft, diffuse light bloom in Lit Violet,
+used sparingly (the cursor-following glow, focus states, the first-login
 reveal). Shadows, when used, are ambient and soft — never the hard, dark
 "2014 card" shadow.
 
@@ -113,8 +125,8 @@ mode once real components are built to capture their tokens and states.*
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** keep Projector-Glow Blue as the single chromatic voice; let its rarity
-  carry meaning.
+- **Do** keep Solamnia Violet as the single chromatic voice — Deep Violet for
+  fills, Lit Violet for interaction and glow; let its rarity carry meaning.
 - **Do** build on a dark, screening-room base and convey depth with tonal
   layering and soft accent glow.
 - **Do** reserve display-type personality and choreographed motion for the
