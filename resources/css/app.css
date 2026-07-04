@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import '../../vendor/livewire/flux/dist/flux.css';
+@import "tailwindcss";
+@import "../../vendor/livewire/flux/dist/flux.css";
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -9,7 +9,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol", "Noto Color Emoji";
+    --font-display: "Marcellus", ui-serif, Georgia, "Times New Roman", serif;
+    --font-display-sc: "Marcellus SC", var(--font-display);
 
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
@@ -26,6 +30,19 @@
     --color-accent: var(--color-neutral-800);
     --color-accent-content: var(--color-neutral-800);
     --color-accent-foreground: var(--color-white);
+
+    /* --- Solamnia design tokens (see DESIGN.md §2) --- */
+
+    /* Screening-room neutrals — tinted a whisper toward the brand hue (296) */
+    --color-screen: oklch(0.15 0.022 296); /* body background — the darkened theater */
+    --color-panel: oklch(0.2 0.028 296); /* lifted surface: cards, toolbars, app shell */
+    --color-line: oklch(0.3 0.035 296); /* next tonal step / hairline borders */
+    --color-ink: oklch(0.96 0.01 296); /* primary text (clears 4.5:1 on screen/panel) */
+    --color-ink-muted: oklch(0.72 0.02 296); /* secondary text (still clears 4.5:1) */
+
+    /* Solamnia Violet — the ONE chromatic voice, two tones of hue 296 */
+    --color-violet-deep: oklch(0.32 0.176 296); /* the logo/emblem color: fills, primary buttons */
+    --color-violet-lit: oklch(0.72 0.15 296); /* links, focus rings, actionable text, the glow */
 }
 
 @layer theme {
@@ -37,7 +54,6 @@
 }
 
 @layer base {
-
     *,
     ::after,
     ::before,
@@ -52,7 +68,7 @@
 }
 
 [data-flux-label] {
-    @apply  !mb-0 !leading-tight;
+    @apply !mb-0 !leading-tight;
 }
 
 input:focus[data-flux-control],

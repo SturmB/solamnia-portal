@@ -1,23 +1,19 @@
-import {
-    defineConfig
-} from 'vite';
-import laravel from 'laravel-vite-plugin';
-import { bunny } from 'laravel-vite-plugin/fonts';
+import { defineConfig } from "vite";
+import laravel from "laravel-vite-plugin";
+import { bunny } from "laravel-vite-plugin/fonts";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: [
-                'resources/css/app.css',
-                'resources/js/app.js',
-                'resources/js/passkeys.js',
-            ],
+            input: ["resources/css/app.css", "resources/js/app.js", "resources/js/passkeys.js"],
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
+                bunny("Instrument Sans", {
                     weights: [400, 500, 600],
                 }),
+                bunny("Marcellus", { weights: [400] }),
+                bunny("Marcellus SC", { weights: [400] }),
             ],
         }),
         tailwindcss(),
@@ -25,7 +21,7 @@ export default defineConfig({
     server: {
         cors: true,
         watch: {
-            ignored: ['**/storage/framework/views/**'],
+            ignored: ["**/storage/framework/views/**"],
         },
     },
 });
