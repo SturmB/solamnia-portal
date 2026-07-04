@@ -23,3 +23,6 @@ yarn-error.log
 /.vscode
 /.zed
 .env.before_lerd
+
+# impeccable machine-local state (hook consent, etc.)
+/.impeccable/config.local.json
