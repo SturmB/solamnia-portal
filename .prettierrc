@@ -1,0 +1,15 @@
+{
+    "plugins": ["@shufo/prettier-plugin-blade", "prettier-plugin-tailwindcss"],
+    "tailwindStylesheet": "./resources/css/app.css",
+    "tailwindFunctions": ["clsx", "cva", "twMerge"],
+    "overrides": [
+        {
+            "files": "*.blade.php",
+            "options": {
+                "parser": "blade",
+                "tabWidth": 4,
+                "sortTailwindcssClasses": true
+            }
+        }
+    ]
+}

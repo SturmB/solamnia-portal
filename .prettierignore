@@ -1,0 +1,30 @@
+/vendor
+/node_modules
+/public
+/storage
+/bootstrap/cache
+
+# Lock files
+/composer.lock
+/package-lock.json
+
+# Tool-generated / synced — owned by their tools, regenerated on update
+/.agents
+/.claude
+/.cursor
+/.codex
+/.junie
+/.ai
+/.impeccable
+/.github/hooks
+/CLAUDE.md
+/AGENTS.md
+/boost.json
+/.mcp.json
+/.lerd.yaml
+/opencode.json
+
+# Skill-maintained prose docs (impeccable / grill / domain skills own these)
+/PRODUCT.md
+/DESIGN.md
+/docs

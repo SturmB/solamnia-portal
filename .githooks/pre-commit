@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+#
+# Format staged files, then re-stage them so the formatting lands in this commit.
+# Fast by design: only touches files that are actually staged.
+#
+# NUL-delimited (-z) throughout so spaces and non-ASCII names (e.g. the ⚡
+# Livewire single-file components) survive intact.
+#
+# ponytail: re-staging whole files means a partially-staged file gets its
+# unstaged hunks committed too. Acceptable here (we commit whole files); switch
+# to lint-staged if partial staging becomes common.
+
+set -e
+
+# Nothing staged? Nothing to do.
+[ -z "$(git diff --cached --name-only --diff-filter=ACMR)" ] && exit 0
+
+# PHP, excluding Blade -> Pint
+git diff --cached --name-only --diff-filter=ACMR -z -- '*.php' ':(exclude)*.blade.php' \
+    | xargs -0 -r vendor/bin/pint
+
+# Blade / JS / CSS / JSON / YAML / Markdown -> Prettier
+git diff --cached --name-only --diff-filter=ACMR -z \
+    -- '*.blade.php' '*.js' '*.css' '*.json' '*.yml' '*.yaml' '*.md' \
+    | xargs -0 -r ./node_modules/.bin/prettier --write --ignore-unknown
+
+# Re-stage whatever was reformatted.
+git diff --cached --name-only --diff-filter=ACMR -z | xargs -0 -r git add
+
+exit 0

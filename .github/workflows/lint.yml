@@ -28,7 +28,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
-          php-version: '8.4'
+          php-version: "8.4"
 
       - name: Add Flux Credentials Loaded From ENV
         run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
@@ -40,6 +40,12 @@ jobs:
 
       - name: Run Pint
         run: composer lint
+
+      - name: Run PHPStan
+        run: composer stan
+
+      - name: Check Formatting
+        run: npm run format:check
 
       # - name: Commit Changes
       #   uses: stefanzweifel/git-auto-commit-action@v7
