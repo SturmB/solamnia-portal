@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\CampaignStatus;
 use App\Filament\Resources\Campaigns\Pages\CreateCampaign;
 use App\Filament\Resources\Campaigns\Pages\EditCampaign;
 use App\Mail\CampaignMail;
@@ -74,4 +75,26 @@ it('stores an uploaded body image on the public disk with public visibility', fu
 
     Storage::disk('public')->assertExists($path);
     expect(Storage::disk('public')->getVisibility($path))->toBe('public');
+});
+
+it('schedules a campaign for a chosen send time', function () {
+    $campaign = Campaign::factory()->create(); // draft — no scheduled_at
+
+    livewire(EditCampaign::class, ['record' => $campaign->id])
+        ->callAction('schedule', ['scheduled_at' => now()->addDay()])
+        ->assertHasNoFormErrors()
+        ->assertNotified();
+
+    expect($campaign->refresh()->scheduled_at)->not->toBeNull()
+        ->and($campaign->status())->toBe(CampaignStatus::Scheduled);
+});
+
+it('does not offer scheduling once a campaign has been sent', function () {
+    $campaign = Campaign::factory()->create([
+        'scheduled_at' => now()->subDay(),
+        'sent_at' => now()->subHour(),
+    ]);
+
+    livewire(EditCampaign::class, ['record' => $campaign->id])
+        ->assertActionHidden('schedule');
 });

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CampaignStatus;
 use Database\Factories\CampaignFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,6 +15,23 @@ class Campaign extends Model
 {
     /** @use HasFactory<CampaignFactory> */
     use HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'scheduled_at' => 'datetime',
+            'sent_at' => 'datetime',
+        ];
+    }
+
+    public function status(): CampaignStatus
+    {
+        return match (true) {
+            $this->sent_at !== null => CampaignStatus::Sent,
+            $this->scheduled_at !== null => CampaignStatus::Scheduled,
+            default => CampaignStatus::Draft,
+        };
+    }
 
     public function renderHtml(): string
     {
