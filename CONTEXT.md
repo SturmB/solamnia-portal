@@ -48,3 +48,19 @@ login is retained as break-glass for when Authelia is unavailable.
 **Knowledge Base**:
 Admin-authored troubleshooting articles, visible to Members only.
 _Avoid_: KB (in prose), docs, help center.
+
+## Deploying the Campaign send sweep
+
+Campaign sends run through `campaigns:send-due`, driven by Laravel's scheduler
+(see ADR-0003). Two host-level prerequisites — **without the crontab line,
+nothing sends**:
+
+1. Add the single crontab line that runs the scheduler every minute:
+
+    ```cron
+    * * * * * cd /path/to/portal && php artisan schedule:run >> /dev/null 2>&1
+    ```
+
+2. Set `PUSHOVER_TOKEN` and `PUSHOVER_USER` (see `.env.example`) so the
+   success/failure notification fires — the only signal that a send happened or
+   that the cron has stopped.

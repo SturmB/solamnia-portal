@@ -21,3 +21,6 @@ scale.
   worker then — do not pre-build it.
 - A Pushover fires on every send (success and failure) so a stopped cron is
   immediately noticeable.
+- There is no distinct "Send now" affordance: the panel's schedule action
+  defaults its send time to now, so "send now" is just scheduling for now.
+  Immediate and scheduled sends stay on one path rather than forking the UI.
