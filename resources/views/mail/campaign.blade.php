@@ -26,5 +26,16 @@
                 </mj-text>
             </mj-column>
         </mj-section>
+        @if ($unsubscribeUrl ?? null)
+            <mj-section background-color="#f4f2f7" padding="16px">
+                <mj-column>
+                    <mj-text align="center" font-size="12px" color="#666666">
+                        Trouble viewing this email? <a href="{{ $viewUrl }}">View it in your browser</a>.<br>
+                        If you no longer wish to receive these emails, you may <a
+                            href="{{ $unsubscribeUrl }}">unsubscribe</a>.
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+        @endif
     </mj-body>
 </mjml>

@@ -54,7 +54,7 @@ class SendDueCampaigns extends Command
             $subscribers = Subscriber::whereNull('unsubscribed_at')->get();
 
             foreach ($subscribers as $subscriber) {
-                Mail::to($subscriber->email)->send(new CampaignMail($campaign));
+                Mail::to($subscriber->email)->send(new CampaignMail($campaign, $subscriber));
             }
 
             $campaign->recipient_count = $subscribers->count();

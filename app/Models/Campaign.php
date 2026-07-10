@@ -7,6 +7,7 @@ use Database\Factories\CampaignFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Spatie\Mjml\Mjml;
 
@@ -33,15 +34,19 @@ class Campaign extends Model
         };
     }
 
-    public function renderHtml(): string
+    public function renderHtml(?Subscriber $subscriber = null): string
     {
         $bodyHtml = Str::markdown($this->body_markdown);
+        $unsubscribeUrl = $subscriber ? URL::signedRoute('unsubscribe', ['subscriber' => $subscriber]) : null;
+        $viewUrl = $subscriber ? URL::signedRoute('campaigns.view', ['campaign' => $this, 'subscriber' => $subscriber]) : null;
 
         // ponytail: entire Markdown-HTML fragment goes into one <mj-text>; ample for a
         // prose newsletter. If rich per-block layout is ever needed, parse to MJML components.
         $mjml = view('mail.campaign', [
             'subject' => $this->subject,
             'bodyHtml' => $bodyHtml,
+            'unsubscribeUrl' => $unsubscribeUrl,
+            'viewUrl' => $viewUrl,
         ])->render();
 
         return Mjml::new()->toHtml($mjml);
