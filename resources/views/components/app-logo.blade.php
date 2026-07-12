@@ -2,18 +2,9 @@
     'sidebar' => false,
 ])
 
-@if ($sidebar)
-    <flux:sidebar.brand name="Laravel Starter Kit" {{ $attributes }}>
-        <x-slot name="logo"
-            class="bg-accent-content text-accent-foreground flex aspect-square size-8 items-center justify-center rounded-md">
-            <x-app-logo-icon class="size-5 fill-current text-white dark:text-black" />
-        </x-slot>
-    </flux:sidebar.brand>
-@else
-    <flux:brand name="Laravel Starter Kit" {{ $attributes }}>
-        <x-slot name="logo"
-            class="bg-accent-content text-accent-foreground flex aspect-square size-8 items-center justify-center rounded-md">
-            <x-app-logo-icon class="size-5 fill-current text-white dark:text-black" />
-        </x-slot>
-    </flux:brand>
-@endif
+{{-- Nav brand: the Solamnia emblem + wordmark in Clash Display. The $sidebar
+     flag is accepted for call-site compatibility; both variants render the same. --}}
+<a {{ $attributes->merge(['class' => 'flex items-center gap-2 font-display text-lg font-semibold text-ink']) }}>
+    <img src="{{ asset('images/solamnia-emblem.svg') }}" alt="" class="size-7 shrink-0" />
+    <span>Solamnia</span>
+</a>

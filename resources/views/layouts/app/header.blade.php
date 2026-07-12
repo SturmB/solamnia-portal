@@ -5,12 +5,21 @@
     @include('partials.head')
 </head>
 
-<body class="min-h-screen bg-white dark:bg-zinc-800">
-    <flux:header container class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+<body class="bg-night text-ink min-h-screen font-sans" data-aurora="0.25">
+    {{-- The living sky, rendered by resources/js/aurora.js. @persist keeps the
+         one canvas (and its GL context) alive across wire:navigate. --}}
+    @persist('aurora')
+        <canvas id="aurora" aria-hidden="true"></canvas>
+    @endpersist
+
+    {{-- Top nav: the ONE backdrop-blur surface (DESIGN.md "One Blur Rule"),
+         a hairline lit edge, the night sky showing faintly through. --}}
+    <flux:header container class="border-edge bg-night/70 border-b backdrop-blur-lg">
         <flux:sidebar.toggle class="mr-2 lg:hidden" icon="bars-2" inset="left" />
 
         <x-app-logo href="{{ route('dashboard') }}" wire:navigate />
 
+        {{-- :current drives the violet underline via the accent token. --}}
         <flux:navbar class="-mb-px max-lg:hidden">
             <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                 wire:navigate>
@@ -20,28 +29,11 @@
 
         <flux:spacer />
 
-        <flux:navbar class="py-0! me-1.5 space-x-0.5 rtl:space-x-reverse">
-            <flux:tooltip :content="__('Search')" position="bottom">
-                <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#"
-                    :label="__('Search')" />
-            </flux:tooltip>
-            <flux:tooltip :content="__('Repository')" position="bottom">
-                <flux:navbar.item class="h-10 max-lg:hidden [&>div>svg]:size-5" icon="folder-git-2"
-                    href="https://github.com/laravel/livewire-starter-kit" target="_blank" :label="__('Repository')" />
-            </flux:tooltip>
-            <flux:tooltip :content="__('Documentation')" position="bottom">
-                <flux:navbar.item class="h-10 max-lg:hidden [&>div>svg]:size-5" icon="book-open-text"
-                    href="https://laravel.com/docs/starter-kits#livewire" target="_blank"
-                    :label="__('Documentation')" />
-            </flux:tooltip>
-        </flux:navbar>
-
         <x-desktop-user-menu />
     </flux:header>
 
-    <!-- Mobile Menu -->
-    <flux:sidebar collapsible="mobile" sticky
-        class="border-e border-zinc-200 bg-zinc-50 lg:hidden dark:border-zinc-700 dark:bg-zinc-900">
+    {{-- Mobile drawer: same destinations, shown only below lg. --}}
+    <flux:sidebar collapsible="mobile" sticky class="border-edge bg-panel border-e lg:hidden">
         <flux:sidebar.header>
             <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
             <flux:sidebar.collapse
@@ -49,24 +41,9 @@
         </flux:sidebar.header>
 
         <flux:sidebar.nav>
-            <flux:sidebar.group :heading="__('Platform')">
-                <flux:sidebar.item icon="layout-grid" :href="route('dashboard')"
-                    :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Dashboard') }}
-                </flux:sidebar.item>
-            </flux:sidebar.group>
-        </flux:sidebar.nav>
-
-        <flux:spacer />
-
-        <flux:sidebar.nav>
-            <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit"
-                target="_blank">
-                {{ __('Repository') }}
-            </flux:sidebar.item>
-            <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire"
-                target="_blank">
-                {{ __('Documentation') }}
+            <flux:sidebar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
+                wire:navigate>
+                {{ __('Dashboard') }}
             </flux:sidebar.item>
         </flux:sidebar.nav>
     </flux:sidebar>

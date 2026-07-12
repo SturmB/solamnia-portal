@@ -8,13 +8,49 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Self-hosted Fontshare faces (woff2-only). Vite fingerprints these into
+   the build; no external request at runtime. */
+@font-face {
+    font-family: "Clash Display";
+    src: url("../fonts/clash-display-600.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Clash Display";
+    src: url("../fonts/clash-display-700.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Satoshi";
+    src: url("../fonts/satoshi-400.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Satoshi";
+    src: url("../fonts/satoshi-500.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Satoshi";
+    src: url("../fonts/satoshi-700.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 @theme {
     --font-sans:
-        "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
-        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-        "Noto Color Emoji";
-    --font-display: "Marcellus", ui-serif, Georgia, "Times New Roman", serif;
-    --font-display-sc: "Marcellus SC", var(--font-display);
+        "Satoshi", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-display: "Clash Display", "Avenir Next", ui-sans-serif, sans-serif;
 
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
@@ -28,42 +64,35 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
-    --color-accent-foreground: var(--color-white);
+    /* Flux accent → Aurora Violet (Solamnia is dark-only; no light/dark flip) */
+    --color-accent: var(--color-violet); /* primary fills, active states */
+    --color-accent-content: var(
+        --color-violet-text
+    ); /* accent text & links (AA on night) */
+    --color-accent-foreground: var(
+        --color-night-deep
+    ); /* text on violet fills */
 
-    /* --- Solamnia design tokens (see DESIGN.md §2) --- */
+    /* --- Solamnia "solar wind" tokens (p07 Aurora — see DESIGN.md §2) --- */
 
-    /* Screening-room neutrals — tinted a whisper toward the brand hue (296) */
-    --color-screen: oklch(
-        0.15 0.022 296
-    ); /* body background — the darkened theater */
-    --color-panel: oklch(
-        0.2 0.028 296
-    ); /* lifted surface: cards, toolbars, app shell */
-    --color-line: oklch(0.3 0.035 296); /* next tonal step / hairline borders */
-    --color-ink: oklch(
-        0.96 0.01 296
-    ); /* primary text (clears 4.5:1 on screen/panel) */
-    --color-ink-muted: oklch(
-        0.72 0.02 296
-    ); /* secondary text (still clears 4.5:1) */
+    /* Night neutrals — blue-black polar sky (hue 250/258) */
+    --color-night: oklch(0.13 0.03 250); /* body ground — the polar night */
+    --color-night-deep: oklch(0.1 0.03 250); /* text on violet fills */
+    --color-panel: oklch(0.17 0.03 258); /* lifted surface: cards, nav, shell */
+    --color-ink: oklch(0.96 0.01 250); /* primary text (~15:1 on night) */
+    --color-muted: oklch(0.74 0.02 250); /* secondary text (~7:1; never body) */
 
-    /* Solamnia Violet — the ONE chromatic voice, two tones of hue 296 */
-    --color-violet-deep: oklch(
-        0.32 0.176 296
-    ); /* the logo/emblem color: fills, primary buttons */
-    --color-violet-lit: oklch(
-        0.72 0.15 296
-    ); /* links, focus rings, actionable text, the glow */
-}
+    /* Aurora Violet — the ONE UI chromatic voice, two tones of hue 300 */
+    --color-violet: oklch(
+        0.62 0.21 300
+    ); /* action fills (with night-deep text) */
+    --color-violet-text: oklch(
+        0.8 0.13 300
+    ); /* links, focus rings, actionable text */
 
-@layer theme {
-    .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
-    }
+    /* Lit edges — 1px panel borders (green/rose live ONLY in the shader) */
+    --color-edge: oklch(0.42 0.05 290 / 0.35);
+    --color-edge-top: oklch(0.7 0.06 290 / 0.28);
 }
 
 @layer base {
@@ -93,3 +122,48 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* ---- The aurora sky (rendered by resources/js/aurora.js) ---- */
+#aurora {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    height: 100%;
+    width: 100%;
+}
+
+/* Contrast scrim: transparent up top so the sky breathes, heavier toward the
+   foot where content sits — keeps ink at AA over the light. Only on pages
+   that actually render the sky. */
+body:has(#aurora)::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+        180deg,
+        oklch(0.13 0.03 250 / 0.02),
+        oklch(0.13 0.03 250 / 0.08) 45%,
+        oklch(0.13 0.03 250 / 0.42) 72%,
+        oklch(0.12 0.03 250 / 0.75)
+    );
+}
+
+/* No WebGL2 (or shader failure) → a static frozen-aurora gradient in the same
+   palette. Quiet, matching the app's 0.25 intensity. */
+.no-aurora body {
+    background:
+        radial-gradient(
+            60rem 32rem at 18% -6%,
+            oklch(0.3 0.09 165 / 0.3),
+            transparent 60%
+        ),
+        radial-gradient(
+            70rem 36rem at 70% -10%,
+            oklch(0.3 0.12 300 / 0.35),
+            transparent 62%
+        ),
+        var(--color-night);
+    background-attachment: fixed;
+}
