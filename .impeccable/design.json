@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-12T00:00:00Z",
+  "title": "Design System: Solamnia Member Portal",
+  "extensions": {
+    "colorMeta": {
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "oklch(0.13 0.03 250)",
+        "tonalRamp": ["oklch(0.10 0.03 250)", "oklch(0.13 0.03 250)", "oklch(0.20 0.03 250)", "oklch(0.32 0.03 250)", "oklch(0.48 0.03 250)", "oklch(0.64 0.03 250)", "oklch(0.80 0.02 250)", "oklch(0.95 0.01 250)"]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Dark Glass Panel",
+        "canonical": "oklch(0.17 0.03 258 / 0.92)",
+        "tonalRamp": ["oklch(0.11 0.03 258)", "oklch(0.17 0.03 258)", "oklch(0.25 0.03 258)", "oklch(0.36 0.03 258)", "oklch(0.50 0.03 258)", "oklch(0.65 0.03 258)", "oklch(0.80 0.02 258)", "oklch(0.95 0.01 258)"]
+      },
+      "violet": {
+        "role": "primary",
+        "displayName": "Aurora Violet",
+        "canonical": "oklch(0.62 0.21 300)",
+        "tonalRamp": ["oklch(0.20 0.12 300)", "oklch(0.30 0.16 300)", "oklch(0.40 0.19 300)", "oklch(0.50 0.21 300)", "oklch(0.62 0.21 300)", "oklch(0.72 0.17 300)", "oklch(0.80 0.13 300)", "oklch(0.92 0.05 300)"]
+      },
+      "violet-text": {
+        "role": "primary",
+        "displayName": "Lifted Violet",
+        "canonical": "oklch(0.80 0.13 300)",
+        "tonalRamp": ["oklch(0.25 0.10 300)", "oklch(0.35 0.12 300)", "oklch(0.45 0.13 300)", "oklch(0.55 0.13 300)", "oklch(0.65 0.13 300)", "oklch(0.80 0.13 300)", "oklch(0.88 0.09 300)", "oklch(0.95 0.04 300)"]
+      },
+      "aurora-green": {
+        "role": "secondary",
+        "displayName": "Aurora Green (light only)",
+        "canonical": "oklch(0.82 0.19 165)",
+        "tonalRamp": ["oklch(0.22 0.08 165)", "oklch(0.32 0.11 165)", "oklch(0.44 0.14 165)", "oklch(0.56 0.17 165)", "oklch(0.68 0.19 165)", "oklch(0.82 0.19 165)", "oklch(0.90 0.13 165)", "oklch(0.96 0.06 165)"]
+      },
+      "aurora-rose": {
+        "role": "secondary",
+        "displayName": "Aurora Rose (light only)",
+        "canonical": "oklch(0.72 0.16 350)",
+        "tonalRamp": ["oklch(0.20 0.09 350)", "oklch(0.30 0.11 350)", "oklch(0.42 0.13 350)", "oklch(0.54 0.15 350)", "oklch(0.64 0.16 350)", "oklch(0.72 0.16 350)", "oklch(0.84 0.10 350)", "oklch(0.94 0.04 350)"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(0.96 0.01 250)",
+        "tonalRamp": ["oklch(0.15 0.01 250)", "oklch(0.30 0.01 250)", "oklch(0.45 0.01 250)", "oklch(0.60 0.02 250)", "oklch(0.74 0.02 250)", "oklch(0.85 0.01 250)", "oklch(0.96 0.01 250)", "oklch(0.99 0.005 250)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display (Clash Display)", "purpose": "Landing h1 only; inner pages cap ≈2.6rem." },
+      "body": { "displayName": "Body (Satoshi)", "purpose": "Everything a Member reads or operates; prose ≤70ch." }
+    },
+    "shadows": [
+      { "name": "panel-ambient", "value": "inset 0 1px 0 oklch(0.70 0.06 290 / 0.28), 0 18px 48px oklch(0.05 0.02 250 / 0.5)", "purpose": "Standard panel: lit top rim + deep soft ground shadow." },
+      { "name": "violet-glow", "value": "0 0 32px oklch(0.62 0.21 300 / 0.45)", "purpose": "Primary button hover — elevation as light." }
+    ],
+    "motion": [
+      { "name": "ease-drift", "value": "cubic-bezier(0.2, 0.7, 0.2, 1)", "purpose": "Default easing for reveals, lifts, and transitions." },
+      { "name": "state-transition", "value": "150ms–250ms", "purpose": "In-app state changes; no choreography inside the app." },
+      { "name": "shader-cycle", "value": "~55s hue cycle / ~70s breath", "purpose": "The aurora's ambient rhythm; the only continuous motion besides the dashboard shimmer." }
+    ],
+    "breakpoints": [
+      { "name": "band-collapse", "value": "720px" },
+      { "name": "kb-two-col", "value": "860px" },
+      { "name": "dash-two-col", "value": "900px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one violet action; night-deep text because white-on-violet fails AA.",
+      "html": "<button class=\"ds-btn-primary\">Accept invitation</button>",
+      "css": ".ds-btn-primary { display: inline-block; font: 700 1rem 'Satoshi', system-ui, sans-serif; padding: 0.75rem 1.7rem; border-radius: 999px; border: 1px solid transparent; cursor: pointer; background: oklch(0.62 0.21 300); color: oklch(0.10 0.03 250); transition: transform 0.25s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.25s ease, background-color 0.25s ease; } .ds-btn-primary:hover { background: oklch(0.68 0.20 300); box-shadow: 0 0 32px oklch(0.62 0.21 300 / 0.45); transform: translateY(-1px); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(0.80 0.13 300); outline-offset: 3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action: transparent with a lit edge.",
+      "html": "<button class=\"ds-btn-ghost\">Sign in</button>",
+      "css": ".ds-btn-ghost { display: inline-block; font: 500 1rem 'Satoshi', system-ui, sans-serif; padding: 0.75rem 1.7rem; border-radius: 999px; background: transparent; color: oklch(0.96 0.01 250); border: 1px solid oklch(0.70 0.06 290 / 0.28); cursor: pointer; transition: border-color 0.25s ease; } .ds-btn-ghost:hover { border-color: oklch(0.80 0.13 300); } .ds-btn-ghost:focus-visible { outline: 2px solid oklch(0.80 0.13 300); outline-offset: 3px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A darker-than-night well with a violet focus ring.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-label\" for=\"ds-in\">Email</label><input class=\"ds-input\" id=\"ds-in\" type=\"email\" placeholder=\"you@example.com\"></div>",
+      "css": ".ds-field { display: grid; gap: 0.35rem; } .ds-label { font: 500 0.95rem 'Satoshi', system-ui, sans-serif; color: oklch(0.96 0.01 250); } .ds-input { font: 400 1rem 'Satoshi', system-ui, sans-serif; color: oklch(0.96 0.01 250); background: oklch(0.11 0.03 252); border: 1px solid oklch(0.42 0.05 290 / 0.35); border-radius: 9px; padding: 0.7rem 0.9rem; } .ds-input::placeholder { color: oklch(0.62 0.02 260); } .ds-input:focus-visible { outline: 2px solid oklch(0.80 0.13 300); outline-offset: 1px; border-color: transparent; }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Glass, earned: near-opaque night with a 1px lit edge and top rim. Never blurred.",
+      "html": "<div class=\"ds-panel\"><h3 class=\"ds-panel-title\">Plex</h3><p class=\"ds-panel-body\">Movies and shows, streamed from the rack downstairs.</p></div>",
+      "css": ".ds-panel { background: oklch(0.17 0.03 258 / 0.92); border: 1px solid oklch(0.42 0.05 290 / 0.35); border-radius: 14px; padding: 1.4rem 1.5rem; box-shadow: inset 0 1px 0 oklch(0.70 0.06 290 / 0.28), 0 18px 48px oklch(0.05 0.02 250 / 0.5); } .ds-panel-title { font: 700 1.2rem 'Clash Display', 'Avenir Next', sans-serif; color: oklch(0.96 0.01 250); margin: 0 0 0.55rem; } .ds-panel-body { font: 400 0.95rem/1.6 'Satoshi', system-ui, sans-serif; color: oklch(0.74 0.02 250); margin: 0; }"
+    },
+    {
+      "name": "Nav Item",
+      "kind": "nav",
+      "description": "Muted → ink on hover; the current page earns a 2px violet underline.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\" class=\"ds-nav-link\" aria-current=\"page\">Dashboard</a><a href=\"#\" class=\"ds-nav-link\">Knowledge base</a><a href=\"#\" class=\"ds-nav-link\">Newsletter</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 1.4rem; } .ds-nav-link { font: 500 0.95rem 'Satoshi', system-ui, sans-serif; color: oklch(0.74 0.02 250); text-decoration: none; padding: 0.25rem 0.1rem; border-bottom: 2px solid transparent; } .ds-nav-link:hover { color: oklch(0.96 0.01 250); } .ds-nav-link[aria-current] { color: oklch(0.96 0.01 250); border-bottom-color: oklch(0.62 0.21 300); } .ds-nav-link:focus-visible { outline: 2px solid oklch(0.80 0.13 300); outline-offset: 3px; border-radius: 2px; }"
+    },
+    {
+      "name": "Chip / Pill",
+      "kind": "chip",
+      "description": "KB most-read links and compact affordances; hover lifts the edge.",
+      "html": "<a href=\"#\" class=\"ds-chip\">Fixing playback buffering</a>",
+      "css": ".ds-chip { display: inline-block; padding: 0.5rem 1.05rem; border: 1px solid oklch(0.42 0.05 290 / 0.35); border-radius: 999px; background: oklch(0.17 0.03 258 / 0.92); font: 400 0.92rem 'Satoshi', system-ui, sans-serif; color: oklch(0.80 0.13 300); text-decoration: none; } .ds-chip:hover { color: oklch(0.96 0.01 250); border-color: oklch(0.70 0.06 290 / 0.28); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Living Sky",
+    "overview": "The portal is a sky phenomenon: curtains of aurora light breathing behind glass-dark surfaces, running the whole session and never competing with the content. The sky is loud only where there is nothing to read (the landing), and nearly subliminal where reading matters (the Knowledge Base). UI chrome stays night-and-ink; one violet is the only actionable color; the full aurora spectrum exists only inside the light. Voice: warm, dry, trusting — Members already belong; nothing is sold, nothing shouts.",
+    "keyCharacteristics": [
+      "A live WebGL aurora behind every page, throttled per-page from full theater (landing, 1.0) to a subliminal whisper (KB, 0.1)",
+      "Glass-dark, near-opaque panels with 1px lit edges — \"glass, earned\"",
+      "Night + ink chrome; violet as the single actionable voice",
+      "Personal, not corporate; warm, not saccharine; polish over decoration"
+    ],
+    "rules": [
+      { "name": "The One Voice Rule", "body": "Violet is the only chromatic color in UI chrome. If a screen seems to need a second color, that's a deliberate design decision to escalate — never an ad-hoc hue.", "section": "colors" },
+      { "name": "The Light-Only Rule", "body": "Green and rose belong to the aurora and the email gradients. The moment either appears on a button, badge, or label, it's a bug.", "section": "colors" },
+      { "name": "The Colorblind-Safe State Rule", "body": "State is never encoded by red-vs-green hue alone — status is a plain-ink text label with an icon or glyph. The violet shimmer is texture on top of the label, never the message.", "section": "colors" },
+      { "name": "The Sky-Voice Rule", "body": "Clash Display never sets body copy, buttons, inputs, or data — it marks names and moments. Satoshi carries everything a Member actually reads or operates.", "section": "typography" },
+      { "name": "The One Blur Rule", "body": "backdrop-filter: blur(14px) exists in exactly one place: the sticky nav. Panels are never blurred; glass is earned, not sprinkled.", "section": "elevation" },
+      { "name": "The Scrim Rule", "body": "Ink is never asked to fight the light. If text sits over the sky, it gets a scrim (global gradient or local pool) before it gets a contrast complaint.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep UI chrome night + ink with Aurora Violet as the only actionable color; let green and rose live exclusively inside the shader and the email gradients.",
+      "Do set primary buttons as night-deep text on violet (≈7:1) — white-on-violet fails AA.",
+      "Do throttle the sky per page: 1.0 landing, 0.7 invite, 0.25 app, 0.1 KB — loud only where there's nothing to read.",
+      "Do ship the full shader fallback chain every time: no-WebGL static gradient, reduced-motion single frame, hidden-tab pause.",
+      "Do guarantee text contrast with the scrim system (global gradient + local pools); body text clears 4.5:1 everywhere, always.",
+      "Do pair state with a text label (and icon/glyph) so red-green-colorblind Members are never left guessing — the shimmer is texture, not the message.",
+      "Do keep panels near-opaque with 1px lit edges; reserve backdrop blur for the sticky nav alone."
+    ],
+    "donts": [
+      "Don't use green or rose in UI chrome, badges, status, or text — the Light-Only Rule. And don't encode success/error as green-vs-red, ever.",
+      "Don't default to the \"media server → Plex amber/gold\" palette; the wonder is the polar sky, not Plex's brand.",
+      "Don't let it read as corporate SaaS, sterile enterprise-admin gray, or an acquisition funnel aimed at strangers. These are Members, not leads.",
+      "Don't be too friendly, pedantic, cluttered, or loud — no cutesy mascots, exclamation-point copy, gradient shouting, or option-walls.",
+      "Don't put Clash Display on body copy, buttons, inputs, or data — the Sky-Voice Rule.",
+      "Don't blur panels, stack decorative glass, or add continuous motion beyond the shader and the shimmer; no orchestrated page-load sequences inside the app.",
+      "Don't run the shader in email — the aurora band there is the pre-baked CSS gradient, table-safe.",
+      "Don't use muted (oklch(0.74 0.02 250)) for body prose; it's for secondary text only."
+    ]
+  }
+}
