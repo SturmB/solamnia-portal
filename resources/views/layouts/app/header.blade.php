@@ -19,8 +19,9 @@
 
         <x-app-logo href="{{ route('dashboard') }}" wire:navigate />
 
-        {{-- :current drives the violet underline via the accent token. --}}
-        <flux:navbar class="-mb-px max-lg:hidden">
+        {{-- :current drives the violet underline via the accent token.
+             ms-8 keeps the nav off the wordmark's shoulder. --}}
+        <flux:navbar class="-mb-px ms-8 max-lg:hidden">
             <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                 wire:navigate>
                 {{ __('Dashboard') }}
