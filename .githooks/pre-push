@@ -1,14 +1,13 @@
 #!/usr/bin/env sh
 #
-# Run the slower correctness checks before code leaves the machine:
-# static analysis + the full test suite. Formatting is already handled at commit.
+# Mirror the CI gate before code leaves the machine: style check + static
+# analysis + the full test suite. `composer test` is the single source of
+# truth CI also runs, so a green push means a green PR. Running lint:check
+# here (not just at commit) catches style debt that skipped the pre-commit
+# formatter, e.g. --no-verify commits or pre-existing files.
 
 set -e
 
-echo "→ PHPStan"
-composer stan
-
-echo "→ Tests"
-php artisan test
+composer test
 
 exit 0
