@@ -18,7 +18,7 @@
             {{-- Pre-baked echo of the aurora shader (never the shader itself): curtain
                  radials under two faint ray stripings, over a grounding fade. Clients
                  without <style> support keep the solid night the section carries inline. --}}
-            .sky-band, .sky-band table {
+            .sky-band > table {
             background:
             linear-gradient(180deg, rgba(2, 7, 19, 0) 42%, rgba(2, 7, 19, 0.78)),
             repeating-linear-gradient(94deg,
