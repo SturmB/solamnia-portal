@@ -118,7 +118,7 @@
     "northStar": "The Living Sky",
     "overview": "The portal is a sky phenomenon: curtains of aurora light breathing behind glass-dark surfaces, running the whole session and never competing with the content. The sky is loud only where there is nothing to read (the landing), and nearly subliminal where reading matters (the Knowledge Base). UI chrome stays night-and-ink; one violet is the only actionable color; the full aurora spectrum exists only inside the light. Voice: warm, dry, trusting — Members already belong; nothing is sold, nothing shouts.",
     "keyCharacteristics": [
-      "A live WebGL aurora behind every page, throttled per-page from full theater (landing, 1.0) to a subliminal whisper (KB, 0.1)",
+      "A live WebGL aurora behind the app, throttled per-page (0.25 app, 0.1 KB); brand surfaces (landing, invite) get the velvet-curtain video + warm spotlight instead — outside is velvet, inside is sky",
       "Glass-dark, near-opaque panels with 1px lit edges — \"glass, earned\"",
       "Night + ink chrome; violet as the single actionable voice",
       "Personal, not corporate; warm, not saccharine; polish over decoration"
@@ -134,7 +134,7 @@
     "dos": [
       "Do keep UI chrome night + ink with Aurora Violet as the only actionable color; let green and rose live exclusively inside the shader and the email gradients.",
       "Do set primary buttons as night-deep text on violet (≈7:1) — white-on-violet fails AA.",
-      "Do throttle the sky per page: 1.0 landing, 0.7 invite, 0.25 app, 0.1 KB — loud only where there's nothing to read.",
+      "Do keep the split: velvet video + warm rose spotlight on brand surfaces (landing, invite); the aurora sky inside the app, throttled per page (0.25 app, 0.1 KB).",
       "Do ship the full shader fallback chain every time: no-WebGL static gradient, reduced-motion single frame, hidden-tab pause.",
       "Do guarantee text contrast with the scrim system (global gradient + local pools); body text clears 4.5:1 everywhere, always.",
       "Do pair state with a text label (and icon/glyph) so red-green-colorblind Members are never left guessing — the shimmer is texture, not the message.",

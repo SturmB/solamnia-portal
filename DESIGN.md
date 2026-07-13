@@ -213,19 +213,33 @@ contrast complaint.
 
 ## 5. Components
 
-### The Aurora Shader (signature)
+### The Aurora Shader (signature — inside the house)
 A fullscreen fixed WebGL2 canvas at `z-index:-2`, rendered at half
 resolution: three curl-warped simplex-noise curtains, hue drifting
 green→violet→rose (~55s cycle, ~70s master breath). Dependency-free
 (`aurora.js`); mount once in the Blade layout, **outside any
 Livewire-morphed region**, and set intensity per route via
-`<body data-aurora>`: landing **1.0** · invite **0.7** · app pages **0.25** ·
-KB/prose **0.1**. Fallback chain: no WebGL2 → static CSS frozen-aurora
-gradient (same palette); `prefers-reduced-motion` → one static frame
-(t = 34.5s), re-rendered on resize only; hidden tab → rAF loop cancelled.
-Canvas is `aria-hidden`. Interactive elements may carry `data-pull` to aim a
-gentle exposure boost at themselves on hover/focus (eased ~0.06/frame —
-deliberately languid).
+`<body data-aurora>`: app pages **0.25** · KB/prose **0.1**. Pages without
+the attribute get no sky (auth utility pages stay plain). Fallback chain:
+no WebGL2 → static CSS frozen-aurora gradient (same palette);
+`prefers-reduced-motion` → one static frame (t = 34.5s), re-rendered on
+resize only; hidden tab → rAF loop cancelled. Canvas is `aria-hidden`.
+Interactive elements may carry `data-pull` to aim a gentle exposure boost
+at themselves on hover/focus (eased ~0.06/frame — deliberately languid).
+
+### The Velvet House (signature — brand surfaces)
+The two `brand`-register surfaces (public landing, invite acceptance) do
+not run the aurora; **outside is velvet, inside is sky.** Their ground is
+a seamless ~7s video loop of deep-violet stage drapes swaying gently
+(`public/media/velvet-loop.mp4`, poster `velvet-hero.webp` beneath, night
+scrim over), with a cursor-following spotlight — an 80vmin radial pool in
+warm rose lamplight (`oklch(0.84 0.10 340 / 0.11)`, sampled from the light
+falling on the drapes) lerping after the pointer (~140ms lag). Hero text
+sits in a local radial pool of night (the hero-scrim), never on a bare
+fold. Reduced-motion: still poster, no spotlight. Data-saver: video never
+downloads. Regenerating the loop: image-to-video from the poster frame,
+then crossfade the tail into the head (ffmpeg xfade) so the loop closes
+mathematically.
 
 ### Buttons
 - **Shape:** pill (999px radius), Satoshi 1rem.
