@@ -90,29 +90,44 @@ class Campaign extends Model
         }
 
         $sections = [];
+        $sawStory = false;
 
         for ($i = 0, $count = count($blocks); $i < $count; $i++) {
             $block = $blocks[$i];
+
+            // A hairline (the edge token) opens each new story after the first — a
+            // heading-led text block or a ### band. Images and continuation prose
+            // belong to the story above them, so they never carry a rule.
+            $startsStory = match ($block['kind']) {
+                'image' => false,
+                'story' => true,
+                default => (bool) preg_match('/^\s*<h[12]\b/i', $block['html']),
+            };
+            $rule = $startsStory && $sawStory
+                ? ' border-top="1px solid #1b1f30" padding-top="24px"'
+                : '';
+            $sawStory = $sawStory || $startsStory;
 
             if ($block['kind'] === 'image') {
                 $href = $block['href'] === null
                     ? ''
                     : sprintf(' href="%s"', htmlspecialchars($block['href'], ENT_QUOTES));
                 $sections[] = sprintf(
-                    '<mj-section><mj-column><mj-image fluid-on-mobile="true" border-radius="10px" src="%s" alt="%s"%s /></mj-column></mj-section>',
+                    '<mj-section%s><mj-column><mj-image fluid-on-mobile="true" border-radius="10px" src="%s" alt="%s"%s /></mj-column></mj-section>',
+                    $rule,
                     htmlspecialchars($block['src'], ENT_QUOTES),
                     htmlspecialchars($block['alt'], ENT_QUOTES),
                     $href,
                 );
             } elseif ($block['kind'] === 'story' && ($blocks[$i + 1]['kind'] ?? null) === 'story') {
-                $sections[] = '<mj-section>'
+                $sections[] = "<mj-section{$rule}>"
                     ."<mj-column padding-right=\"10px\"><mj-text>{$block['html']}</mj-text></mj-column>"
                     ."<mj-column padding-left=\"10px\"><mj-text>{$blocks[$i + 1]['html']}</mj-text></mj-column>"
                     .'</mj-section>';
                 $i++;
             } else {
                 // plain flow, or a ### story with no partner — full width either way
-                $sections[] = "<mj-section><mj-column><mj-text>{$block['html']}</mj-text></mj-column></mj-section>";
+                $sections[] = "<mj-section{$rule}><mj-column><mj-text>{$block['html']}</mj-text></mj-column></mj-section>";
             }
         }
 

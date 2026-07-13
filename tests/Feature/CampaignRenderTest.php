@@ -82,3 +82,32 @@ it('pairs consecutive ### stories into a two-column row while the lead story sta
     // exactly one two-column row: both columns of the pair, nothing else halved
     expect(substr_count($html, 'class="mj-column-per-50'))->toBe(2);
 });
+
+it('rules a hairline before each new story after the first, but not before the first or between a story and its own image', function () {
+    $campaign = Campaign::factory()->make([
+        'body_markdown' => implode("\n\n", [
+            '## The vault doubled',
+            'Lead prose.',
+            '![The rack](https://solamnia.tv/img/rack.webp)',      // the lead story's own image — no rule
+            'Continuation prose, still the vault story.',
+            '### Immich learned faces',                             // a new story band → ruled
+            'Name the faces it found.',
+            '### Movie night, democratized',
+            'Overseerr is open to everyone.',
+        ]),
+    ]);
+
+    $html = $campaign->renderHtml();
+
+    // one hairline only: above the two-column story band, none above the lead or its image
+    expect(substr_count($html, 'border-top:1px solid #1b1f30'))->toBe(1);
+});
+
+it('rules a hairline between consecutive full-width stories', function () {
+    $campaign = Campaign::factory()->make([
+        'body_markdown' => "## First story\n\nProse one.\n\n## Second story\n\nProse two.\n\n## Third story\n\nProse three.",
+    ]);
+
+    // two dividers for three stories (before the 2nd and 3rd), none before the 1st
+    expect(substr_count($campaign->renderHtml(), 'border-top:1px solid #1b1f30'))->toBe(2);
+});
