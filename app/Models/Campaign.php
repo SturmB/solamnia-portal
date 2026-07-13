@@ -95,10 +95,14 @@ class Campaign extends Model
             $block = $blocks[$i];
 
             if ($block['kind'] === 'image') {
+                $href = $block['href'] === null
+                    ? ''
+                    : sprintf(' href="%s"', htmlspecialchars($block['href'], ENT_QUOTES));
                 $sections[] = sprintf(
-                    '<mj-section><mj-column><mj-image fluid-on-mobile="true" border-radius="10px" src="%s" alt="%s" /></mj-column></mj-section>',
+                    '<mj-section><mj-column><mj-image fluid-on-mobile="true" border-radius="10px" src="%s" alt="%s"%s /></mj-column></mj-section>',
                     htmlspecialchars($block['src'], ENT_QUOTES),
                     htmlspecialchars($block['alt'], ENT_QUOTES),
+                    $href,
                 );
             } elseif ($block['kind'] === 'story' && ($blocks[$i + 1]['kind'] ?? null) === 'story') {
                 $sections[] = '<mj-section>'
@@ -116,7 +120,10 @@ class Campaign extends Model
     }
 
     /**
-     * @return array{src: string, alt: string}|null
+     * Matches a paragraph whose sole content is an image — bare (`![…](…)`) or
+     * wrapped in one link (`[![…](…)](…)`).
+     *
+     * @return array{src: string, alt: string, href: string|null}|null
      */
     private function standaloneImage(Element $node): ?array
     {
@@ -124,16 +131,32 @@ class Campaign extends Model
             return null;
         }
 
-        $children = iterator_to_array($node->childNodes);
-        $elements = array_values(array_filter($children, fn ($child): bool => $child instanceof Element));
+        $element = $this->soleElementChild($node);
+        $href = null;
 
-        if (count($elements) !== 1 || strtolower($elements[0]->localName) !== 'img') {
+        if ($element !== null && strtolower($element->localName) === 'a') {
+            $href = $element->getAttribute('href');
+            $element = $this->soleElementChild($element);
+        }
+
+        if ($element === null || strtolower($element->localName) !== 'img') {
             return null;
         }
 
         return [
-            'src' => $elements[0]->getAttribute('src') ?? '',
-            'alt' => $elements[0]->getAttribute('alt') ?? '',
+            'src' => $element->getAttribute('src') ?? '',
+            'alt' => $element->getAttribute('alt') ?? '',
+            'href' => $href,
         ];
+    }
+
+    private function soleElementChild(Element $node): ?Element
+    {
+        $elements = array_values(array_filter(
+            iterator_to_array($node->childNodes),
+            fn ($child): bool => $child instanceof Element,
+        ));
+
+        return count($elements) === 1 ? $elements[0] : null;
     }
 }

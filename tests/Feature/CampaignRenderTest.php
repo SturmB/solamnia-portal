@@ -46,6 +46,19 @@ it('promotes a standalone image paragraph to a full-width fluid image block', fu
         ->toContain('More room for 4K');            // surrounding prose still renders
 });
 
+it('promotes a linked standalone image to a full-width image block that keeps its link', function () {
+    $campaign = Campaign::factory()->make([
+        'body_markdown' => "Intro.\n\n[![The rack](https://solamnia.tv/img/rack.webp)](https://solamnia.tv/kb/vault)\n\nOutro.",
+    ]);
+
+    $html = $campaign->renderHtml();
+
+    expect($html)
+        ->toContain('src="https://solamnia.tv/img/rack.webp"')
+        ->toContain('width="536"')                              // full-width block, not inline prose
+        ->toMatch('/<a\s+href="https:\/\/solamnia\.tv\/kb\/vault"[^>]*>\s*<img/');  // link survives around the image
+});
+
 it('pairs consecutive ### stories into a two-column row while the lead story stays full-width', function () {
     $campaign = Campaign::factory()->make([
         'body_markdown' => implode("\n\n", [
