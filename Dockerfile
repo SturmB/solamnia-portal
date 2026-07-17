@@ -15,7 +15,7 @@ RUN composer install \
       --prefer-dist --optimize-autoloader
 
 # ── Stage 2: front-end assets (Vite + Tailwind v4) ──────────────────────────
-FROM node:22-slim AS assets
+FROM node:24-slim AS assets
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -31,7 +31,7 @@ RUN install-php-extensions intl
 # Campaign emails render MJML by shelling out to Node at REQUEST time
 # (Spatie\Mjml runs node_modules/mjml). Ship a real `node` binary — the renderer
 # searches PATH, which includes /usr/local/bin.
-COPY --from=node:22-slim /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:24-slim /usr/local/bin/node /usr/local/bin/node
 RUN node -v
 
 WORKDIR /var/www/html
