@@ -12,7 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // The portal is only reachable through the Cloudflare Tunnel, which
+        // terminates TLS and forwards to the container over http. Trust its
+        // X-Forwarded-* headers so the app sees the real https scheme — signed
+        // unsubscribe / view-in-browser links validate only if it does.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
