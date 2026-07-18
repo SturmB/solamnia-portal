@@ -1,0 +1,61 @@
+name: solamnia-portal
+
+services:
+    # Web app: php-fpm + nginx, reached only through the Cloudflare Tunnel.
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: solamnia-portal:latest
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            # serversideup Laravel automations, on every boot: migrate --force,
+            # storage:link, and config/route/view cache (re-caches after .env edits).
+            AUTORUN_ENABLED: "true"
+            # Belt-and-suspenders for the MJML renderer's `node` lookup.
+            MJML_NODE_PATH: /usr/local/bin
+        ports:
+            # Point the Cloudflare Tunnel ingress at http://<homelab-host>:${APP_PORT}.
+            - "${APP_PORT:-8080}:8080"
+        volumes:
+            - storage-public:/var/www/html/storage/app/public
+        depends_on:
+            mysql:
+                condition: service_healthy
+
+    # The send mechanism: a foreground scheduler loop that runs schedule:run every
+    # minute (drives campaigns:send-due). Overriding entrypoint skips the web
+    # server and the migrate-on-boot automation, so only `app` ever migrates.
+    scheduler:
+        image: solamnia-portal:latest
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            MJML_NODE_PATH: /usr/local/bin
+        entrypoint: ["php", "artisan", "schedule:work"]
+        depends_on:
+            app:
+                condition: service_started
+            mysql:
+                condition: service_healthy
+
+    mysql:
+        image: mysql:8.4
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: "${DB_DATABASE}"
+            MYSQL_USER: "${DB_USERNAME}"
+            MYSQL_PASSWORD: "${DB_PASSWORD}"
+            MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+        volumes:
+            - db-data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+            interval: 10s
+            timeout: 5s
+            retries: 12
+
+volumes:
+    db-data:
+    storage-public:

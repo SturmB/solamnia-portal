@@ -1,0 +1,37 @@
+# Rebuilt or copied from dedicated build stages
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+
+# Never bake secrets or local env into the image
+.env
+.env.*
+
+# Local/runtime state
+# Never ship the cached package/service manifest — it points at dev-only
+# providers (Boost, Pail, …). Laravel rebuilds it at runtime from prod deps.
+/bootstrap/cache/*.php
+/storage/logs/*.log
+/storage/pail
+/.phpunit.cache
+.phpunit.result.cache
+
+# VCS, CI, tests, and dev/agent tooling — not needed at runtime
+/.git
+/.github
+/.githooks
+/tests
+/docs
+/.ai
+/.agents
+/.claude
+/.codex
+/.cursor
+/.junie
+/.vscode
+/.zed
+/.fleet
+/.nova
+/.impeccable
