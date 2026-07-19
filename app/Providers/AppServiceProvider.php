@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -32,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
+
+        // Store timestamps in UTC (app timezone) but display/enter them as Eastern in
+        // Filament — date pickers and columns render in this zone; the DB stays UTC.
+        FilamentTimezone::set('America/Louisville');
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
