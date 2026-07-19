@@ -15,9 +15,13 @@ services:
             AUTORUN_ENABLED: "true"
             # Belt-and-suspenders for the MJML renderer's `node` lookup.
             MJML_NODE_PATH: /usr/local/bin
-        ports:
-            # Point the Cloudflare Tunnel ingress at http://<homelab-host>:${APP_PORT}.
-            - "${APP_PORT:-8080}:8080"
+        # No published host port — the portal is reachable only through the Cloudflare
+        # Tunnel, which resolves the `portal` alias on the shared `solamnia` network.
+        networks:
+            default: {}
+            solamnia:
+                aliases:
+                    - portal
         volumes:
             - storage-public:/var/www/html/storage/app/public
         depends_on:
@@ -59,3 +63,10 @@ services:
 volumes:
     db-data:
     storage-public:
+
+networks:
+    # Pre-existing external network shared with the cloudflared stack, so the tunnel
+    # reaches this app by the `portal` alias with no published host port.
+    solamnia:
+        external: true
+        name: solamnia
