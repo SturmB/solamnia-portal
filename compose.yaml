@@ -44,6 +44,11 @@ services:
         environment:
             MJML_NODE_PATH: /usr/local/bin
         entrypoint: ["php", "artisan", "schedule:work"]
+        # This container runs only the scheduler loop — no web server — so the base
+        # image's HTTP healthcheck (curls localhost:8080/up) can never pass. Disable it
+        # to avoid a permanent false "unhealthy". `restart: unless-stopped` still covers crashes.
+        healthcheck:
+            disable: true
         depends_on:
             app:
                 condition: service_started
