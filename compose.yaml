@@ -32,6 +32,12 @@ services:
     # minute (drives campaigns:send-due). Overriding entrypoint skips the web
     # server and the migrate-on-boot automation, so only `app` ever migrates.
     scheduler:
+        # Same build as `app` so the image is built locally, never pulled — some
+        # compose versions try to pull an `image:`-only service from a registry
+        # (which fails for this local-only tag). Compose dedupes the shared build.
+        build:
+            context: .
+            dockerfile: Dockerfile
         image: solamnia-portal:latest
         restart: unless-stopped
         env_file: .env
