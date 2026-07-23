@@ -61,8 +61,10 @@ services:
         # Bound to the host loopback only — reachable on the box itself and via an
         # SSH tunnel (e.g. a DB client's SSH-tunnel feature), never advertised to the
         # LAN. The app still talks to it over the Docker network as host `mysql`.
+        # Host port 3307 (not 3306): another stack's `mariadb` already owns 3306 on
+        # the host. Inside the container MySQL still listens on 3306.
         ports:
-            - "127.0.0.1:3306:3306"
+            - "127.0.0.1:3307:3306"
         environment:
             MYSQL_DATABASE: "${DB_DATABASE}"
             MYSQL_USER: "${DB_USERNAME}"
