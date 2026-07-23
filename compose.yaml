@@ -58,6 +58,11 @@ services:
     mysql:
         image: mysql:8.4
         restart: unless-stopped
+        # Bound to the host loopback only — reachable on the box itself and via an
+        # SSH tunnel (e.g. a DB client's SSH-tunnel feature), never advertised to the
+        # LAN. The app still talks to it over the Docker network as host `mysql`.
+        ports:
+            - "127.0.0.1:3306:3306"
         environment:
             MYSQL_DATABASE: "${DB_DATABASE}"
             MYSQL_USER: "${DB_USERNAME}"
