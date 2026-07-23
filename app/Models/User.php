@@ -26,12 +26,11 @@ class User extends Authenticatable implements FilamentUser, PasskeyUser
     /**
      * Filament requires this in production — without it the panel 403s every user.
      *
-     * ponytail: single-admin, invite-gated portal, so allow any authenticated user for now.
-     * Tighten to an is_admin/role check before regular members get accounts (see issue).
+     * Admins only: members federate via Authelia/LLDAP (ADR-0001) and never use the panel.
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        return $this->is_admin;
     }
 
     /**
@@ -44,6 +43,7 @@ class User extends Authenticatable implements FilamentUser, PasskeyUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
