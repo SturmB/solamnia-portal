@@ -67,7 +67,7 @@
             "pint --parallel --test"
         ],
         "stan": [
-            "phpstan analyse --memory-limit=512M"
+            "phpstan analyse --memory-limit=1G"
         ],
         "test": [
             "@php artisan config:clear --ansi",
