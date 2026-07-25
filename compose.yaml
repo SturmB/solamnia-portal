@@ -26,6 +26,12 @@ services:
             # serversideup Laravel automations, on every boot: migrate --force,
             # storage:link, and config/route/view cache (re-caches after .env edits).
             AUTORUN_ENABLED: "true"
+            # Compile PHP once instead of on every request. Safe here because code
+            # only ever changes by deploying a new image, never in place — so a
+            # stale cache isn't reachable. `scheduler` doesn't set this: its work
+            # is short-lived CLI subprocesses, which need opcache.enable_cli and
+            # would gain little.
+            PHP_OPCACHE_ENABLE: "1"
             # Belt-and-suspenders for the MJML renderer's `node` lookup.
             MJML_NODE_PATH: /usr/local/bin
         # No published host port — the portal is reachable only through the Cloudflare
