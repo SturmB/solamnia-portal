@@ -1,11 +1,16 @@
 name: solamnia-portal
 
-# The image is built by CI (.github/workflows/docker.yml) and pulled from GHCR —
-# no source checkout or build toolchain needed on the host.
+# The image is built by CI (.github/workflows/docker.yml) and pulled from GHCR, so
+# the host needs no source checkout and no build toolchain: the Dockge stack dir
+# holds only this file plus .env, the same shape as every other stack on the box.
 #   Deploy:   docker compose pull && docker compose up -d
 #   Rollback: pin the previous immutable tag on both services
 #             (ghcr.io/sturmb/solamnia-portal:sha-<short-sha>, listed on the
 #             GHCR package page), then pull && up -d again.
+#   Sync:     this repo is canonical for this file — edit it here, never in
+#             Dockge's UI, or the two copies diverge with no history. Pull it onto
+#             the host with:
+#             curl -O https://raw.githubusercontent.com/SturmB/solamnia-portal/main/compose.yaml
 # No `docker login ghcr.io` needed: the package inherited this repo's public
 # visibility, so the host pulls anonymously. If the repo is ever made private the
 # package follows, and the host then needs one `docker login ghcr.io` with a
