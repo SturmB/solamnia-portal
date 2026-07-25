@@ -1,12 +1,19 @@
 name: solamnia-portal
 
+# The image is built by CI (.github/workflows/docker.yml) and pulled from GHCR —
+# no source checkout or build toolchain needed on the host.
+#   Deploy:   docker compose pull && docker compose up -d
+#   Rollback: pin the previous immutable tag on both services
+#             (ghcr.io/sturmb/solamnia-portal:sha-<short-sha>, listed on the
+#             GHCR package page), then pull && up -d again.
+# While the GHCR package is private the host must authenticate once:
+#   docker login ghcr.io  — username: GitHub username, password: a classic PAT
+#   with only the read:packages scope. (Unnecessary if the package is made public.)
+
 services:
     # Web app: php-fpm + nginx, reached only through the Cloudflare Tunnel.
     app:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        image: solamnia-portal:latest
+        image: ghcr.io/sturmb/solamnia-portal:latest
         restart: unless-stopped
         env_file: .env
         environment:
@@ -32,13 +39,8 @@ services:
     # minute (drives campaigns:send-due). Overriding entrypoint skips the web
     # server and the migrate-on-boot automation, so only `app` ever migrates.
     scheduler:
-        # Same build as `app` so the image is built locally, never pulled — some
-        # compose versions try to pull an `image:`-only service from a registry
-        # (which fails for this local-only tag). Compose dedupes the shared build.
-        build:
-            context: .
-            dockerfile: Dockerfile
-        image: solamnia-portal:latest
+        # Same pulled image as `app`, just a different entrypoint.
+        image: ghcr.io/sturmb/solamnia-portal:latest
         restart: unless-stopped
         env_file: .env
         environment:
