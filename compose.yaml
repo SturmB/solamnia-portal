@@ -28,9 +28,11 @@ services:
             AUTORUN_ENABLED: "true"
             # Compile PHP once instead of on every request. Safe here because code
             # only ever changes by deploying a new image, never in place — so a
-            # stale cache isn't reachable. `scheduler` doesn't set this: its work
-            # is short-lived CLI subprocesses, which need opcache.enable_cli and
-            # would gain little.
+            # stale cache isn't reachable. `scheduler` deliberately omits this: it
+            # dispatches a fresh `artisan` process per run, and an OPcache built in
+            # one process dies with it, so there is nothing to reuse. (This var sets
+            # both opcache.enable and opcache.enable_cli, so the omission is the
+            # whole reason, not a missing second knob.)
             PHP_OPCACHE_ENABLE: "1"
             # Belt-and-suspenders for the MJML renderer's `node` lookup.
             MJML_NODE_PATH: /usr/local/bin
