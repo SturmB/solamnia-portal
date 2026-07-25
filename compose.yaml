@@ -6,9 +6,10 @@ name: solamnia-portal
 #   Rollback: pin the previous immutable tag on both services
 #             (ghcr.io/sturmb/solamnia-portal:sha-<short-sha>, listed on the
 #             GHCR package page), then pull && up -d again.
-# While the GHCR package is private the host must authenticate once:
-#   docker login ghcr.io  — username: GitHub username, password: a classic PAT
-#   with only the read:packages scope. (Unnecessary if the package is made public.)
+# No `docker login ghcr.io` needed: the package inherited this repo's public
+# visibility, so the host pulls anonymously. If the repo is ever made private the
+# package follows, and the host then needs one `docker login ghcr.io` with a
+# classic PAT scoped to read:packages only.
 
 services:
     # Web app: php-fpm + nginx, reached only through the Cloudflare Tunnel.
