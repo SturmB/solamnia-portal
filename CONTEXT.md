@@ -11,8 +11,13 @@ auth island — it federates identity to external SSO infrastructure.
 A person granted access to Solamnia's services by an Admin invitation.
 Membership is provider-agnostic — it means "the Admin invited you", not "you
 have a Plex account" — so it survives a media-server switch (Plex → Jellyfin).
-A Member's identity lives in LLDAP; login federates through Authelia.
-_Avoid_: user, friend, account.
+A Member's identity lives in LLDAP; login federates through Authelia. The grant
+is expressed mechanically as presence in the LLDAP **`members`** group — mere
+existence in the directory is not membership, since LLDAP is shared across the
+homelab and also holds service accounts (ADR-0004). The portal's local `users`
+row is a **shadow** of that identity, bound by `oidc_sub`, not a second roster.
+_Avoid_: user, friend, account. (The `users` table is infrastructure, not a
+domain concept — a Member is never called a user in prose.)
 
 **Subscriber**:
 An enrollment in the Newsletter, keyed by email — **one Subscriber per email
@@ -64,3 +69,44 @@ nothing sends**:
 2. Set `PUSHOVER_TOKEN` and `PUSHOVER_USER` (see `.env.example`) so the
    success/failure notification fires — the only signal that a send happened or
    that the cron has stopped.
+
+## Deploying SSO login
+
+SSO federates to infrastructure the portal does not own, so four steps are done
+**by hand** on the homelab before the code can work (see ADR-0004):
+
+1. **Create the LLDAP `members` group** and add every Member to it. Do not add
+   `admin` (directory superuser) or `authelia` (bind service account) — neither
+   is a person, and neither was invited.
+
+2. **Register the portal as an OIDC client** in Authelia's `configuration.yml`,
+   under `identity_providers.oidc.clients`:
+
+    ```yaml
+    - client_id: "solamnia-portal"
+      client_name: "Solamnia Portal"
+      client_secret: "<hash from: authelia crypto hash generate pbkdf2>"
+      public: false
+      authorization_policy: "one_factor"
+      redirect_uris:
+          - "https://solamnia.tv/auth/callback"
+      scopes: ["openid", "profile", "email", "groups"]
+      token_endpoint_auth_method: "client_secret_basic"
+    ```
+
+    The **`groups` scope is required** — without it the `members` gate cannot be
+    evaluated and every login fails closed. `redirect_uris` is a security
+    allowlist: register `solamnia.tv` only, and keep the plaintext secret in the
+    portal's `.env`, never in the repo.
+
+3. **Switch Authelia's notifier from `filesystem` to SMTP.** Left as
+   `filesystem`, password-reset mail is written to `/config/notification.txt`
+   instead of being sent — so a Member who cannot log in has no way to recover,
+   and Phase 3's invite flow cannot deliver. Resend already serves the portal's
+   mail and can carry this too.
+
+4. **Restart Authelia** so steps 2–3 take effect.
+
+The break-glass Admin login (local password, Fortify) is deliberately
+independent of all of the above: it lives at `/admin/login` and must keep
+working when Authelia does not. `/login` is SSO-only.
