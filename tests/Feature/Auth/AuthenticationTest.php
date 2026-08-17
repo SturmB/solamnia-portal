@@ -9,6 +9,26 @@ test('login screen can be rendered', function () {
     $response->assertOk();
 });
 
+test('a stranger can not register themselves', function () {
+    $this->get('/register')->assertNotFound();
+
+    $this->post('/register', [
+        'name' => 'Stranger',
+        'email' => 'stranger@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ])->assertNotFound();
+
+    $this->assertGuest();
+    $this->assertDatabaseMissing('users', ['email' => 'stranger@example.com']);
+});
+
+test('the login screen does not advertise self-registration', function () {
+    $response = $this->get(route('login'));
+
+    $response->assertDontSee('Sign up');
+});
+
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 
