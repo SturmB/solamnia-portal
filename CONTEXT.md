@@ -79,6 +79,14 @@ SSO federates to infrastructure the portal does not own, so four steps are done
    `admin` (directory superuser) or `authelia` (bind service account) — neither
    is a person, and neither was invited.
 
+    **Each existing Member's LLDAP email must match their portal row's email
+    before their first SSO login.** The email match is the one-shot bootstrap
+    that binds a directory identity to an existing row; if the addresses
+    differ, JIT provisioning quietly creates a fresh non-admin row instead —
+    learned the hard way when the Admin's mismatched email produced a
+    duplicate, non-admin account. (Deliberately fail-safe: mismatches
+    downgrade, never escalate.)
+
 2. **Register the portal as an OIDC client** in Authelia's `configuration.yml`,
    under `identity_providers.oidc.clients`:
 
@@ -91,8 +99,14 @@ SSO federates to infrastructure the portal does not own, so four steps are done
       redirect_uris:
           - "https://solamnia.tv/auth/callback"
       scopes: ["openid", "profile", "email", "groups"]
-      token_endpoint_auth_method: "client_secret_basic"
+      token_endpoint_auth_method: "client_secret_post"
     ```
+
+    `client_secret_post` is **required, not a preference**: Socialite sends
+    the client credentials in the token-request POST body, and Authelia
+    enforces the declared method strictly — registering `client_secret_basic`
+    (as the other homelab clients use) makes every token exchange fail with
+    a 401 and every login a 500.
 
     The **`groups` scope is required** — without it the `members` gate cannot be
     evaluated and every login fails closed. `redirect_uris` is a security
@@ -105,7 +119,15 @@ SSO federates to infrastructure the portal does not own, so four steps are done
    and Phase 3's invite flow cannot deliver. Resend already serves the portal's
    mail and can carry this too.
 
-4. **Restart Authelia** so steps 2–3 take effect.
+4. **Restart Authelia** so steps 2–3 take effect. This drops the sessions of
+   every federated service (Immich, Mealie, Audiobookshelf, Calibre-Web) —
+   pick the moment.
+
+On the portal side, set `AUTHELIA_BASE_URL` / `AUTHELIA_CLIENT_ID` /
+`AUTHELIA_CLIENT_SECRET` / `AUTHELIA_REDIRECT_URI` in the stack's `.env`, then
+`docker compose pull && docker compose up -d` — the `pull` is load-bearing:
+`up -d` alone recreates containers but never re-fetches a same-tag image, so
+the portal keeps running the previous release.
 
 The break-glass Admin login (local password, Fortify, with 2FA and passkeys)
 is deliberately independent of all of the above: it lives at `/backup/login`
