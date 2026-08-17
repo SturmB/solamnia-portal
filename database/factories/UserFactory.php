@@ -57,4 +57,15 @@ class UserFactory extends Factory
             'two_factor_confirmed_at' => now(),
         ]);
     }
+
+    /**
+     * A Member federated via Authelia: no local password, bound by oidc_sub.
+     */
+    public function sso(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'password' => null,
+            'oidc_sub' => fake()->uuid(),
+        ]);
+    }
 }

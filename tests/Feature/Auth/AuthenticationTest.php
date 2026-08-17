@@ -6,7 +6,9 @@ use Laravel\Fortify\Features;
 test('login screen can be rendered', function () {
     $response = $this->get(route('login'));
 
-    $response->assertOk();
+    $response->assertOk()
+        ->assertSee(__('Sign in with Solamnia'))
+        ->assertDontSee('type="password"', escape: false);
 });
 
 test('a stranger can not register themselves', function () {

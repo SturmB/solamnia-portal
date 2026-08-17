@@ -6,8 +6,11 @@ use Carbon\CarbonImmutable;
 use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use SocialiteProviders\Authelia\Provider as AutheliaProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('authelia', AutheliaProvider::class);
+        });
     }
 
     /**
