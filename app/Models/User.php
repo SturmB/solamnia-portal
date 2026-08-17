@@ -58,4 +58,13 @@ class User extends Authenticatable implements FilamentUser, PasskeyUser
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+
+    /**
+     * Whether this account can bypass SSO with a local password — the
+     * break-glass Admin. Federated Members have none (ADR-0004).
+     */
+    public function hasLocalPassword(): bool
+    {
+        return $this->password !== null;
+    }
 }

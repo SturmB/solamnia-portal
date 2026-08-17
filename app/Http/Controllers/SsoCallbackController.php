@@ -30,12 +30,21 @@ class SsoCallbackController extends Controller
         abort_unless(
             in_array('members', $claims->groups ?? [], true),
             403,
-            __('Your Solamnia account is not a Member of the portal. Contact the Admin.'),
+            __('You are not a Member of the portal. Contact the Admin.'),
         );
 
         $member = User::where('oidc_sub', $claims->getId())->first()
-            ?? User::whereNull('oidc_sub')->where('email', $claims->getEmail())->first()
+            ?? User::where('email', $claims->getEmail())->first()
             ?? new User;
+
+        // A row bound to a different subject is never re-bound by email —
+        // matching by email is a one-time bootstrap, not a standing key —
+        // and never duplicated: refuse instead of hitting the unique index.
+        abort_if(
+            $member->oidc_sub !== null && $member->oidc_sub !== $claims->getId(),
+            403,
+            __('This email address already belongs to another Member. Contact the Admin.'),
+        );
 
         if (! $member->exists) {
             // Stamped, not confirmed: the address was asserted by the Admin in

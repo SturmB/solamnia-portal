@@ -16,7 +16,7 @@ class RequiresLocalPassword
      */
     public function handle(Request $request, Closure $next): Response
     {
-        abort_if($request->user()?->password === null, 404);
+        abort_if(! $request->user()?->hasLocalPassword(), 404);
 
         return $next($request);
     }

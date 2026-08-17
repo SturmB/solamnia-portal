@@ -100,3 +100,17 @@ test('a member lands where they were going after signing in', function () {
     $this->get(route('auth.callback'))
         ->assertRedirect(route('profile.edit', absolute: false));
 });
+
+test('an email belonging to another bound member is refused, not duplicated', function () {
+    User::factory()->sso()->create([
+        'oidc_sub' => 'someone-else',
+        'email' => 'member@example.com',
+    ]);
+
+    Socialite::fake('authelia', autheliaUser());
+
+    $this->get(route('auth.callback'))->assertForbidden();
+
+    $this->assertGuest();
+    expect(User::count())->toBe(1);
+});

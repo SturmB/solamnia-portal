@@ -73,3 +73,12 @@ test('correct password must be provided to delete account', function () {
 
     expect($user->fresh())->not->toBeNull();
 });
+
+test('a passwordless member is not offered account deletion', function () {
+    $member = User::factory()->sso()->create();
+
+    $this->actingAs($member)
+        ->get(route('profile.edit'))
+        ->assertOk()
+        ->assertDontSee(__('Delete account'));
+});

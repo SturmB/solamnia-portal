@@ -38,6 +38,21 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(function (SocialiteWasCalled $event): void {
             $event->extendSocialite('authelia', AutheliaProvider::class);
         });
+
+        // Fortify also names its login view route 'login'. Lookup is
+        // first-wins, so our register() claim resolves correctly — but
+        // route:cache refuses to serialize duplicate names. Rename Fortify's
+        // once everything has booted; the break-glass form keeps working by
+        // URL and gains an honest name.
+        $this->app->booted(function (): void {
+            foreach (Route::getRoutes()->getRoutes() as $route) {
+                if ($route->getName() === 'login' && $route->uri() === 'backup/login') {
+                    $route->action['as'] = 'backup.login';
+                }
+            }
+
+            Route::getRoutes()->refreshNameLookups();
+        });
     }
 
     /**
