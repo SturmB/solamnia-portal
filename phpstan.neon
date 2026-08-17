@@ -6,3 +6,9 @@ parameters:
 
     paths:
         - app/
+
+    ignoreErrors:
+        # Both Concerns traits are used only by Livewire SFCs under
+        # resources/views/pages, which are Blade and so cannot be analyzed.
+        - identifier: trait.unused
+          path: app/Concerns/*
