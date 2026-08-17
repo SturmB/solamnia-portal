@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\RequiresLocalPassword;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -13,6 +14,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::livewire('settings/security', 'pages::settings.security')
         ->middleware([
+            RequiresLocalPassword::class,
             'password.confirm',
         ])
         ->name('security.edit');

@@ -20,3 +20,7 @@ test('a non-admin cannot access the admin panel', function (): void {
 
     expect($user->canAccessPanel($panel))->toBeFalse();
 });
+
+test('a guest reaching the panel is sent to the sso login, not the break-glass door', function (): void {
+    $this->get('/admin')->assertRedirect(route('login'));
+});

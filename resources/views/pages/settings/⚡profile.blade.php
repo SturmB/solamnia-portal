@@ -126,7 +126,9 @@ new #[Title('Profile settings')] class extends Component {
         {{-- @chisel-email-verification --}}
         @if ($this->showDeleteUser)
             {{-- @end-chisel-email-verification --}}
-            <livewire:pages::settings.delete-user-form />
+            @if (auth()->user()->hasLocalPassword())
+                <livewire:pages::settings.delete-user-form />
+            @endif
             {{-- @chisel-email-verification --}}
         @endif
         {{-- @end-chisel-email-verification --}}

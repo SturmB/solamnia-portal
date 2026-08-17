@@ -16,7 +16,7 @@ use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'oidc_sub'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser, PasskeyUser
 {
@@ -57,5 +57,14 @@ class User extends Authenticatable implements FilamentUser, PasskeyUser
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Whether this account can bypass SSO with a local password — the
+     * break-glass Admin. Federated Members have none (ADR-0004).
+     */
+    public function hasLocalPassword(): bool
+    {
+        return $this->password !== null;
     }
 }
