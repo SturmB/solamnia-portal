@@ -14,3 +14,11 @@ test('authenticated users can visit the dashboard', function () {
     $response = $this->get(route('dashboard'));
     $response->assertOk();
 });
+
+test('an sso member passes the verified middleware', function () {
+    $member = User::factory()->sso()->create();
+
+    $this->actingAs($member)
+        ->get(route('dashboard'))
+        ->assertOk();
+});

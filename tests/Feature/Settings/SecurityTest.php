@@ -111,3 +111,11 @@ test('correct password must be provided to update password', function () {
 
     $response->assertHasErrors(['current_password']);
 });
+
+test('the security screen does not exist for a passwordless member', function () {
+    $member = User::factory()->sso()->create();
+
+    $this->actingAs($member)
+        ->get(route('security.edit'))
+        ->assertNotFound();
+});

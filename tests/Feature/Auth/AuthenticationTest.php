@@ -87,3 +87,9 @@ test('users can logout', function () {
 
     $this->assertGuest();
 });
+
+test('the break-glass door lives at its own address with a password form', function () {
+    $this->get('/backup/login')
+        ->assertOk()
+        ->assertSee('type="password"', escape: false);
+});

@@ -107,6 +107,8 @@ SSO federates to infrastructure the portal does not own, so four steps are done
 
 4. **Restart Authelia** so steps 2–3 take effect.
 
-The break-glass Admin login (local password, Fortify) is deliberately
-independent of all of the above: it lives at `/admin/login` and must keep
-working when Authelia does not. `/login` is SSO-only.
+The break-glass Admin login (local password, Fortify, with 2FA and passkeys)
+is deliberately independent of all of the above: it lives at `/backup/login`
+and must keep working when Authelia does not. `/login` is SSO-only, and the
+Filament panel has no login page of its own — an SSO session reaches it,
+subject to `is_admin`.
