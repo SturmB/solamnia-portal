@@ -1,13 +1,10 @@
 {
-    "mcpServers": {
-        "lerd": {
-            "args": [
-                "mcp"
-            ],
-            "command": "lerd",
-            "env": {
-                "LERD_SITE_PATH": "/home/kerban/dev/solamnia-portal"
-            }
-        }
+  "mcpServers": {
+    "lerd": {
+      "command": "lerd",
+      "args": [
+        "mcp"
+      ]
     }
+  }
 }
