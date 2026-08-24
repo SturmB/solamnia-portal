@@ -20,4 +20,12 @@ class CampaignFactory extends Factory
             'body_markdown' => '# '.fake()->sentence()."\n\n".fake()->paragraph(),
         ];
     }
+
+    public function sent(): static
+    {
+        return $this->state([
+            'scheduled_at' => now()->subDay(),
+            'sent_at' => now()->subHour(),
+        ]);
+    }
 }
