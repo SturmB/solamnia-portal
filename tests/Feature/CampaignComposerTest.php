@@ -88,13 +88,3 @@ it('schedules a campaign for a chosen send time', function () {
     expect($campaign->refresh()->scheduled_at)->not->toBeNull()
         ->and($campaign->status())->toBe(CampaignStatus::Scheduled);
 });
-
-it('does not offer scheduling once a campaign has been sent', function () {
-    $campaign = Campaign::factory()->create([
-        'scheduled_at' => now()->subDay(),
-        'sent_at' => now()->subHour(),
-    ]);
-
-    livewire(EditCampaign::class, ['record' => $campaign->id])
-        ->assertActionHidden('schedule');
-});

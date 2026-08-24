@@ -7,6 +7,7 @@ use App\Models\Campaign;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -38,11 +39,15 @@ class CampaignsTable
                 //
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // Per-record delete() policy check — sent Campaigns are skipped,
+                    // and the policy's DenyResponse feeds the "skipped" notification.
+                    DeleteBulkAction::make()
+                        ->authorizeIndividualRecords('delete'),
                 ]),
             ]);
     }
