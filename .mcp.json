@@ -12,6 +12,14 @@
                 "mcp"
             ],
             "command": "lerd"
+        },
+        "solamnia-campaigns": {
+            "args": [
+                "artisan",
+                "mcp:start",
+                "campaigns"
+            ],
+            "command": "php"
         }
     }
 }

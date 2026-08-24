@@ -129,6 +129,41 @@ On the portal side, set `AUTHELIA_BASE_URL` / `AUTHELIA_CLIENT_ID` /
 `up -d` alone recreates containers but never re-fetches a same-tag image, so
 the portal keeps running the previous release.
 
+## AI Campaign authoring (MCP)
+
+Campaign authoring is exposed to AI agents as a **local stdio MCP server**
+(ADR-0005): draft-only tools for create/update/delete/read, image ingest, and
+test-send. No tool schedules or sends — that stays human, in the panel.
+
+- **Locally**, the checked-in `.mcp.json` starts it for Claude Code
+  automatically (`php artisan mcp:start campaigns`).
+- **In production** there is no HTTP endpoint; Claude Code connects through the
+  operator's SSH access, which is the authentication boundary:
+
+    ```json
+    {
+        "command": "ssh",
+        "args": [
+            "solamnia",
+            "docker",
+            "compose",
+            "-f",
+            "/opt/stacks/solamnia-portal/compose.yaml",
+            "exec",
+            "-T",
+            "app",
+            "php",
+            "artisan",
+            "mcp:start",
+            "campaigns"
+        ]
+    }
+    ```
+
+`ingest_image` writes to the `public` disk under `campaigns/` (the named
+storage volume in production), so ingested images survive container restarts
+exactly like panel uploads.
+
 The break-glass Admin login (local password, Fortify, with 2FA and passkeys)
 is deliberately independent of all of the above: it lives at `/backup/login`
 and must keep working when Authelia does not. `/login` is SSO-only, and the

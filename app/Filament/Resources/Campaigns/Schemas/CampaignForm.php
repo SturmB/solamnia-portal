@@ -16,14 +16,17 @@ class CampaignForm
     {
         return $schema
             ->components([
+                // required() is the UI marker only — the rules themselves come
+                // from Campaign::rules(), shared with the MCP authoring tools.
                 TextInput::make('subject')
                     ->required()
-                    ->maxLength(255)
+                    ->rules(Campaign::rules()['subject'])
                     ->columnSpanFull(),
 
                 MarkdownEditor::make('body_markdown')
                     ->label('Body')
                     ->required()
+                    ->rules(Campaign::rules()['body_markdown'])
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('campaigns')
                     ->columnSpanFull()

@@ -9,10 +9,15 @@ use Dom\HTMLDocument;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Spatie\Mjml\Mjml;
 
+/**
+ * @property Carbon|null $scheduled_at
+ * @property Carbon|null $sent_at
+ */
 #[Fillable(['subject', 'body_markdown'])]
 class Campaign extends Model
 {
@@ -24,6 +29,20 @@ class Campaign extends Model
         return [
             'scheduled_at' => 'datetime',
             'sent_at' => 'datetime',
+        ];
+    }
+
+    /**
+     * Validation rules for the authorable fields, shared by the panel form and
+     * the MCP authoring tools so the two surfaces cannot drift.
+     *
+     * @return array<string, list<string>>
+     */
+    public static function rules(): array
+    {
+        return [
+            'subject' => ['required', 'string', 'max:255'],
+            'body_markdown' => ['required', 'string'],
         ];
     }
 
