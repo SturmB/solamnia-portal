@@ -30,9 +30,15 @@ create-if-absent: it never overrides a prior opt-out.
 _Avoid_: mailing-list contact, recipient.
 
 **Invite**:
-An Admin-issued, single-use authorization for one person to become a Member.
-Accepting it provisions the Member into LLDAP, auto-enrolls them as a
-Subscriber, and auto-invites them to Plex.
+An Admin-issued authorization for one person — bound to their email address —
+to become a Member. It expires (about two weeks), is revocable while pending,
+and single-use means **one successful redemption**: a failed provisioning
+attempt leaves it live. Accepting it provisions the Member into LLDAP (the
+invitee chooses their own permanent username and display name), auto-enrolls
+them as a Subscriber, and requests their media-server access (Plex today —
+provider-agnostic, like Membership itself). The portal never handles the new
+Member's password; the initial password is set through Authelia's reset flow
+(ADR-0006).
 _Avoid_: signup link, registration code, voucher.
 
 **Newsletter**:
@@ -113,11 +119,11 @@ SSO federates to infrastructure the portal does not own, so four steps are done
     allowlist: register `solamnia.tv` only, and keep the plaintext secret in the
     portal's `.env`, never in the repo.
 
-3. **Switch Authelia's notifier from `filesystem` to SMTP.** Left as
-   `filesystem`, password-reset mail is written to `/config/notification.txt`
-   instead of being sent — so a Member who cannot log in has no way to recover,
-   and Phase 3's invite flow cannot deliver. Resend already serves the portal's
-   mail and can carry this too.
+3. **Switch Authelia's notifier from `filesystem` to SMTP.** _(Done — the
+   live config sends through Resend.)_ Left as `filesystem`, password-reset
+   mail is written to `/config/notification.txt` instead of being sent — so a
+   Member who cannot log in has no way to recover, and the Invite flow's
+   set-password handoff (ADR-0006) never arrives.
 
 4. **Restart Authelia** so steps 2–3 take effect. This drops the sessions of
    every federated service (Immich, Mealie, Audiobookshelf, Calibre-Web) —
