@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
 beforeEach(function () {
-    // Give Pushover credentials so notify() actually fires, and fake the HTTP layer
+    // Give Pushover credentials so Pushover::send() actually fires and fake the HTTP layer
     // so we can assert the POST without hitting the network.
     config(['services.pushover.token' => 'test-token', 'services.pushover.user' => 'test-user']);
     Http::fake();

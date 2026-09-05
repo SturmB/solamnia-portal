@@ -5,10 +5,10 @@ namespace App\Console\Commands;
 use App\Mail\CampaignMail;
 use App\Models\Campaign;
 use App\Models\Subscriber;
+use App\Services\Pushover;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
@@ -16,6 +16,11 @@ use Throwable;
 #[Description('Send any due, not-yet-sent Campaign to every opted-in Subscriber.')]
 class SendDueCampaigns extends Command
 {
+    public function __construct(private readonly Pushover $pushover)
+    {
+        parent::__construct();
+    }
+
     public function handle(): int
     {
         $campaigns = Campaign::whereNotNull('scheduled_at')
@@ -60,7 +65,7 @@ class SendDueCampaigns extends Command
             $campaign->recipient_count = $subscribers->count();
             $campaign->save();
         } catch (Throwable $e) {
-            $this->notify(
+            $this->pushover->send(
                 title: "Campaign send FAILED: {$campaign->subject}",
                 message: "Error: {$e->getMessage()}",
                 priority: 1
@@ -72,27 +77,9 @@ class SendDueCampaigns extends Command
 
         // Notify AFTER the try so a Pushover blip can't reclassify a good send as failed.
         // (Http::post only throws on a connection failure, not on a non-2xx from Pushover.)
-        $this->notify(
+        $this->pushover->send(
             title: "Campaign sent: {$campaign->subject}",
             message: "Sent to {$subscribers->count()} subscribers."
         );
-    }
-
-    private function notify(string $title, string $message, int $priority = 0): void
-    {
-        $token = config('services.pushover.token');
-        $user = config('services.pushover.user');
-
-        if (! $token || ! $user) {
-            return;
-        }
-
-        Http::post('https://api.pushover.net/1/messages.json', [
-            'token' => $token,
-            'user' => $user,
-            'title' => $title,
-            'message' => $message,
-            'priority' => $priority,
-        ]);
     }
 }
