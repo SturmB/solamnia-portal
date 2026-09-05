@@ -12,7 +12,8 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function () {
     Mail::fake();
-    $this->admin = User::factory()->create(['is_admin' => true]);
+    // An apostrophe on purpose: the inviter's name is HTML-escaped in the email body.
+    $this->admin = User::factory()->create(['name' => "Chris O'Conner", 'is_admin' => true]);
     $this->actingAs($this->admin);
 });
 
@@ -40,7 +41,7 @@ it('issues a pending Invite from the panel and emails the link', function () {
         return $mail->hasTo('sturm@example.com')
             && $invite->token === hash('sha256', $mail->token)
             && str_contains($html, route('invites.show', $mail->token))
-            && str_contains($html, $this->admin->name)
+            && str_contains($html, e($this->admin->name))
             && str_contains($html, $invite->expires_at->format('F j, Y'));
     });
 
