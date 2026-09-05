@@ -14,43 +14,6 @@
     @vite(['resources/css/app.css'])
 
     <style>
-        /* ---- The velvet house: video curtain ground (P10), poster beneath ---- */
-        .velvet-poster {
-            position: fixed;
-            inset: 0;
-            z-index: -40;
-            background: url('{{ asset('media/velvet-hero.webp') }}') center / cover no-repeat,
-                var(--color-night);
-        }
-
-        .velvet-video {
-            position: fixed;
-            inset: 0;
-            z-index: -30;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Reduced motion: the drapes hold still — poster only. */
-        @media (prefers-reduced-motion: reduce) {
-            .velvet-video {
-                display: none;
-            }
-        }
-
-        /* Legibility scrim over the video: edge vignette + downward wash,
-           in night tones, so hero text clears 4.5:1 whatever the drapes do. */
-        .velvet-scrim {
-            position: fixed;
-            inset: 0;
-            z-index: -20;
-            pointer-events: none;
-            background:
-                radial-gradient(135% 115% at 50% 35%, transparent 30%, oklch(0.10 0.03 250 / 0.62) 100%),
-                linear-gradient(180deg, oklch(0.10 0.03 250 / 0.30), transparent 35% 55%, oklch(0.10 0.03 250 / 0.55));
-        }
-
         /* ---- The spotlight (P1): a soft violet pool that lerps after the cursor ---- */
         #beam {
             position: fixed;

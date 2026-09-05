@@ -105,6 +105,54 @@
     }
 }
 
+/* ---- The Velvet House (DESIGN.md §5): the ground shared by the two brand-register
+   surfaces — the public landing and the Invite pages. Outside is velvet, inside is sky. ---- */
+.velvet-poster {
+    position: fixed;
+    inset: 0;
+    z-index: -40;
+    background:
+        url("/media/velvet-hero.webp") center / cover no-repeat,
+        var(--color-night);
+}
+
+.velvet-video {
+    position: fixed;
+    inset: 0;
+    z-index: -30;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Reduced motion: the drapes hold still — poster only. */
+@media (prefers-reduced-motion: reduce) {
+    .velvet-video {
+        display: none;
+    }
+}
+
+/* Legibility scrim over the video: edge vignette + downward wash,
+       in night tones, so hero text clears 4.5:1 whatever the drapes do. */
+.velvet-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: -20;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            135% 115% at 50% 35%,
+            transparent 30%,
+            oklch(0.1 0.03 250 / 0.62) 100%
+        ),
+        linear-gradient(
+            180deg,
+            oklch(0.1 0.03 250 / 0.3),
+            transparent 35% 55%,
+            oklch(0.1 0.03 250 / 0.55)
+        );
+}
+
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }
