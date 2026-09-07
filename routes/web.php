@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CampaignViewController;
+use App\Http\Controllers\InviteAcceptController;
 use App\Http\Controllers\InviteShowController;
 use App\Http\Controllers\SsoCallbackController;
 use App\Http\Controllers\UnsubscribeController;
@@ -20,6 +21,10 @@ Route::get('/campaigns/{campaign}/view/{subscriber}', CampaignViewController::cl
 Route::get('invites/{token}', InviteShowController::class)
     ->where('token', '[A-Za-z0-9]{64}')
     ->name('invites.show');
+
+Route::post('invites/{token}', InviteAcceptController::class)
+    ->where('token', '[A-Za-z0-9]{64}')
+    ->name('invites.accept');
 
 Route::get('auth/redirect', fn () => Socialite::driver('authelia')->redirect())
     ->name('auth.redirect');
