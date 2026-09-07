@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $revoked_at
  * @property Carbon|null $accepted_at
  */
-#[Fillable(['email', 'suggested_name'])]
+#[Fillable(['email', 'suggested_name', 'username'])]
 class Invite extends Model
 {
     /** @use HasFactory<InviteFactory> */

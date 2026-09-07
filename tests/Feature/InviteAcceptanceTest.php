@@ -12,7 +12,15 @@ beforeEach(function () {
         'token' => hash('sha256', $this->rawToken),
     ]);
 
-    Http::fake();
+    Http::fake(['api.pushover.net/*' => Http::response()]);
+    Http::preventStrayRequests();
+
+    config([
+        'services.authelia.base_url' => 'http://auth',
+        'services.lldap.base_url' => 'http://lldap',
+        'services.pushover.token' => 'pushover-token',
+        'services.pushover.user' => 'pushover-user',
+    ]);
 });
 
 it('renders the invite acceptance form', function () {
@@ -39,3 +47,44 @@ it('rejects a badly formed username and touches nothing', function (string $user
     'illegal character' => 'sturm!',
     'too long' => str_repeat('a', 33),
 ]);
+
+it('provisions the Member into LLDAP and stamps the Invite', function () {
+    Http::fake([
+        'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
+        'lldap/api/graphql' => Http::sequence()
+            ->push(['data' => ['createUser' => ['id' => 'brightblade']]])
+            ->push(['data' => ['groups' => [['id' => 3, 'displayName' => 'members']]]])
+            ->push(['data' => ['addUserToGroup' => ['ok' => true]]]),
+    ]);
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'Brightblade', // capitalised on purpose: proves normalisation
+        'name' => 'Sturm Brightblade',
+    ])
+        ->assertOk()
+        ->assertSee('brightblade')
+        ->assertSee('http://auth/reset-password/step1', escape: false);
+
+    expect($this->invite->fresh()->status())->toBe(InviteStatus::Accepted)
+        ->and($this->invite->fresh()->username)->toBe('brightblade');
+
+    Http::assertSent(fn ($request) => Str::endsWith($request->url(), '/api/graphql')
+        && $request->hasHeader('Authorization', 'Bearer jwt-abc')
+        && Str::contains($request['query'], 'createUser')
+        && $request['variables']['user'] === [
+            'id' => 'brightblade',
+            'email' => 'sturm@example.com',
+            'displayName' => 'Sturm Brightblade',
+        ]);
+
+    Http::assertSent(fn ($request) => Str::endsWith($request->url(), '/api/graphql')
+        && $request->hasHeader('Authorization', 'Bearer jwt-abc')
+        && Str::contains($request['query'], 'addUserToGroup')
+        && $request['variables'] === [
+            'userId' => 'brightblade',
+            'groupId' => 3,
+        ]);
+
+    Http::assertSent(fn ($request) => Str::contains($request->url(), 'pushover')
+        && Str::contains($request['message'], 'brightblade'));
+});
