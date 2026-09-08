@@ -8,8 +8,6 @@ use App\Models\Invite;
 use App\Services\Lldap;
 use App\Services\Pushover;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -75,12 +73,9 @@ class InviteAcceptController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($invite, $username) {
-            $pendingInvite = Invite::pending()->whereKey($invite)->lockForUpdate()->firstOrFail();
-            $pendingInvite->accepted_at = Carbon::now();
-            $pendingInvite->username = $username;
-            $pendingInvite->save();
-        });
+        if (! $invite->accept($username)) {
+            return view('invite.invalid');
+        }
 
         $pushover->send(
             "{$username} accepted their invite",
