@@ -8,8 +8,10 @@ use App\Services\Lldap;
 use App\Services\Pushover;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class InviteAcceptController extends Controller
@@ -40,12 +42,20 @@ class InviteAcceptController extends Controller
             return view('invite.invalid');
         }
 
+        $existingUser = $lldap->findUser($username);
+
+        if ($existingUser !== null && $existingUser['email'] !== $invite->email) {
+            throw ValidationException::withMessages([
+                'username' => 'The username is taken. Please choose another.',
+            ]);
+        }
+
         $lldap->createUser($username, $invite->email, $name);
         $lldap->addUserToGroup($username, config('services.lldap.members_group'));
 
         DB::transaction(function () use ($invite, $username) {
             $pendingInvite = Invite::pending()->whereKey($invite)->lockForUpdate()->firstOrFail();
-            $pendingInvite->accepted_at = now();
+            $pendingInvite->accepted_at = Carbon::now();
             $pendingInvite->username = $username;
             $pendingInvite->save();
         });

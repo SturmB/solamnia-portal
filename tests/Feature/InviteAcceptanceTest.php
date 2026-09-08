@@ -52,6 +52,7 @@ it('provisions the Member into LLDAP and stamps the Invite', function () {
     Http::fake([
         'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
         'lldap/api/graphql' => Http::sequence()
+            ->push(['data' => ['users' => []]])
             ->push(['data' => ['createUser' => ['id' => 'brightblade']]])
             ->push(['data' => ['groups' => [['id' => 3, 'displayName' => 'members']]]])
             ->push(['data' => ['addUserToGroup' => ['ok' => true]]]),
@@ -87,4 +88,21 @@ it('provisions the Member into LLDAP and stamps the Invite', function () {
 
     Http::assertSent(fn ($request) => Str::contains($request->url(), 'pushover')
         && Str::contains($request['message'], 'brightblade'));
+});
+
+it('rejects a username that already exists in LLDAP', function () {
+    Http::fake([
+        'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
+        'lldap/api/graphql' => Http::response([
+            'data' => ['users' => [['id' => 'brightblade', 'email' => 'someone-else@example.com']]],
+        ]),
+    ]);
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])->assertSessionHasErrors('username');
+
+    expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
+    Http::assertNotSent(fn ($request) => Str::contains($request['query'] ?? '', 'createUser'));
 });
