@@ -22,7 +22,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-.env.before_lerd
 
 # impeccable machine-local state (hook consent, etc.)
 /.impeccable/config.local.json
+/.ai/mcp/
