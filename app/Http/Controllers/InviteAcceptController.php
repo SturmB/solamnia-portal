@@ -45,12 +45,17 @@ class InviteAcceptController extends Controller
 
         try {
             $existingUser = $lldap->findUser($username);
+
             if ($existingUser !== null && $existingUser['email'] !== $invite->email) {
                 throw ValidationException::withMessages([
                     'username' => 'The username is taken. Please choose another.',
                 ]);
             }
-            $lldap->createUser($username, $invite->email, $name);
+
+            if ($existingUser === null) {
+                $lldap->createUser($username, $invite->email, $name);
+            }
+
             $lldap->addUserToGroup($username, config('services.lldap.members_group'));
         } catch (LldapException $e) {
             if ($e->isDuplicateUser()) {

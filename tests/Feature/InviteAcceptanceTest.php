@@ -139,3 +139,23 @@ it('leaves the Invite pending and renders the retry page when LLDAP fails', func
         ['errors' => [['message' => 'Directory on fire']]],
     ]],
 ]);
+
+it('continues to grouping when the user already exists from a failed attempt', function () {
+    Http::fake([
+        'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
+        'lldap/api/graphql' => Http::sequence()
+            ->push(['data' => ['users' => [['id' => 'brightblade', 'email' => 'sturm@example.com']]]])
+            ->push(['data' => ['groups' => [['id' => 3, 'displayName' => 'members']]]])
+            ->push(['data' => ['addUserToGroup' => ['ok' => true]]]),
+    ]);
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])->assertOk();
+
+    expect($this->invite->fresh()->status())->toBe(InviteStatus::Accepted)
+        ->and($this->invite->fresh()->username)->toBe('brightblade');
+    Http::assertNotSent(fn ($request) => Str::contains($request['query'] ?? '', 'createUser'));
+    Http::assertSent(fn ($request) => Str::contains($request['query'] ?? '', 'addUserToGroup'));
+});
