@@ -45,22 +45,22 @@ class InviteAcceptController extends Controller
             $existingUser = $lldap->findUser($username);
 
             if ($existingUser !== null && strcasecmp($existingUser['email'], $invite->email) !== 0) {
-                throw ValidationException::withMessages([
-                    'username' => 'The username is taken. Please choose another.',
-                ]);
+                throw $this->usernameTaken();
             }
 
             if ($existingUser === null) {
-                $lldap->createUser($username, $invite->email, $name);
+                try {
+                    $lldap->createUser($username, $invite->email, $name);
+                } catch (LldapException $e) {
+                    throw $e->isDuplicateUser() ? $this->usernameTaken() : $e;
+                }
             }
 
             $lldap->addUserToGroup($username, Lldap::MEMBERS_GROUP);
         } catch (LldapException $e) {
-            if ($e->isDuplicateUser()) {
-                throw ValidationException::withMessages([
-                    'username' => 'The username is taken. Please choose another.',
-                ]);
-            }
+            // ponytail: a user created *and* grouped by an earlier attempt whose stamp then
+            // failed lands here on every retry (LLDAP refuses the second group-add). Rare
+            // enough to leave to the Pushover; sniff the group-add error too if it ever bites.
             $pushover->send(
                 'Invite provisioning failed',
                 "Could not provision {$username} for {$invite->email}. Their link still works. LLDAP said: {$e->getMessage()}",
@@ -85,6 +85,13 @@ class InviteAcceptController extends Controller
         return view('invite.accepted', [
             'username' => $username,
             'resetUrl' => rtrim(config('services.authelia.base_url'), '/').'/reset-password/step1',
+        ]);
+    }
+
+    private function usernameTaken(): ValidationException
+    {
+        return ValidationException::withMessages([
+            'username' => 'The username is taken. Please choose another.',
         ]);
     }
 }

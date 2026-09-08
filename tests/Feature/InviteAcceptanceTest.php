@@ -176,3 +176,34 @@ it('shows the friendly page instead of provisioning for a dead or unknown token'
 
     Http::assertNothingSent();
 })->with(['accepted', 'unknown' => null]);
+
+it('maps a duplicate-user error on create to the taken error', function () {
+    Http::fake([
+        'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
+        'lldap/api/graphql' => Http::sequence()
+            ->push(['data' => ['users' => []]])
+            ->push(['errors' => [['message' => 'Entity already exists']]]),
+    ]);
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])->assertSessionHasErrors('username');
+
+    expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
+    Http::assertNotSent(fn ($request) => Str::contains($request->url(), 'pushover'));
+});
+
+it('renders the retry page when LLDAP is unreachable', function () {
+    Http::fake(['lldap/*' => Http::failedConnection()]);
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])
+        ->assertOk()
+        ->assertSee('try again');
+
+    expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
+    Http::assertSent(fn ($request) => Str::contains($request['message'] ?? '', 'unreachable'));
+});
