@@ -13,7 +13,10 @@ class InviteShowController extends Controller
         $invite = Invite::findByPlainTextToken($token);
 
         if ($invite?->status() === InviteStatus::Pending) {
-            return view('invite.accept', ['invite' => $invite]);
+            return view('invite.accept', [
+                'invite' => $invite,
+                'token' => $token,
+            ]);
         }
 
         return view('invite.invalid');

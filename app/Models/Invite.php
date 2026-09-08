@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -80,6 +81,27 @@ class Invite extends Model
         $invite->save();
 
         return $invite;
+    }
+
+    /**
+     * Redeem the Invite for a chosen username. False means the Invite stopped
+     * being pending underneath us (a concurrent submission won), and nothing
+     * was written.
+     */
+    public function accept(string $username): bool
+    {
+        return DB::transaction(function () use ($username): bool {
+            $pending = static::query()->pending()->whereKey($this)->lockForUpdate()->first();
+
+            if ($pending === null) {
+                return false;
+            }
+
+            $pending->accepted_at = Carbon::now();
+            $pending->username = $username;
+
+            return $pending->save();
+        });
     }
 
     protected function casts(): array

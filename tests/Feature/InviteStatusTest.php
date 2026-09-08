@@ -15,3 +15,11 @@ it('derives status from the timestamps', function (string $state, InviteStatus $
     ['revoked', InviteStatus::Revoked],
     ['accepted', InviteStatus::Accepted],
 ]);
+
+it('accepts once and refuses a second redemption', function () {
+    $invite = Invite::factory()->create();
+
+    expect($invite->accept('brightblade'))->toBeTrue();
+    expect($invite->accept('brightblade'))->toBeFalse()
+        ->and($invite->fresh()->username)->toBe('brightblade');
+});

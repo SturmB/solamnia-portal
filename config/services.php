@@ -40,6 +40,12 @@ return [
         ],
     ],
 
+    'lldap' => [
+        'base_url' => env('LLDAP_BASE_URL'),
+        'username' => env('LLDAP_USERNAME'),
+        'password' => env('LLDAP_PASSWORD'),
+    ],
+
     'authelia' => [
         'base_url' => env('AUTHELIA_BASE_URL'),
         'client_id' => env('AUTHELIA_CLIENT_ID'),
