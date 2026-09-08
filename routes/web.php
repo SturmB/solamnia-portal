@@ -18,12 +18,10 @@ Route::get('/campaigns/{campaign}/view/{subscriber}', CampaignViewController::cl
     ->middleware('signed')
     ->name('campaigns.view');
 
+Route::pattern('token', '[A-Za-z0-9]{64}');
 Route::get('invites/{token}', InviteShowController::class)
-    ->where('token', '[A-Za-z0-9]{64}')
     ->name('invites.show');
-
 Route::post('invites/{token}', InviteAcceptController::class)
-    ->where('token', '[A-Za-z0-9]{64}')
     ->name('invites.accept');
 
 Route::get('auth/redirect', fn () => Socialite::driver('authelia')->redirect())

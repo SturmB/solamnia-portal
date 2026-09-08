@@ -44,7 +44,6 @@ return [
         'base_url' => env('LLDAP_BASE_URL'),
         'username' => env('LLDAP_USERNAME'),
         'password' => env('LLDAP_PASSWORD'),
-        'members_group' => env('LLDAP_MEMBERS_GROUP', 'members'),
     ],
 
     'authelia' => [

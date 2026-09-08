@@ -3,6 +3,7 @@
 use App\Enums\InviteStatus;
 use App\Models\Invite;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 beforeEach(function () {
     $this->rawToken = Str::random(64);

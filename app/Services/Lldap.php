@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Http;
  */
 class Lldap
 {
+    public const string MEMBERS_GROUP = 'members';
+
     /**
      * @return array{id: string, email: string}|null
      */

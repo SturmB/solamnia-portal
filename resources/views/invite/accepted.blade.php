@@ -9,7 +9,7 @@
         It's permanent, so keep it somewhere safe. You'll type it once more to set your password.
     </p>
 
-    <h2 class="text-ink mt-2 text-lg font-bold">What happens next</h2>
+    <h2 class="font-display text-ink mt-2 text-xl font-semibold">What happens next</h2>
 
     <p>
         There's no password yet. Setting one is done on Solamnia's sign-in service, Authelia, which is

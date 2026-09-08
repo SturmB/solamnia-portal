@@ -7,7 +7,6 @@ use App\Exceptions\LldapException;
 use App\Models\Invite;
 use App\Services\Lldap;
 use App\Services\Pushover;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +16,7 @@ use Illuminate\View\View;
 
 class InviteAcceptController extends Controller
 {
-    public function __invoke(Request $request, string $token, Lldap $lldap, Pushover $pushover): RedirectResponse|View
+    public function __invoke(Request $request, string $token, Lldap $lldap, Pushover $pushover): View
     {
         $request->merge(['username' => Str::lower($request->string('username'))]);
 
@@ -47,7 +46,7 @@ class InviteAcceptController extends Controller
         try {
             $existingUser = $lldap->findUser($username);
 
-            if ($existingUser !== null && $existingUser['email'] !== $invite->email) {
+            if ($existingUser !== null && strcasecmp($existingUser['email'], $invite->email) !== 0) {
                 throw ValidationException::withMessages([
                     'username' => 'The username is taken. Please choose another.',
                 ]);
@@ -57,7 +56,7 @@ class InviteAcceptController extends Controller
                 $lldap->createUser($username, $invite->email, $name);
             }
 
-            $lldap->addUserToGroup($username, config('services.lldap.members_group'));
+            $lldap->addUserToGroup($username, Lldap::MEMBERS_GROUP);
         } catch (LldapException $e) {
             if ($e->isDuplicateUser()) {
                 throw ValidationException::withMessages([
