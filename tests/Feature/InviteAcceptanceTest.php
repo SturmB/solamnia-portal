@@ -159,3 +159,19 @@ it('continues to grouping when the user already exists from a failed attempt', f
     Http::assertNotSent(fn ($request) => Str::contains($request['query'] ?? '', 'createUser'));
     Http::assertSent(fn ($request) => Str::contains($request['query'] ?? '', 'addUserToGroup'));
 });
+
+it('shows the friendly page instead of provisioning for a dead or unknown token', function (?string $state) {
+    $rawToken = Str::random(64);
+    if ($state !== null) {
+        Invite::factory()->{$state}()->create(['token' => hash('sha256', $rawToken)]);
+    }
+
+    $this->post(route('invites.accept', $rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])
+        ->assertOk()
+        ->assertSee('no longer valid');
+
+    Http::assertNothingSent();
+})->with(['accepted', 'unknown' => null]);

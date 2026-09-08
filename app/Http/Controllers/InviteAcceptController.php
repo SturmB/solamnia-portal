@@ -20,6 +20,12 @@ class InviteAcceptController extends Controller
     public function __invoke(Request $request, string $token, Lldap $lldap, Pushover $pushover): RedirectResponse|View
     {
         $request->merge(['username' => Str::lower($request->string('username'))]);
+
+        $invite = Invite::findByPlainTextToken($token);
+        if ($invite?->status() !== InviteStatus::Pending) {
+            return view('invite.invalid');
+        }
+
         $validated = $request->validate([
             'username' => [
                 'required',
@@ -35,13 +41,8 @@ class InviteAcceptController extends Controller
             'username.regex' => 'The username must start with a lowercase letter and contain only lowercase letters, numbers, dots, underscores, or hyphens.',
         ]);
 
-        $invite = Invite::findByPlainTextToken($token);
         $username = $validated['username'];
         $name = $validated['name'];
-
-        if ($invite->status() !== InviteStatus::Pending) {
-            return view('invite.invalid');
-        }
 
         try {
             $existingUser = $lldap->findUser($username);
