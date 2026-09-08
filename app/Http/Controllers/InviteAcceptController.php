@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\InviteStatus;
+use App\Exceptions\LldapException;
 use App\Models\Invite;
 use App\Services\Lldap;
 use App\Services\Pushover;
@@ -42,16 +43,32 @@ class InviteAcceptController extends Controller
             return view('invite.invalid');
         }
 
-        $existingUser = $lldap->findUser($username);
+        try {
+            $existingUser = $lldap->findUser($username);
+            if ($existingUser !== null && $existingUser['email'] !== $invite->email) {
+                throw ValidationException::withMessages([
+                    'username' => 'The username is taken. Please choose another.',
+                ]);
+            }
+            $lldap->createUser($username, $invite->email, $name);
+            $lldap->addUserToGroup($username, config('services.lldap.members_group'));
+        } catch (LldapException $e) {
+            if ($e->isDuplicateUser()) {
+                throw ValidationException::withMessages([
+                    'username' => 'The username is taken. Please choose another.',
+                ]);
+            }
+            $pushover->send(
+                'Invite provisioning failed',
+                "Could not provision {$username} for {$invite->email}. Their link still works. LLDAP said: {$e->getMessage()}",
+                priority: 1,
+            );
 
-        if ($existingUser !== null && $existingUser['email'] !== $invite->email) {
-            throw ValidationException::withMessages([
-                'username' => 'The username is taken. Please choose another.',
+            return view('invite.retry', [
+                'invite' => $invite,
+                'token' => $token,
             ]);
         }
-
-        $lldap->createUser($username, $invite->email, $name);
-        $lldap->addUserToGroup($username, config('services.lldap.members_group'));
 
         DB::transaction(function () use ($invite, $username) {
             $pendingInvite = Invite::pending()->whereKey($invite)->lockForUpdate()->firstOrFail();
@@ -60,7 +77,10 @@ class InviteAcceptController extends Controller
             $pendingInvite->save();
         });
 
-        $pushover->send("{$username} accepted their invite.", "{$username} has accepted the invite to join the server.");
+        $pushover->send(
+            "{$username} accepted their invite",
+            "{$invite->email} is now the Member {$username}. They still need to set a password through Authelia.",
+        );
 
         return view('invite.accepted', [
             'username' => $username,

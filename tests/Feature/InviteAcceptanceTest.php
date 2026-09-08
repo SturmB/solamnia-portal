@@ -106,3 +106,36 @@ it('rejects a username that already exists in LLDAP', function () {
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
     Http::assertNotSent(fn ($request) => Str::contains($request['query'] ?? '', 'createUser'));
 });
+
+it('leaves the Invite pending and renders the retry page when LLDAP fails', function (array $responses) {
+    $sequence = Http::sequence();
+    foreach ($responses as $response) {
+        $sequence->push($response);
+    }
+    Http::fake([
+        'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
+        'lldap/api/graphql' => $sequence,
+    ]);
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])
+        ->assertOk()
+        ->assertSee('try again');
+
+    expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending)
+        ->and($this->invite->fresh()->username)->toBeNull();
+    Http::assertSent(fn ($request) => Str::contains($request['message'] ?? '', 'Directory on fire'));
+})->with([
+    'on create' => [[
+        ['data' => ['users' => []]],
+        ['errors' => [['message' => 'Directory on fire']]],
+    ]],
+    'on group-add' => [[
+        ['data' => ['users' => []]],
+        ['data' => ['createUser' => ['id' => 'brightblade']]],
+        ['data' => ['groups' => [['id' => 3, 'displayName' => 'members']]]],
+        ['errors' => [['message' => 'Directory on fire']]],
+    ]],
+]);
