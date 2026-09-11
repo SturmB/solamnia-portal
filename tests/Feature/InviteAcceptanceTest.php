@@ -2,8 +2,26 @@
 
 use App\Enums\InviteStatus;
 use App\Models\Invite;
+use App\Models\Subscriber;
+use App\Models\User;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+
+/**
+ * LLDAP answers the happy path: no such user, create it, find `members`, add.
+ */
+function fakeLldapProvisioning(): void
+{
+    Http::fake([
+        'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
+        'lldap/api/graphql' => Http::sequence()
+            ->push(['data' => ['users' => []]])
+            ->push(['data' => ['createUser' => ['id' => 'brightblade']]])
+            ->push(['data' => ['groups' => [['id' => 3, 'displayName' => 'members']]]])
+            ->push(['data' => ['addUserToGroup' => ['ok' => true]]]),
+    ]);
+}
 
 beforeEach(function () {
     $this->rawToken = Str::random(64);
@@ -50,14 +68,7 @@ it('rejects a badly formed username and touches nothing', function (string $user
 ]);
 
 it('provisions the Member into LLDAP and stamps the Invite', function () {
-    Http::fake([
-        'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
-        'lldap/api/graphql' => Http::sequence()
-            ->push(['data' => ['users' => []]])
-            ->push(['data' => ['createUser' => ['id' => 'brightblade']]])
-            ->push(['data' => ['groups' => [['id' => 3, 'displayName' => 'members']]]])
-            ->push(['data' => ['addUserToGroup' => ['ok' => true]]]),
-    ]);
+    fakeLldapProvisioning();
 
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'Brightblade', // capitalised on purpose: proves normalisation
@@ -207,3 +218,76 @@ it('renders the retry page when LLDAP is unreachable', function () {
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
     Http::assertSent(fn ($request) => Str::contains($request['message'] ?? '', 'unreachable'));
 });
+
+it('writes the eager shadow row after acceptance', function () {
+    fakeLldapProvisioning();
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])->assertOk();
+
+    $shadow = User::where('email', 'sturm@example.com')->sole();
+
+    expect($shadow->name)->toBe('Sturm Brightblade')
+        ->and($shadow->email_verified_at)->not->toBeNull()
+        ->and($shadow->oidc_sub)->toBeNull()
+        ->and($shadow->password)->toBeNull()
+        ->and($shadow->is_admin)->toBeFalse();
+});
+
+it('creates a Subscriber after acceptance when none exists', function () {
+    fakeLldapProvisioning();
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])->assertOk();
+
+    $subscriber = Subscriber::where('email', 'sturm@example.com')->sole();
+
+    expect($subscriber->name)->toBe('Sturm Brightblade')
+        ->and($subscriber->unsubscribed_at)->toBeNull();
+});
+
+it('adopts an existing unsubscribed Subscriber without resubscribing them', function () {
+    $unsubscribed = Subscriber::factory()->unsubscribed()->create([
+        'email' => 'sturm@example.com',
+        'name' => 'Old Name',
+    ]);
+    fakeLldapProvisioning();
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])->assertOk();
+
+    expect(Subscriber::count())->toBe(1)
+        ->and($unsubscribed->fresh()->unsubscribed_at)->not->toBeNull()
+        ->and($unsubscribed->fresh()->name)->toBe('Old Name');
+});
+
+it('keeps the success response when a follow-up throws, and reports it', function (string $model, string $survivor) {
+    Exceptions::fake();
+    $model::creating(fn () => throw new RuntimeException('Table on fire'));
+    fakeLldapProvisioning();
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])
+        ->assertOk()
+        ->assertSee('brightblade');
+
+    expect($this->invite->fresh()->status())->toBe(InviteStatus::Accepted)
+        ->and($model::where('email', 'sturm@example.com')->exists())->toBeFalse()
+        ->and($survivor::where('email', 'sturm@example.com')->exists())->toBeTrue();
+
+    Exceptions::assertReported(RuntimeException::class);
+    Http::assertSent(fn ($request) => Str::contains($request->url(), 'pushover')
+        && $request['priority'] === 1
+        && Str::contains($request['message'], 'Table on fire'));
+})->with([
+    'users row' => [User::class, Subscriber::class],
+    'Subscriber' => [Subscriber::class, User::class],
+]);

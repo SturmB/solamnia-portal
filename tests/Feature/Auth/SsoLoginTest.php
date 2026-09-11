@@ -43,6 +43,24 @@ test('an existing account is bound by email on first sso login', function () {
         ->and($admin->is_admin)->toBeTrue();
 });
 
+test('an eager shadow row from an accepted Invite is bound on first sso login', function () {
+    $shadow = User::factory()->create([
+        'email' => 'member@example.com',
+        'password' => null,
+        'oidc_sub' => null,
+    ]);
+
+    Socialite::fake('authelia', autheliaUser());
+
+    $this->get(route('auth.callback'))
+        ->assertRedirect(route('dashboard', absolute: false));
+
+    $this->assertAuthenticatedAs($shadow);
+    expect(User::count())->toBe(1)
+        ->and($shadow->refresh()->oidc_sub)->toBe('authelia-sub-1')
+        ->and($shadow->password)->toBeNull();
+});
+
 test('a login without the members group is refused and creates nothing', function (?array $groups) {
     Socialite::fake('authelia', autheliaUser([
         'groups' => $groups,
