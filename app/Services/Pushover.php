@@ -15,12 +15,14 @@ class Pushover
             return;
         }
 
-        Http::post('https://api.pushover.net/1/messages.json', [
-            'token' => $token,
-            'user' => $user,
-            'title' => $title,
-            'message' => $message,
-            'priority' => $priority,
-        ]);
+        rescue(
+            fn () => Http::post('https://api.pushover.net/1/messages.json', [
+                'token' => $token,
+                'user' => $user,
+                'title' => $title,
+                'message' => $message,
+                'priority' => $priority,
+            ]),
+        );
     }
 }
