@@ -70,7 +70,7 @@ class Invite extends Model
     public static function issue(string $email, string $suggestedName, User $inviter): Invite
     {
         $invite = new self([
-            'email' => $email,
+            'email' => Str::lower($email),
             'suggested_name' => $suggestedName,
         ]);
         $invite->plainTextToken = Str::random(64);

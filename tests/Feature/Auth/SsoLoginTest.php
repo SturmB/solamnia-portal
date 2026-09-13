@@ -43,14 +43,14 @@ test('an existing account is bound by email on first sso login', function () {
         ->and($admin->is_admin)->toBeTrue();
 });
 
-test('an eager shadow row from an accepted Invite is bound on first sso login', function () {
+test('an eager shadow row from an accepted Invite is bound on first sso login', function (string $claimedEmail) {
     $shadow = User::factory()->create([
         'email' => 'member@example.com',
         'password' => null,
         'oidc_sub' => null,
     ]);
 
-    Socialite::fake('authelia', autheliaUser());
+    Socialite::fake('authelia', autheliaUser(['email' => $claimedEmail]));
 
     $this->get(route('auth.callback'))
         ->assertRedirect(route('dashboard', absolute: false));
@@ -58,8 +58,9 @@ test('an eager shadow row from an accepted Invite is bound on first sso login', 
     $this->assertAuthenticatedAs($shadow);
     expect(User::count())->toBe(1)
         ->and($shadow->refresh()->oidc_sub)->toBe('authelia-sub-1')
+        ->and($shadow->email)->toBe('member@example.com')
         ->and($shadow->password)->toBeNull();
-});
+})->with(['member@example.com', 'Member@Example.com']);
 
 test('a login without the members group is refused and creates nothing', function (?array $groups) {
     Socialite::fake('authelia', autheliaUser([
@@ -90,6 +91,16 @@ test('an unknown person in the members group is created just in time', function 
         ->and($member->is_admin)->toBeFalse()
         ->and($member->email_verified_at)->not->toBeNull()
         ->and($member->password)->toBeNull();
+});
+
+test('a just-in-time member stores the email lowercased', function () {
+    Socialite::fake('authelia', autheliaUser([
+        'email' => 'Member@Example.com',
+    ]));
+
+    $this->get(route('auth.callback'));
+
+    expect(User::sole()->email)->toBe('member@example.com');
 });
 
 test('a changed email updates the bound account rather than creating another', function () {
