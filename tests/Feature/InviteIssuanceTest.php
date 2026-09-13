@@ -50,28 +50,39 @@ it('issues a pending Invite from the panel and emails the link', function () {
         ->assertSee('Pending');
 });
 
-it('refuses an email that belongs to an existing Member', function () {
-    $member = User::factory()->create();
+it('stores and mails the email lowercased however the Admin typed it', function () {
+    livewire(CreateInvite::class)
+        ->fillForm(['email' => 'Sturm@Example.com', 'suggested_name' => 'Sturm'])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Invite::sole()->email)->toBe('sturm@example.com');
+
+    Mail::assertSent(InviteMail::class, fn (InviteMail $mail): bool => $mail->hasTo('sturm@example.com'));
+});
+
+it('refuses an email that belongs to an existing Member', function (string $typed) {
+    User::factory()->create(['email' => 'sturm@example.com']);
 
     livewire(CreateInvite::class)
-        ->fillForm(['email' => $member->email, 'suggested_name' => 'Dup'])
+        ->fillForm(['email' => $typed, 'suggested_name' => 'Dup'])
         ->call('create')
-        ->assertHasFormErrors(['email']);
+        ->assertHasFormErrors(['email' => 'This email already belongs to a Member.']);
 
     expect(Invite::count())->toBe(0);
     Mail::assertNothingSent();
-});
+})->with(['sturm@example.com', 'Sturm@Example.com']);
 
-it('refuses an email that already has a pending Invite', function () {
+it('refuses an email that already has a pending Invite', function (string $typed) {
     Invite::factory()->create(['email' => 'sturm@example.com']);
 
     livewire(CreateInvite::class)
-        ->fillForm(['email' => 'sturm@example.com', 'suggested_name' => 'Sturm'])
+        ->fillForm(['email' => $typed, 'suggested_name' => 'Sturm'])
         ->call('create')
-        ->assertHasFormErrors(['email']);
+        ->assertHasFormErrors(['email' => 'A pending Invite already exists for this email.']);
 
     expect(Invite::count())->toBe(1);
-});
+})->with(['sturm@example.com', 'Sturm@Example.com']);
 
 it('allows re-issuing once the earlier Invite is no longer pending', function (string $state) {
     Invite::factory()->{$state}()->create(['email' => 'sturm@example.com']);

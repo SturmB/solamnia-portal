@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
 
@@ -33,8 +34,9 @@ class SsoCallbackController extends Controller
             __('You are not a Member of the portal. Contact the Admin.'),
         );
 
+        $email = Str::lower($claims->getEmail());
         $member = User::where('oidc_sub', $claims->getId())->first()
-            ?? User::where('email', $claims->getEmail())->first()
+            ?? User::where('email', $email)->first()
             ?? new User;
 
         // A row bound to a different subject is never re-bound by email —
@@ -54,7 +56,7 @@ class SsoCallbackController extends Controller
 
         $member->fill([
             'name' => $claims->getName(),
-            'email' => $claims->getEmail(),
+            'email' => $email,
             'oidc_sub' => $claims->getId(),
         ])->save();
 

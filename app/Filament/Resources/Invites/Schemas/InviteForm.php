@@ -3,10 +3,11 @@
 namespace App\Filament\Resources\Invites\Schemas;
 
 use App\Models\Invite;
+use App\Models\User;
 use Closure;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class InviteForm
 {
@@ -20,17 +21,17 @@ class InviteForm
                     ->maxLength(255)
                     ->rules([
                         // An existing Member's email is refused outright.
-                        Rule::unique('users', 'email'),
                         // So is one that already holds a live link; expired,
                         // revoked and accepted Invites do not block re-issuing.
                         fn (): Closure => function (string $attribute, mixed $value, Closure $fail): void {
-                            if (Invite::pending()->where('email', $value)->exists()) {
+                            $email = Str::lower($value);
+                            if (User::where('email', $email)->exists()) {
+                                $fail('This email already belongs to a Member.');
+                            }
+                            if (Invite::pending()->where('email', $email)->exists()) {
                                 $fail('A pending Invite already exists for this email.');
                             }
                         },
-                    ])
-                    ->validationMessages([
-                        'unique' => 'This email already belongs to a Member.',
                     ]),
 
                 TextInput::make('suggested_name')
