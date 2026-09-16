@@ -4,7 +4,7 @@ name: solamnia-portal
 # the host needs no source checkout and no build toolchain: the Dockge stack dir
 # holds only this file plus .env, the same shape as every other stack on the box.
 #   Deploy:   docker compose pull && docker compose up -d
-#   Rollback: pin the previous immutable tag on both services
+#   Rollback: pin the previous immutable tag on all three app services
 #             (ghcr.io/sturmb/solamnia-portal:sha-<short-sha>, listed on the
 #             GHCR package page), then pull && up -d again.
 #   Sync:     this repo is canonical for this file — edit it here, never in
@@ -63,6 +63,31 @@ services:
         # This container runs only the scheduler loop — no web server — so the base
         # image's HTTP healthcheck (curls localhost:8080/up) can never pass. Disable it
         # to avoid a permanent false "unhealthy". `restart: unless-stopped` still covers crashes.
+        healthcheck:
+            disable: true
+        depends_on:
+            app:
+                condition: service_started
+            mysql:
+                condition: service_healthy
+
+    # The queue worker: runs jobs the web app dispatches (today, the media-server
+    # share after an Invite is accepted). Same image, entrypoint swapped, so like
+    # `scheduler` it never migrates. The database driver is enough for a job per
+    # acceptance; Redis + Horizon would replace this one service if that ever changes.
+    worker:
+        image: ghcr.io/sturmb/solamnia-portal:latest
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            MJML_NODE_PATH: /usr/local/bin
+        # A long-lived worker keeps the code it booted with, so exit hourly and let
+        # `restart` bring up a fresh process. No --tries: each job declares its own
+        # attempts and backoff, and the flag here would override them.
+        entrypoint:
+            ["php", "artisan", "queue:work", "--sleep=3", "--max-time=3600"]
+        # No web server in this container, so the base image's HTTP healthcheck
+        # could never pass. Disable it; `restart: unless-stopped` covers crashes.
         healthcheck:
             disable: true
         depends_on:
