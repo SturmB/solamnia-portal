@@ -46,6 +46,13 @@ return [
         'password' => env('LLDAP_PASSWORD'),
     ],
 
+    'plex' => [
+        'token' => env('PLEX_TOKEN'),
+        'client_identifier' => env('PLEX_CLIENT_IDENTIFIER', 'solamnia-portal'),
+        'machine_identifier' => env('PLEX_MACHINE_IDENTIFIER'),
+        'library_section_ids' => env('PLEX_LIBRARY_SECTION_IDS'),
+    ],
+
     'authelia' => [
         'base_url' => env('AUTHELIA_BASE_URL'),
         'client_id' => env('AUTHELIA_CLIENT_ID'),
