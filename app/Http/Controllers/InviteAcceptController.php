@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\MediaServer;
 use App\Enums\InviteStatus;
 use App\Exceptions\LldapException;
+use App\Jobs\ShareMediaLibraries;
 use App\Models\Invite;
 use App\Models\Subscriber;
 use App\Models\User;
@@ -19,7 +21,7 @@ class InviteAcceptController extends Controller
 {
     public function __construct(private readonly Pushover $pushover) {}
 
-    public function __invoke(Request $request, string $token, Lldap $lldap): View
+    public function __invoke(Request $request, string $token, Lldap $lldap, MediaServer $mediaServer): View
     {
         $request->merge(['username' => Str::lower($request->string('username'))]);
 
@@ -102,6 +104,14 @@ class InviteAcceptController extends Controller
             ),
         );
 
+        rescue(
+            fn () => ShareMediaLibraries::dispatch($invite->email),
+            fn (Throwable $e) => $this->reportFollowUp(
+                "Could not queue the media-server share for {$invite->email} ({$username}). Share the libraries with them by hand.",
+                $e,
+            ),
+        );
+
         $this->pushover->send(
             "{$username} accepted their invite",
             "{$invite->email} is now the Member {$username}. They still need to set a password through Authelia.",
@@ -110,6 +120,7 @@ class InviteAcceptController extends Controller
         return view('invite.accepted', [
             'username' => $username,
             'resetUrl' => rtrim(config('services.authelia.base_url'), '/').'/reset-password/step1',
+            'mediaServerConfigured' => $mediaServer->isConfigured(),
         ]);
     }
 

@@ -1,11 +1,13 @@
 <?php
 
 use App\Enums\InviteStatus;
+use App\Jobs\ShareMediaLibraries;
 use App\Models\Invite;
 use App\Models\Subscriber;
 use App\Models\User;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 
 /**
@@ -33,6 +35,7 @@ beforeEach(function () {
 
     Http::fake(['api.pushover.net/*' => Http::response()]);
     Http::preventStrayRequests();
+    Queue::fake();
 
     config([
         'services.authelia.base_url' => 'http://auth',
@@ -101,6 +104,32 @@ it('provisions the Member into LLDAP and stamps the Invite', function () {
     Http::assertSent(fn ($request) => Str::contains($request->url(), 'pushover')
         && Str::contains($request['message'], 'brightblade'));
 });
+
+it('queues the media-server invite after acceptance', function () {
+    fakeLldapProvisioning();
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])->assertOk();
+
+    Queue::assertPushed(ShareMediaLibraries::class, fn (ShareMediaLibraries $job) => $job->email === 'sturm@example.com');
+});
+
+it('mentions the coming media-server email only when the seam is configured', function (?string $token, bool $mentioned) {
+    config(['services.plex.token' => $token]);
+    fakeLldapProvisioning();
+
+    $response = $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+    ])->assertOk();
+
+    $mentioned ? $response->assertSee('Plex') : $response->assertDontSee('Plex');
+})->with([
+    'configured' => ['plex-token', true],
+    'unconfigured' => [null, false],
+]);
 
 it('rejects a username that already exists in LLDAP', function () {
     Http::fake([

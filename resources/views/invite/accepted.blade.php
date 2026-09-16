@@ -23,4 +23,12 @@
             Set your password
         </a>
     </p>
+
+    @if ($mediaServerConfigured)
+        <p class="mt-2">
+            One more email is coming, this one from Plex, inviting you to the media libraries. It can take a
+            few minutes. Accept it with the same email address this invitation came to, or Plex won't match
+            it up.
+        </p>
+    @endif
 </x-layouts::public>

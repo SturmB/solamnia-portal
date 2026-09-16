@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\MediaServer;
+use App\Services\Plex;
 use Carbon\CarbonImmutable;
 use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Support\Facades\Date;
@@ -20,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(MediaServer::class, Plex::class);
+
         // Route names are first-registration-wins, and Fortify names its own
         // login route 'login' when it boots — before the app's route files
         // load. Claiming the name here, in the register phase, is the only
