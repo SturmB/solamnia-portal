@@ -103,6 +103,21 @@ class Invite extends Model
         });
     }
 
+    /**
+     * Stamp revoked-at in one conditional update so a stale row cannot be
+     * revoked: false means the Invite was no longer pending (accepted,
+     * expired, or already revoked) and nothing was written.
+     */
+    public function revoke(): bool
+    {
+        $affectedRowCount = static::query()->pending()->whereKey($this)
+            ->update(['revoked_at' => Carbon::now()]);
+
+        $this->refresh();
+
+        return $affectedRowCount === 1;
+    }
+
     protected function casts(): array
     {
         return [
