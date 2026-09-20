@@ -21,7 +21,8 @@ class InviteFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'suggested_name' => fake()->firstName(),
             'invited_by' => User::factory(),
-            'token' => hash('sha256', Str::random(64)),
+            'plain_token' => $raw = Str::random(64),
+            'token' => hash('sha256', $raw),
             'expires_at' => now()->addDays(14),
         ];
     }
