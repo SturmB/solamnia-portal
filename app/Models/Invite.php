@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
+ * @property string|null $plain_token
  * @property Carbon $expires_at
  * @property Carbon|null $revoked_at
  * @property Carbon|null $accepted_at
@@ -24,8 +25,6 @@ class Invite extends Model
 {
     /** @use HasFactory<InviteFactory> */
     use HasFactory;
-
-    public ?string $plainTextToken = null;
 
     /**
      * @return BelongsTo<User, $this>
@@ -73,9 +72,9 @@ class Invite extends Model
             'email' => Str::lower($email),
             'suggested_name' => $suggestedName,
         ]);
-        $invite->plainTextToken = Str::random(64);
+        $invite->plain_token = Str::random(64);
 
-        $invite->token = hash('sha256', $invite->plainTextToken);
+        $invite->token = hash('sha256', $invite->plain_token);
         $invite->expires_at = Carbon::now()->addDays(14);
         $invite->inviter()->associate($inviter);
         $invite->save();
@@ -107,6 +106,7 @@ class Invite extends Model
     protected function casts(): array
     {
         return [
+            'plain_token' => 'encrypted',
             'expires_at' => 'datetime',
             'revoked_at' => 'datetime',
             'accepted_at' => 'datetime',

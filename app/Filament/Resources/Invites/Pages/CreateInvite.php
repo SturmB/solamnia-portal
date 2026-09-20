@@ -28,7 +28,7 @@ class CreateInvite extends CreateRecord
 
         $invite = Invite::issue($data['email'], $data['suggested_name'], $admin);
 
-        Mail::to($invite->email)->send(new InviteMail($invite, $invite->plainTextToken));
+        Mail::to($invite->email)->send(new InviteMail($invite, $invite->plain_token));
 
         return $invite;
     }
