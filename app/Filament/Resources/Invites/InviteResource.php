@@ -32,8 +32,7 @@ class InviteResource extends Resource
     }
 
     /**
-     * Issue and list only: an Invite is never edited after issuance — resend,
-     * copy-link and revoke arrive as row actions in a later ticket.
+     * Issue and list only: an Invite is never edited after issuance.
      */
     public static function getPages(): array
     {
