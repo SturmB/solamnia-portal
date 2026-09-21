@@ -49,10 +49,10 @@ class InvitesTable
                     ->visible($canResend)
                     ->label('Copy link')
                     ->icon(Heroicon::OutlinedClipboard)
-                    ->schema(fn (Invite $record) => [
+                    ->schema([
                         TextEntry::make('url')
                             ->label('Invite link')
-                            ->state(route('invites.show', $record->plain_token))
+                            ->state(fn (Invite $record): string => route('invites.show', $record->plain_token))
                             ->copyable()
                             ->copyMessage('Link copied'),
                     ])
