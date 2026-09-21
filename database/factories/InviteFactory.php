@@ -17,11 +17,13 @@ class InviteFactory extends Factory
      */
     public function definition(): array
     {
+        $raw = Str::random(64);
+
         return [
             'email' => fake()->unique()->safeEmail(),
             'suggested_name' => fake()->firstName(),
             'invited_by' => User::factory(),
-            'plain_token' => $raw = Str::random(64),
+            'plain_token' => $raw,
             'token' => hash('sha256', $raw),
             'expires_at' => now()->addDays(14),
         ];

@@ -18,8 +18,7 @@ class CreateInvite extends CreateRecord
 
     /**
      * Route the form through Invite::issue() so the token, expiry and inviter
-     * are minted in one place, then send the link while the raw token is still
-     * in memory — it exists nowhere else.
+     * are minted in one place, then send the link with the raw token.
      */
     protected function handleRecordCreation(array $data): Model
     {

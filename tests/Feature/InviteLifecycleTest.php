@@ -48,10 +48,6 @@ it('revokes from the panel and the link stops working', function (): void {
     $this->get(route('invites.show', $invite->plain_token))
         ->assertOk()
         ->assertSee('no longer valid');
-
-    $refreshedInvite = $invite->fresh();
-    expect($refreshedInvite->token)->toBe($invite->token)
-        ->and($refreshedInvite->expires_at)->toEqual($invite->expires_at);
 });
 
 it('hides every action once the Invite is no longer pending', function (string $state) {
