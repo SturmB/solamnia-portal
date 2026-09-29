@@ -45,7 +45,6 @@ class InvitesTable
             ->recordActions([
                 Action::make('copyLink')
                     ->visible($canResend)
-                    ->label('Copy link')
                     ->icon(Heroicon::OutlinedClipboard)
                     ->schema([
                         TextEntry::make('url')

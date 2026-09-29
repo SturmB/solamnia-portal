@@ -44,6 +44,7 @@ it('copies the link without rotating the token or extending expiry', function ()
     $invite = Invite::factory()->create();
 
     livewire(ListInvites::class)
+        ->assertActionHasLabel(TestAction::make('copyLink')->table($invite), 'Copy link')
         ->mountAction(TestAction::make('copyLink')->table($invite))
         ->assertMountedActionModalSee(route('invites.show', $invite->plain_token));
 });
