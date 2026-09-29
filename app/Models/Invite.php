@@ -113,7 +113,9 @@ class Invite extends Model
         $affectedRowCount = static::query()->pending()->whereKey($this)
             ->update(['revoked_at' => Carbon::now()]);
 
-        $this->refresh();
+        if ($affectedRowCount === 1) {
+            $this->refresh();
+        }
 
         return $affectedRowCount === 1;
     }

@@ -54,3 +54,11 @@ it('refuses to revoke an Invite that is no longer pending', function (string $st
     ['expired', InviteStatus::Expired],
     ['revoked', InviteStatus::Revoked],
 ]);
+
+it('refuses to revoke an Invite whose row was deleted underneath it', function (): void {
+    $invite = Invite::factory()->create();
+
+    Invite::query()->whereKey($invite)->delete();
+
+    expect($invite->revoke())->toBeFalse();
+});
