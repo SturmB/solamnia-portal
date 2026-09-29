@@ -1,17 +1,12 @@
 #!/usr/bin/env sh
 #
-# Run the slower correctness checks before code leaves the machine:
-# static analysis, Rector, and the full test suite. Formatting is already handled at commit.
+# Run the PHP half of the CI gate before code leaves the machine: Rector,
+# Pint, PHPStan and the test suite, via `composer test`. CI runs the same
+# composer scripts step by step, plus Prettier and an asset build that this
+# hook skips. Add new checks to `composer test`, not here.
 
 set -e
 
-echo "→ PHPStan"
-composer stan
-
-echo "→ Rector"
-composer rector:check
-
-echo "→ Tests"
-php artisan test
+composer test
 
 exit 0
