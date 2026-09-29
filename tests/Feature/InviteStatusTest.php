@@ -53,3 +53,12 @@ it('refuses to revoke an Invite whose row was deleted underneath it', function (
 
     expect($invite->revoke())->toBeFalse();
 });
+
+it('reloads a stale Invite when refusing to revoke it', function (): void {
+    $invite = Invite::factory()->create();
+
+    Invite::query()->whereKey($invite)->update(['accepted_at' => now()]);
+
+    expect($invite->revoke())->toBeFalse()
+        ->and($invite->status())->toBe(InviteStatus::Accepted);
+});

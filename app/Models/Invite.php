@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -127,8 +128,10 @@ class Invite extends Model
         $affectedRowCount = static::query()->pending()->whereKey($this)
             ->update(['revoked_at' => Carbon::now()]);
 
-        if ($affectedRowCount === 1) {
+        try {
             $this->refresh();
+        } catch (ModelNotFoundException) {
+            return false;
         }
 
         return $affectedRowCount === 1;
