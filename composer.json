@@ -82,6 +82,7 @@
         ],
         "test": [
             "@php artisan config:clear --ansi",
+            "@rector:check",
             "@lint:check",
             "@stan",
             "@php artisan test"
