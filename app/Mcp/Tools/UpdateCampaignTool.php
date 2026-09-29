@@ -38,10 +38,10 @@ class UpdateCampaignTool extends Tool
             'body_markdown' => ['sometimes', ...$rules['body_markdown']],
         ]));
 
-        return Response::text(json_encode([
+        return Response::json([
             'id' => $campaign->id,
             'status' => $campaign->status()->value,
-        ], JSON_UNESCAPED_SLASHES));
+        ]);
     }
 
     /**

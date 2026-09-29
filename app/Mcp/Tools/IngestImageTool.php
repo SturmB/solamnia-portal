@@ -44,11 +44,11 @@ class IngestImageTool extends Tool
 
         $url = Storage::disk('public')->url($storedPath);
 
-        return Response::text(json_encode([
+        return Response::json([
             'path' => $storedPath,
             'url' => $url,
             'markdown' => "![]({$url})",
-        ], JSON_UNESCAPED_SLASHES));
+        ]);
     }
 
     /**

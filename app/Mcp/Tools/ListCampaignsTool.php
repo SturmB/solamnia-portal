@@ -31,7 +31,7 @@ class ListCampaignsTool extends Tool
                 'sent_at' => $campaign->sent_at?->toIso8601String(),
             ]);
 
-        return Response::text(json_encode($campaigns, JSON_UNESCAPED_SLASHES));
+        return Response::json($campaigns);
     }
 
     /**

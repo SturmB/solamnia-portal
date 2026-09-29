@@ -62,7 +62,7 @@ class InvitesTable
                     ->visible($canResend)
                     ->icon(Heroicon::OutlinedEnvelope)
                     ->action(function (Invite $record): void {
-                        Mail::to($record->email)->send(new InviteMail($record, $record->plain_token));
+                        Mail::to($record->email)->send(new InviteMail($record));
                         Notification::make()
                             ->title('Invite re-sent')
                             ->success()

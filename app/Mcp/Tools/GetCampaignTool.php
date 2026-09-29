@@ -26,7 +26,7 @@ class GetCampaignTool extends Tool
             return Response::error("No Campaign with id {$request->integer('id')}.");
         }
 
-        return Response::text(json_encode([
+        return Response::json([
             'id' => $campaign->id,
             'subject' => $campaign->subject,
             'body_markdown' => $campaign->body_markdown,
@@ -35,7 +35,7 @@ class GetCampaignTool extends Tool
             'sent_at' => $campaign->sent_at?->toIso8601String(),
             'created_at' => $campaign->created_at?->toIso8601String(),
             'updated_at' => $campaign->updated_at?->toIso8601String(),
-        ], JSON_UNESCAPED_SLASHES));
+        ]);
     }
 
     /**

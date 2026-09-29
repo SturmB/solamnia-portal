@@ -77,6 +77,20 @@ test('a login without the members group is refused and creates nothing', functio
     'groups scope missing' => [null],
 ]);
 
+test('a login without an email claim is refused and creates nothing', function (?string $email): void {
+    Socialite::fake('authelia', autheliaUser([
+        'email' => $email,
+    ]));
+
+    $this->get(route('auth.callback'))->assertForbidden();
+
+    $this->assertGuest();
+    expect(User::count())->toBe(0);
+})->with([
+    'claim missing' => [null],
+    'claim empty' => [''],
+]);
+
 test('an unknown person in the members group is created just in time', function (): void {
     Socialite::fake('authelia', autheliaUser());
 

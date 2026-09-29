@@ -34,6 +34,14 @@ class SsoCallbackController extends Controller
             __('You are not a Member of the portal. Contact the Admin.'),
         );
 
+        // The email is the shadow row's address and its bootstrap key, so a
+        // claim set without one cannot become a Member.
+        abort_if(
+            in_array($claims->getEmail(), [null, ''], true),
+            403,
+            __('Your account has no email address. Contact the Admin.'),
+        );
+
         $email = Str::lower($claims->getEmail());
         $member = User::where('oidc_sub', $claims->getId())->first()
             ?? User::where('email', $email)->first()
