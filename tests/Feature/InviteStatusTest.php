@@ -4,7 +4,7 @@ use App\Enums\InviteStatus;
 use App\Models\Invite;
 use App\Models\User;
 
-it('derives status from the timestamps', function (string $state, InviteStatus $expected) {
+it('derives status from the timestamps', function (string $state, InviteStatus $expected): void {
     $invite = $state === 'pending'
         ? Invite::factory()->create()
         : Invite::factory()->{$state}()->create();
@@ -17,7 +17,7 @@ it('derives status from the timestamps', function (string $state, InviteStatus $
     ['accepted', InviteStatus::Accepted],
 ]);
 
-it('accepts once and refuses a second redemption', function () {
+it('accepts once and refuses a second redemption', function (): void {
     $invite = Invite::factory()->create();
 
     expect($invite->accept('brightblade'))->toBeTrue();
@@ -25,7 +25,7 @@ it('accepts once and refuses a second redemption', function () {
         ->and($invite->fresh()->username)->toBe('brightblade');
 });
 
-it('keeps the raw token recoverable after issuance', function () {
+it('keeps the raw token recoverable after issuance', function (): void {
     $invite = Invite::issue('sturm@example.com', 'Sturm', User::factory()->create());
 
     $refreshedInvite = $invite->fresh();
@@ -33,7 +33,7 @@ it('keeps the raw token recoverable after issuance', function () {
         ->and(hash('sha256', $refreshedInvite->plain_token))->toBe($invite->token);
 });
 
-it('revokes a pending Invite', function () {
+it('revokes a pending Invite', function (): void {
     $invite = Invite::factory()->create();
 
     $result = $invite->revoke();

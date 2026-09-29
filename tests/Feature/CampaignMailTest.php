@@ -5,7 +5,7 @@ use App\Models\Campaign;
 use App\Models\Subscriber;
 use Illuminate\Support\Facades\URL;
 
-it('embeds per-subscriber signed unsubscribe and view-in-browser links in the rendered email', function () {
+it('embeds per-subscriber signed unsubscribe and view-in-browser links in the rendered email', function (): void {
     $subscriber = Subscriber::factory()->create();
     $campaign = Campaign::factory()->create();
 
@@ -16,25 +16,25 @@ it('embeds per-subscriber signed unsubscribe and view-in-browser links in the re
         ->toContain(URL::signedRoute('campaigns.view', ['campaign' => $campaign, 'subscriber' => $subscriber]));
 });
 
-it('omits the footer links when rendered without a subscriber (test send to self)', function () {
+it('omits the footer links when rendered without a subscriber (test send to self)', function (): void {
     $campaign = Campaign::factory()->create();
 
     expect($campaign->renderHtml())->not->toContain('/unsubscribe/');
 });
 
-it('sets List-Unsubscribe headers pointing at the signed unsubscribe URL', function () {
+it('sets List-Unsubscribe headers pointing at the signed unsubscribe URL', function (): void {
     $subscriber = Subscriber::factory()->create();
     $campaign = Campaign::factory()->create();
 
-    $headers = (new CampaignMail($campaign, $subscriber))->headers();
+    $headers = new CampaignMail($campaign, $subscriber)->headers();
 
     expect($headers->text)
         ->toHaveKey('List-Unsubscribe', '<'.URL::signedRoute('unsubscribe', ['subscriber' => $subscriber]).'>')
         ->toHaveKey('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
 });
 
-it('omits List-Unsubscribe headers for a subscriber-less test send', function () {
+it('omits List-Unsubscribe headers for a subscriber-less test send', function (): void {
     $campaign = Campaign::factory()->create();
 
-    expect((new CampaignMail($campaign))->headers()->text)->toBeEmpty();
+    expect(new CampaignMail($campaign)->headers()->text)->toBeEmpty();
 });

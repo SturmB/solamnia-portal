@@ -6,6 +6,7 @@ use App\Enums\CampaignStatus;
 use Database\Factories\CampaignFactory;
 use Dom\Element;
 use Dom\HTMLDocument;
+use Dom\Node;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -188,7 +189,7 @@ class Campaign extends Model
     {
         $elements = array_values(array_filter(
             iterator_to_array($node->childNodes),
-            fn ($child): bool => $child instanceof Element,
+            fn (Node $child): bool => $child instanceof Element,
         ));
 
         return count($elements) === 1 ? $elements[0] : null;

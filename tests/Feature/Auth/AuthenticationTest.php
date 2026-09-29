@@ -3,7 +3,7 @@
 use App\Models\User;
 use Laravel\Fortify\Features;
 
-test('login screen can be rendered', function () {
+test('login screen can be rendered', function (): void {
     $response = $this->get(route('login'));
 
     $response->assertOk()
@@ -11,7 +11,7 @@ test('login screen can be rendered', function () {
         ->assertDontSee('type="password"', escape: false);
 });
 
-test('a stranger can not register themselves', function () {
+test('a stranger can not register themselves', function (): void {
     $this->get('/register')->assertNotFound();
 
     $this->post('/register', [
@@ -25,13 +25,13 @@ test('a stranger can not register themselves', function () {
     $this->assertDatabaseMissing('users', ['email' => 'stranger@example.com']);
 });
 
-test('the login screen does not advertise self-registration', function () {
+test('the login screen does not advertise self-registration', function (): void {
     $response = $this->get(route('login'));
 
     $response->assertDontSee('Sign up');
 });
 
-test('users can authenticate using the login screen', function () {
+test('users can authenticate using the login screen', function (): void {
     $user = User::factory()->create();
 
     $response = $this->post(route('login.store'), [
@@ -46,7 +46,7 @@ test('users can authenticate using the login screen', function () {
     $this->assertAuthenticated();
 });
 
-test('users can not authenticate with invalid password', function () {
+test('users can not authenticate with invalid password', function (): void {
     $user = User::factory()->create();
 
     $response = $this->post(route('login.store'), [
@@ -59,7 +59,7 @@ test('users can not authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
-test('users with two factor enabled are redirected to two factor challenge', function () {
+test('users with two factor enabled are redirected to two factor challenge', function (): void {
     $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     Features::twoFactorAuthentication([
@@ -78,7 +78,7 @@ test('users with two factor enabled are redirected to two factor challenge', fun
     $this->assertGuest();
 });
 
-test('users can logout', function () {
+test('users can logout', function (): void {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->post(route('logout'));
@@ -88,7 +88,7 @@ test('users can logout', function () {
     $this->assertGuest();
 });
 
-test('the break-glass door lives at its own address with a password form', function () {
+test('the break-glass door lives at its own address with a password form', function (): void {
     $this->get('/backup/login')
         ->assertOk()
         ->assertSee('type="password"', escape: false);

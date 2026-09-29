@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('campaigns', function (Blueprint $table) {
+        Schema::table('campaigns', function (Blueprint $table): void {
             $table->timestamp('scheduled_at')->nullable()->after('body_markdown');
             $table->timestamp('sent_at')->nullable()->after('scheduled_at');
             $table->unsignedInteger('recipient_count')->nullable()->after('sent_at');
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('campaigns', function (Blueprint $table) {
+        Schema::table('campaigns', function (Blueprint $table): void {
             $table->dropColumn(['scheduled_at', 'sent_at', 'recipient_count']);
         });
     }

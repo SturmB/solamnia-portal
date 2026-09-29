@@ -5,11 +5,11 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
 
-beforeEach(function () {
+beforeEach(function (): void {
     Http::fake();
 });
 
-it('is a no-op when Pushover credentials are absent', function () {
+it('is a no-op when Pushover credentials are absent', function (): void {
     config(['services.pushover.token' => null, 'services.pushover.user' => null]);
 
     app(Pushover::class)->send('Title', 'Message');
@@ -17,12 +17,12 @@ it('is a no-op when Pushover credentials are absent', function () {
     Http::assertNothingSent();
 });
 
-it('posts the title, message, and priority when credentials are present', function () {
+it('posts the title, message, and priority when credentials are present', function (): void {
     config(['services.pushover.token' => 'test-token', 'services.pushover.user' => 'test-user']);
 
     app(Pushover::class)->send('Campaign sent', 'Sent to 3 subscribers.', priority: 1);
 
-    Http::assertSent(function ($request) {
+    Http::assertSent(function ($request): bool {
         $data = $request->data();
 
         return $request->url() === 'https://api.pushover.net/1/messages.json'
@@ -34,7 +34,7 @@ it('posts the title, message, and priority when credentials are present', functi
     });
 });
 
-it('reports an unreachable Pushover instead of failing the caller', function () {
+it('reports an unreachable Pushover instead of failing the caller', function (): void {
     config(['services.pushover.token' => 'test-token', 'services.pushover.user' => 'test-user']);
     Http::fake(['api.pushover.net/*' => Http::failedConnection()]);
     Exceptions::fake();

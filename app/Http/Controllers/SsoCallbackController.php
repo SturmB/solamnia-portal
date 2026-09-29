@@ -23,7 +23,7 @@ class SsoCallbackController extends Controller
         try {
             $claims = Socialite::driver('authelia')->user();
         } catch (InvalidStateException) {
-            return redirect()->route('login');
+            return to_route('login');
         }
 
         // Fail closed: without the groups scope the claim arrives as null,

@@ -2,7 +2,7 @@
 
 use App\Models\Campaign;
 
-it('renders the Markdown body into branded HTML', function () {
+it('renders the Markdown body into branded HTML', function (): void {
     $campaign = Campaign::factory()->make([
         'subject' => 'Spring Update',
         'body_markdown' => "## Big news\n\nHello friends. [Reply](mailto:admin@solamnia.tv).",
@@ -17,7 +17,7 @@ it('renders the Markdown body into branded HTML', function () {
         ->toContain('<html');                           // MJML compiled a full document
 });
 
-it('renders the Aurora treatment: night ground, violet links, gradient band, no legacy brand or OKLCH', function () {
+it('renders the Aurora treatment: night ground, violet links, gradient band, no legacy brand or OKLCH', function (): void {
     $html = Campaign::factory()->make()->renderHtml();
 
     expect($html)
@@ -32,7 +32,7 @@ it('renders the Aurora treatment: night ground, violet links, gradient band, no 
         ->toContain('radial-gradient');        // the pre-baked aurora band (no shader, no JS)
 });
 
-it('promotes a standalone image paragraph to a full-width fluid image block', function () {
+it('promotes a standalone image paragraph to a full-width fluid image block', function (): void {
     $campaign = Campaign::factory()->make([
         'body_markdown' => "## The vault doubled\n\n![The rack, fully lit](https://solamnia.tv/img/rack.webp)\n\nMore room for 4K.",
     ]);
@@ -46,7 +46,7 @@ it('promotes a standalone image paragraph to a full-width fluid image block', fu
         ->toContain('More room for 4K');            // surrounding prose still renders
 });
 
-it('promotes a linked standalone image to a full-width image block that keeps its link', function () {
+it('promotes a linked standalone image to a full-width image block that keeps its link', function (): void {
     $campaign = Campaign::factory()->make([
         'body_markdown' => "Intro.\n\n[![The rack](https://solamnia.tv/img/rack.webp)](https://solamnia.tv/kb/vault)\n\nOutro.",
     ]);
@@ -59,7 +59,7 @@ it('promotes a linked standalone image to a full-width image block that keeps it
         ->toMatch('/<a\s+href="https:\/\/solamnia\.tv\/kb\/vault"[^>]*>\s*<img/');  // link survives around the image
 });
 
-it('pairs consecutive ### stories into a two-column row while the lead story stays full-width', function () {
+it('pairs consecutive ### stories into a two-column row while the lead story stays full-width', function (): void {
     $campaign = Campaign::factory()->make([
         'body_markdown' => implode("\n\n", [
             '## The vault doubled',
@@ -83,7 +83,7 @@ it('pairs consecutive ### stories into a two-column row while the lead story sta
     expect(substr_count($html, 'class="mj-column-per-50'))->toBe(2);
 });
 
-it('rules a hairline before each new story after the first, but not before the first or between a story and its own image', function () {
+it('rules a hairline before each new story after the first, but not before the first or between a story and its own image', function (): void {
     $campaign = Campaign::factory()->make([
         'body_markdown' => implode("\n\n", [
             '## The vault doubled',
@@ -103,7 +103,7 @@ it('rules a hairline before each new story after the first, but not before the f
     expect(substr_count($html, 'border-top:1px solid #1b1f30'))->toBe(1);
 });
 
-it('rules a hairline between consecutive full-width stories', function () {
+it('rules a hairline between consecutive full-width stories', function (): void {
     $campaign = Campaign::factory()->make([
         'body_markdown' => "## First story\n\nProse one.\n\n## Second story\n\nProse two.\n\n## Third story\n\nProse three.",
     ]);

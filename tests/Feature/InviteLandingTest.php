@@ -3,7 +3,7 @@
 use App\Models\Invite;
 use Illuminate\Support\Str;
 
-it('renders the friendly page with a 200 for a dead token', function (string $state) {
+it('renders the friendly page with a 200 for a dead token', function (string $state): void {
     $raw = Str::random(64);
     Invite::factory()->{$state}()->create(['token' => hash('sha256', $raw)]);
 
@@ -12,12 +12,12 @@ it('renders the friendly page with a 200 for a dead token', function (string $st
         ->assertSee('no longer valid');
 })->with(['expired', 'revoked', 'accepted']);
 
-it('renders the friendly page with a 200 for an unknown well-formed token', function () {
+it('renders the friendly page with a 200 for an unknown well-formed token', function (): void {
     $this->get(route('invites.show', Str::random(64)))
         ->assertOk()
         ->assertSee('no longer valid');
 });
 
-it('404s a malformed token instead of hitting the lookup', function () {
+it('404s a malformed token instead of hitting the lookup', function (): void {
     $this->get('/invites/not-a-token')->assertNotFound();
 });

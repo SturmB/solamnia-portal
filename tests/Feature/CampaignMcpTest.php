@@ -16,7 +16,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
-it('creates a draft Campaign from subject and Markdown', function () {
+it('creates a draft Campaign from subject and Markdown', function (): void {
     $response = CampaignServer::tool(CreateCampaignTool::class, [
         'subject' => 'Spring Update',
         'body_markdown' => '# Hello friends',
@@ -30,7 +30,7 @@ it('creates a draft Campaign from subject and Markdown', function () {
         ->status()->toBe(CampaignStatus::Draft);
 });
 
-it('renders an MCP-authored Campaign through the branded MJML pipeline', function () {
+it('renders an MCP-authored Campaign through the branded MJML pipeline', function (): void {
     CampaignServer::tool(CreateCampaignTool::class, [
         'subject' => 'Spring Update',
         'body_markdown' => '# Distinctive Render Heading',
@@ -39,7 +39,7 @@ it('renders an MCP-authored Campaign through the branded MJML pipeline', functio
     expect(Campaign::sole()->renderHtml())->toContain('Distinctive Render Heading');
 });
 
-it('rejects a Campaign without a subject', function () {
+it('rejects a Campaign without a subject', function (): void {
     $response = CampaignServer::tool(CreateCampaignTool::class, [
         'body_markdown' => '# Hello',
     ]);
@@ -49,7 +49,7 @@ it('rejects a Campaign without a subject', function () {
     expect(Campaign::count())->toBe(0);
 });
 
-it('rejects a subject longer than the panel form allows', function () {
+it('rejects a subject longer than the panel form allows', function (): void {
     $response = CampaignServer::tool(CreateCampaignTool::class, [
         'subject' => str_repeat('a', 256),
         'body_markdown' => '# Hello',
@@ -60,7 +60,7 @@ it('rejects a subject longer than the panel form allows', function () {
     expect(Campaign::count())->toBe(0);
 });
 
-it('ignores a scheduled_at argument — scheduling is human-only', function () {
+it('ignores a scheduled_at argument — scheduling is human-only', function (): void {
     CampaignServer::tool(CreateCampaignTool::class, [
         'subject' => 'Spring Update',
         'body_markdown' => '# Hello',
@@ -70,7 +70,7 @@ it('ignores a scheduled_at argument — scheduling is human-only', function () {
     expect(Campaign::sole()->scheduled_at)->toBeNull();
 });
 
-it('updates a draft Campaign', function () {
+it('updates a draft Campaign', function (): void {
     $draft = Campaign::factory()->create();
 
     CampaignServer::tool(UpdateCampaignTool::class, [
@@ -82,7 +82,7 @@ it('updates a draft Campaign', function () {
         ->subject->toBe('Revised subject');
 });
 
-it('refuses to update a sent Campaign', function () {
+it('refuses to update a sent Campaign', function (): void {
     $sent = Campaign::factory()->sent()->create();
     $original = $sent->subject;
 
@@ -94,7 +94,7 @@ it('refuses to update a sent Campaign', function () {
     expect($sent->refresh()->subject)->toBe($original);
 });
 
-it('deletes a draft Campaign', function () {
+it('deletes a draft Campaign', function (): void {
     $draft = Campaign::factory()->create();
 
     CampaignServer::tool(DeleteCampaignTool::class, ['id' => $draft->id])->assertOk();
@@ -102,7 +102,7 @@ it('deletes a draft Campaign', function () {
     expect(Campaign::count())->toBe(0);
 });
 
-it('refuses to delete a sent Campaign', function () {
+it('refuses to delete a sent Campaign', function (): void {
     $sent = Campaign::factory()->sent()->create();
 
     CampaignServer::tool(DeleteCampaignTool::class, ['id' => $sent->id])
@@ -111,12 +111,12 @@ it('refuses to delete a sent Campaign', function () {
     expect(Campaign::count())->toBe(1);
 });
 
-it('errors clearly when a Campaign does not exist', function () {
+it('errors clearly when a Campaign does not exist', function (): void {
     CampaignServer::tool(GetCampaignTool::class, ['id' => 999])
         ->assertHasErrors(['No Campaign with id 999.']);
 });
 
-it('returns a Campaign with its derived status', function () {
+it('returns a Campaign with its derived status', function (): void {
     $scheduled = Campaign::factory()->create(['scheduled_at' => now()->addDay()]);
 
     CampaignServer::tool(GetCampaignTool::class, ['id' => $scheduled->id])
@@ -125,7 +125,7 @@ it('returns a Campaign with its derived status', function () {
         ->assertSee($scheduled->subject);
 });
 
-it('lists Campaigns with id, subject, and status', function () {
+it('lists Campaigns with id, subject, and status', function (): void {
     $draft = Campaign::factory()->create();
     $sent = Campaign::factory()->sent()->create();
 
@@ -136,7 +136,7 @@ it('lists Campaigns with id, subject, and status', function () {
         ->assertSee('"status":"sent"');
 });
 
-it('ingests an image onto the public disk under campaigns/', function () {
+it('ingests an image onto the public disk under campaigns/', function (): void {
     Storage::fake('public');
 
     // Keep the UploadedFile in scope — its temp file is deleted on GC.
@@ -151,7 +151,7 @@ it('ingests an image onto the public disk under campaigns/', function () {
         ->and(Storage::disk('public')->getVisibility($stored[0]))->toBe('public');
 });
 
-it('refuses to ingest a file that is not an image', function () {
+it('refuses to ingest a file that is not an image', function (): void {
     Storage::fake('public');
 
     $source = tempnam(sys_get_temp_dir(), 'mcp');
@@ -163,7 +163,7 @@ it('refuses to ingest a file that is not an image', function () {
     expect(Storage::disk('public')->allFiles())->toBeEmpty();
 });
 
-it('test-sends a Campaign to the admin Member through the existing mailable', function () {
+it('test-sends a Campaign to the admin Member through the existing mailable', function (): void {
     Mail::fake();
 
     $admin = User::factory()->create(['is_admin' => true]);
@@ -179,7 +179,7 @@ it('test-sends a Campaign to the admin Member through the existing mailable', fu
         && $mail->campaign->is($campaign));
 });
 
-it('errors clearly when no admin exists to test-send to', function () {
+it('errors clearly when no admin exists to test-send to', function (): void {
     Mail::fake();
 
     $campaign = Campaign::factory()->create();

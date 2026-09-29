@@ -25,7 +25,7 @@ function fakeLldapProvisioning(): void
     ]);
 }
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->rawToken = Str::random(64);
     $this->invite = Invite::factory()->create([
         'email' => 'sturm@example.com',
@@ -45,7 +45,7 @@ beforeEach(function () {
     ]);
 });
 
-it('renders the invite acceptance form', function () {
+it('renders the invite acceptance form', function (): void {
     $this->get(route('invites.show', $this->rawToken))
         ->assertOk()
         ->assertSee('sturm@example.com')
@@ -55,7 +55,7 @@ it('renders the invite acceptance form', function () {
         ->assertSee(route('invites.accept', $this->rawToken), escape: false);
 });
 
-it('rejects a badly formed username and touches nothing', function (string $username) {
+it('rejects a badly formed username and touches nothing', function (string $username): void {
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => $username,
         'name' => 'Sturm',
@@ -70,7 +70,7 @@ it('rejects a badly formed username and touches nothing', function (string $user
     'too long' => str_repeat('a', 33),
 ]);
 
-it('provisions the Member into LLDAP and stamps the Invite', function () {
+it('provisions the Member into LLDAP and stamps the Invite', function (): void {
     fakeLldapProvisioning();
 
     $this->post(route('invites.accept', $this->rawToken), [
@@ -84,7 +84,7 @@ it('provisions the Member into LLDAP and stamps the Invite', function () {
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Accepted)
         ->and($this->invite->fresh()->username)->toBe('brightblade');
 
-    Http::assertSent(fn ($request) => Str::endsWith($request->url(), '/api/graphql')
+    Http::assertSent(fn ($request): bool => Str::endsWith($request->url(), '/api/graphql')
         && $request->hasHeader('Authorization', 'Bearer jwt-abc')
         && Str::contains($request['query'], 'createUser')
         && $request['variables']['user'] === [
@@ -93,7 +93,7 @@ it('provisions the Member into LLDAP and stamps the Invite', function () {
             'displayName' => 'Sturm Brightblade',
         ]);
 
-    Http::assertSent(fn ($request) => Str::endsWith($request->url(), '/api/graphql')
+    Http::assertSent(fn ($request): bool => Str::endsWith($request->url(), '/api/graphql')
         && $request->hasHeader('Authorization', 'Bearer jwt-abc')
         && Str::contains($request['query'], 'addUserToGroup')
         && $request['variables'] === [
@@ -101,11 +101,11 @@ it('provisions the Member into LLDAP and stamps the Invite', function () {
             'groupId' => 3,
         ]);
 
-    Http::assertSent(fn ($request) => Str::contains($request->url(), 'pushover')
+    Http::assertSent(fn ($request): bool => Str::contains($request->url(), 'pushover')
         && Str::contains($request['message'], 'brightblade'));
 });
 
-it('queues the media-server invite after acceptance', function () {
+it('queues the media-server invite after acceptance', function (): void {
     fakeLldapProvisioning();
 
     $this->post(route('invites.accept', $this->rawToken), [
@@ -113,10 +113,10 @@ it('queues the media-server invite after acceptance', function () {
         'name' => 'Sturm Brightblade',
     ])->assertOk();
 
-    Queue::assertPushed(ShareMediaLibraries::class, fn (ShareMediaLibraries $job) => $job->email === 'sturm@example.com');
+    Queue::assertPushed(ShareMediaLibraries::class, fn (ShareMediaLibraries $job): bool => $job->email === 'sturm@example.com');
 });
 
-it('mentions the coming media-server email only when the seam is configured', function (?string $token, bool $mentioned) {
+it('mentions the coming media-server email only when the seam is configured', function (?string $token, bool $mentioned): void {
     config(['services.plex.token' => $token]);
     fakeLldapProvisioning();
 
@@ -131,7 +131,7 @@ it('mentions the coming media-server email only when the seam is configured', fu
     'unconfigured' => [null, false],
 ]);
 
-it('rejects a username that already exists in LLDAP', function () {
+it('rejects a username that already exists in LLDAP', function (): void {
     Http::fake([
         'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
         'lldap/api/graphql' => Http::response([
@@ -148,7 +148,7 @@ it('rejects a username that already exists in LLDAP', function () {
     Http::assertNotSent(fn ($request) => Str::contains($request['query'] ?? '', 'createUser'));
 });
 
-it('leaves the Invite pending and renders the retry page when LLDAP fails', function (array $responses) {
+it('leaves the Invite pending and renders the retry page when LLDAP fails', function (array $responses): void {
     $sequence = Http::sequence();
     foreach ($responses as $response) {
         $sequence->push($response);
@@ -181,7 +181,7 @@ it('leaves the Invite pending and renders the retry page when LLDAP fails', func
     ]],
 ]);
 
-it('continues to grouping when the user already exists from a failed attempt', function () {
+it('continues to grouping when the user already exists from a failed attempt', function (): void {
     Http::fake([
         'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
         'lldap/api/graphql' => Http::sequence()
@@ -201,7 +201,7 @@ it('continues to grouping when the user already exists from a failed attempt', f
     Http::assertSent(fn ($request) => Str::contains($request['query'] ?? '', 'addUserToGroup'));
 });
 
-it('shows the friendly page instead of provisioning for a dead or unknown token', function (?string $state) {
+it('shows the friendly page instead of provisioning for a dead or unknown token', function (?string $state): void {
     $rawToken = Str::random(64);
     if ($state !== null) {
         Invite::factory()->{$state}()->create(['token' => hash('sha256', $rawToken)]);
@@ -217,7 +217,7 @@ it('shows the friendly page instead of provisioning for a dead or unknown token'
     Http::assertNothingSent();
 })->with(['accepted', 'unknown' => null]);
 
-it('maps a duplicate-user error on create to the taken error', function () {
+it('maps a duplicate-user error on create to the taken error', function (): void {
     Http::fake([
         'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
         'lldap/api/graphql' => Http::sequence()
@@ -234,7 +234,7 @@ it('maps a duplicate-user error on create to the taken error', function () {
     Http::assertNotSent(fn ($request) => Str::contains($request->url(), 'pushover'));
 });
 
-it('renders the retry page when LLDAP is unreachable', function () {
+it('renders the retry page when LLDAP is unreachable', function (): void {
     Http::fake(['lldap/*' => Http::failedConnection()]);
 
     $this->post(route('invites.accept', $this->rawToken), [
@@ -248,7 +248,7 @@ it('renders the retry page when LLDAP is unreachable', function () {
     Http::assertSent(fn ($request) => Str::contains($request['message'] ?? '', 'unreachable'));
 });
 
-it('writes the eager shadow row after acceptance', function () {
+it('writes the eager shadow row after acceptance', function (): void {
     fakeLldapProvisioning();
 
     $this->post(route('invites.accept', $this->rawToken), [
@@ -265,7 +265,7 @@ it('writes the eager shadow row after acceptance', function () {
         ->and($shadow->is_admin)->toBeFalse();
 });
 
-it('creates a Subscriber after acceptance when none exists', function () {
+it('creates a Subscriber after acceptance when none exists', function (): void {
     fakeLldapProvisioning();
 
     $this->post(route('invites.accept', $this->rawToken), [
@@ -279,7 +279,7 @@ it('creates a Subscriber after acceptance when none exists', function () {
         ->and($subscriber->unsubscribed_at)->toBeNull();
 });
 
-it('adopts an existing unsubscribed Subscriber without resubscribing them', function () {
+it('adopts an existing unsubscribed Subscriber without resubscribing them', function (): void {
     $unsubscribed = Subscriber::factory()->unsubscribed()->create([
         'email' => 'sturm@example.com',
         'name' => 'Old Name',
@@ -296,7 +296,7 @@ it('adopts an existing unsubscribed Subscriber without resubscribing them', func
         ->and($unsubscribed->fresh()->name)->toBe('Old Name');
 });
 
-it('keeps the success response when a follow-up throws, and reports it', function (string $model, string $survivor) {
+it('keeps the success response when a follow-up throws, and reports it', function (string $model, string $survivor): void {
     Exceptions::fake();
     $model::creating(fn () => throw new RuntimeException('Table on fire'));
     fakeLldapProvisioning();
@@ -313,7 +313,7 @@ it('keeps the success response when a follow-up throws, and reports it', functio
         ->and($survivor::where('email', 'sturm@example.com')->exists())->toBeTrue();
 
     Exceptions::assertReported(RuntimeException::class);
-    Http::assertSent(fn ($request) => Str::contains($request->url(), 'pushover')
+    Http::assertSent(fn ($request): bool => Str::contains($request->url(), 'pushover')
         && $request['priority'] === 1
         && Str::contains($request['message'], 'Table on fire'));
 })->with([

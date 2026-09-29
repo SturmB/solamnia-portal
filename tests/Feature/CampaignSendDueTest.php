@@ -7,14 +7,14 @@ use App\Models\Subscriber;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
-beforeEach(function () {
+beforeEach(function (): void {
     // Give Pushover credentials so Pushover::send() actually fires and fake the HTTP layer
     // so we can assert the POST without hitting the network.
     config(['services.pushover.token' => 'test-token', 'services.pushover.user' => 'test-user']);
     Http::fake();
 });
 
-it('sends a due campaign to every opted-in subscriber and skips opted-out', function () {
+it('sends a due campaign to every opted-in subscriber and skips opted-out', function (): void {
     Mail::fake();
 
     $optedInSubscribers = Subscriber::factory()->count(3)->create(['unsubscribed_at' => null]);
@@ -29,10 +29,10 @@ it('sends a due campaign to every opted-in subscriber and skips opted-out', func
 
     Mail::assertSentCount(3);
 
-    $optedInSubscribers->each(function (Subscriber $subscriber) {
+    $optedInSubscribers->each(function (Subscriber $subscriber): void {
         Mail::assertSent(CampaignMail::class, fn (CampaignMail $mail): bool => $mail->hasTo($subscriber->email));
     });
-    $optedOutSubscribers->each(function (Subscriber $subscriber) {
+    $optedOutSubscribers->each(function (Subscriber $subscriber): void {
         Mail::assertNotSent(CampaignMail::class, fn (CampaignMail $mail): bool => $mail->hasTo($subscriber->email));
     });
 
@@ -41,14 +41,14 @@ it('sends a due campaign to every opted-in subscriber and skips opted-out', func
         ->and($campaign->sent_at)->not->toBeNull()
         ->and($campaign->status())->toBe(CampaignStatus::Sent);
 
-    Http::assertSent(function ($request) {
+    Http::assertSent(function ($request): bool {
         $data = $request->data();
 
         return $data['priority'] === 0 && str_contains($data['title'], 'Campaign sent');
     });
 });
 
-it('leaves a not-yet-due scheduled campaign alone', function () {
+it('leaves a not-yet-due scheduled campaign alone', function (): void {
     Mail::fake();
 
     $campaign = Campaign::factory()->create(['scheduled_at' => now()->addHour()]);
@@ -59,7 +59,7 @@ it('leaves a not-yet-due scheduled campaign alone', function () {
     expect($campaign->refresh()->sent_at)->toBeNull();
 });
 
-it('does not send twice when the sweep runs again (idempotency)', function () {
+it('does not send twice when the sweep runs again (idempotency)', function (): void {
     Mail::fake();
 
     Campaign::factory()->create(['scheduled_at' => now()->subMinute()]);
@@ -71,7 +71,7 @@ it('does not send twice when the sweep runs again (idempotency)', function () {
     Mail::assertSentCount(2);
 });
 
-it('fires a failure notification and keeps going when a send throws', function () {
+it('fires a failure notification and keeps going when a send throws', function (): void {
     Mail::shouldReceive('to')->andThrow(new RuntimeException('smtp down'));
 
     Campaign::factory()->create(['scheduled_at' => now()->subMinute()]);
@@ -79,6 +79,6 @@ it('fires a failure notification and keeps going when a send throws', function (
 
     $this->artisan('campaigns:send-due')->assertSuccessful();
 
-    Http::assertSent(fn ($request) => str_contains($request->data()['title'], 'FAILED'));
-    Http::assertNotSent(fn ($request) => str_contains($request->data()['title'], 'Campaign sent'));
+    Http::assertSent(fn ($request): bool => str_contains($request->data()['title'], 'FAILED'));
+    Http::assertNotSent(fn ($request): bool => str_contains($request->data()['title'], 'Campaign sent'));
 });

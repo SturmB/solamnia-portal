@@ -30,7 +30,7 @@ Route::get('auth/redirect', fn () => Socialite::driver('authelia')->redirect())
 Route::get('auth/callback', SsoCallbackController::class)
     ->name('auth.callback');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 });
 

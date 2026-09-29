@@ -15,7 +15,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name('test_send')]
-#[Description('Send a Campaign through the real branded MJML pipeline to the admin Member\'s email as a test. Does not touch scheduling or real recipients.')]
+#[Description("Send a Campaign through the real branded MJML pipeline to the admin Member's email as a test. Does not touch scheduling or real recipients.")]
 class TestSendTool extends Tool
 {
     /**

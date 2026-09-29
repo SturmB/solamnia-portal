@@ -11,17 +11,17 @@ use Filament\Notifications\Notification;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->actingAs(User::factory()->create());
 });
 
-it('denies deleting a sent campaign', function () {
+it('denies deleting a sent campaign', function (): void {
     $sent = Campaign::factory()->sent()->create();
 
     expect(auth()->user()->can('delete', $sent))->toBeFalse();
 });
 
-it('still offers delete on the edit page for draft and scheduled campaigns', function () {
+it('still offers delete on the edit page for draft and scheduled campaigns', function (): void {
     $draft = Campaign::factory()->create();
     $scheduled = Campaign::factory()->create(['scheduled_at' => now()->addDay()]);
 
@@ -32,7 +32,7 @@ it('still offers delete on the edit page for draft and scheduled campaigns', fun
         ->assertActionVisible('delete');
 });
 
-it('bulk delete removes only non-sent campaigns and notifies about the skipped ones', function () {
+it('bulk delete removes only non-sent campaigns and notifies about the skipped ones', function (): void {
     $draft = Campaign::factory()->create();
     $sent = Campaign::factory()->sent()->create();
 
@@ -51,7 +51,7 @@ it('bulk delete removes only non-sent campaigns and notifies about the skipped o
     expect(Campaign::query()->pluck('id')->all())->toBe([$sent->id]);
 });
 
-it('keeps a sent campaign viewable in the panel', function () {
+it('keeps a sent campaign viewable in the panel', function (): void {
     $sent = Campaign::factory()->sent()->create();
 
     livewire(ViewCampaign::class, ['record' => $sent->id])
@@ -62,14 +62,14 @@ it('keeps a sent campaign viewable in the panel', function () {
         ]);
 });
 
-it('denies updating sent campaigns', function () {
+it('denies updating sent campaigns', function (): void {
     $sent = Campaign::factory()->sent()->create();
 
     livewire(EditCampaign::class, ['record' => $sent->id])
         ->assertForbidden();
 });
 
-it('allows updating a draft campaign', function () {
+it('allows updating a draft campaign', function (): void {
     $draft = Campaign::factory()->create();
 
     livewire(EditCampaign::class, ['record' => $draft->id])
