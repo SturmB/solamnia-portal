@@ -23,7 +23,7 @@ function autheliaUser(array $overrides = []): OidcUser
     ]);
 }
 
-test('an existing account is bound by email on first sso login', function () {
+test('an existing account is bound by email on first sso login', function (): void {
     $admin = User::factory()->create([
         'email' => 'admin@example.com',
         'is_admin' => true,
@@ -43,7 +43,7 @@ test('an existing account is bound by email on first sso login', function () {
         ->and($admin->is_admin)->toBeTrue();
 });
 
-test('an eager shadow row from an accepted Invite is bound on first sso login', function (string $claimedEmail) {
+test('an eager shadow row from an accepted Invite is bound on first sso login', function (string $claimedEmail): void {
     $shadow = User::factory()->create([
         'email' => 'member@example.com',
         'password' => null,
@@ -62,7 +62,7 @@ test('an eager shadow row from an accepted Invite is bound on first sso login', 
         ->and($shadow->password)->toBeNull();
 })->with(['member@example.com', 'Member@Example.com']);
 
-test('a login without the members group is refused and creates nothing', function (?array $groups) {
+test('a login without the members group is refused and creates nothing', function (?array $groups): void {
     Socialite::fake('authelia', autheliaUser([
         'groups' => $groups,
     ]));
@@ -77,7 +77,7 @@ test('a login without the members group is refused and creates nothing', functio
     'groups scope missing' => [null],
 ]);
 
-test('an unknown person in the members group is created just in time', function () {
+test('an unknown person in the members group is created just in time', function (): void {
     Socialite::fake('authelia', autheliaUser());
 
     $response = $this->get(route('auth.callback'));
@@ -93,7 +93,7 @@ test('an unknown person in the members group is created just in time', function 
         ->and($member->password)->toBeNull();
 });
 
-test('a just-in-time member stores the email lowercased', function () {
+test('a just-in-time member stores the email lowercased', function (): void {
     Socialite::fake('authelia', autheliaUser([
         'email' => 'Member@Example.com',
     ]));
@@ -103,7 +103,7 @@ test('a just-in-time member stores the email lowercased', function () {
     expect(User::sole()->email)->toBe('member@example.com');
 });
 
-test('a changed email updates the bound account rather than creating another', function () {
+test('a changed email updates the bound account rather than creating another', function (): void {
     $member = User::factory()->sso()->create([
         'oidc_sub' => 'authelia-sub-1',
         'email' => 'old@example.com',
@@ -119,7 +119,7 @@ test('a changed email updates the bound account rather than creating another', f
         ->and($member->refresh()->email)->toBe('new@example.com');
 });
 
-test('a member lands where they were going after signing in', function () {
+test('a member lands where they were going after signing in', function (): void {
     User::factory()->sso()->create(['oidc_sub' => 'authelia-sub-1']);
 
     $this->get(route('profile.edit'))->assertRedirect(route('login'));
@@ -130,7 +130,7 @@ test('a member lands where they were going after signing in', function () {
         ->assertRedirect(route('profile.edit', absolute: false));
 });
 
-test('an email belonging to another bound member is refused, not duplicated', function () {
+test('an email belonging to another bound member is refused, not duplicated', function (): void {
     User::factory()->sso()->create([
         'oidc_sub' => 'someone-else',
         'email' => 'member@example.com',

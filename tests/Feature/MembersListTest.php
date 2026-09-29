@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Queue;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->admin = User::factory()->create(['is_admin' => true]);
     $this->actingAs($this->admin);
 });
 
-it('lists every Member with name and email', function () {
+it('lists every Member with name and email', function (): void {
     $members = User::factory()->count(2)->create();
 
     livewire(ListMembers::class)
@@ -22,7 +22,7 @@ it('lists every Member with name and email', function () {
         ->assertCanRenderTableColumn('email');
 });
 
-it('dispatches the media-server job for the chosen Member', function () {
+it('dispatches the media-server job for the chosen Member', function (): void {
     Queue::fake([ShareMediaLibraries::class]);
     $member = User::factory()->create();
 
@@ -30,5 +30,5 @@ it('dispatches the media-server job for the chosen Member', function () {
         ->callAction(TestAction::make('retryMediaServer')->table($member))
         ->assertNotified();
 
-    Queue::assertPushed(ShareMediaLibraries::class, fn (ShareMediaLibraries $job) => $job->email === $member->email);
+    Queue::assertPushed(ShareMediaLibraries::class, fn (ShareMediaLibraries $job): bool => $job->email === $member->email);
 });

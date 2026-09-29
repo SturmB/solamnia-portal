@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Mail;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     Mail::fake();
     $this->admin = User::factory()->create(['is_admin' => true]);
     $this->actingAs($this->admin);
@@ -50,7 +50,7 @@ it('revokes from the panel and the link stops working', function (): void {
         ->assertSee('no longer valid');
 });
 
-it('hides every action once the Invite is no longer pending', function (string $state) {
+it('hides every action once the Invite is no longer pending', function (string $state): void {
     $invite = Invite::factory()->{$state}()->create();
 
     livewire(ListInvites::class)
@@ -59,7 +59,7 @@ it('hides every action once the Invite is no longer pending', function (string $
         ->assertActionHidden(TestAction::make('revoke')->table($invite));
 })->with(['expired', 'revoked', 'accepted']);
 
-it('offers only revoke on a legacy Invite with no raw token', function () {
+it('offers only revoke on a legacy Invite with no raw token', function (): void {
     $invite = Invite::factory()->create(['plain_token' => null]);
 
     livewire(ListInvites::class)

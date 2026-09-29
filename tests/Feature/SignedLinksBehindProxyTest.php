@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\URL;
  * unless the app trusts that header, it reconstructs the URL as http, the
  * signature mismatches, and every unsubscribe / view-in-browser link 403s.
  */
-it('validates an https-signed link when it arrives over http with X-Forwarded-Proto: https', function () {
+it('validates an https-signed link when it arrives over http with X-Forwarded-Proto: https', function (): void {
     URL::forceRootUrl('https://solamnia.tv');
     URL::forceScheme('https');
 

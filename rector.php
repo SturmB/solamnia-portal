@@ -5,19 +5,14 @@ declare(strict_types=1);
 use Rector\CodeQuality\Rector\Catch_\ThrowWithPreviousExceptionRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
-use Rector\CodeQuality\Rector\If_\ExplicitBoolCompareRector;
 use Rector\CodeQuality\Rector\If_\ObjectExplicitBoolCompareRector;
 use Rector\CodingStyle\Rector\ArrowFunction\ArrowFunctionDelegatingCallToFirstClassCallableRector;
 use Rector\CodingStyle\Rector\Catch_\CatchExceptionNameMatchingTypeRector;
 use Rector\CodingStyle\Rector\ClassLike\NewlineBetweenClassLikeStmtsRector;
-use Rector\CodingStyle\Rector\Encapsed\EncapsedStringsToSprintfRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\CodingStyle\Rector\Use_\SeparateMultiUseImportsRector;
 use Rector\Config\RectorConfig;
-use Rector\EarlyReturn\Rector\If_\ChangeOrIfContinueToMultiContinueRector;
-use Rector\EarlyReturn\Rector\Return_\ReturnBinaryOrToEarlyReturnRector;
 use Rector\Php85\Rector\Property\AddOverrideAttributeToOverriddenPropertiesRector;
-use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\Empty_\EmptyOnNullableObjectToInstanceOfRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\SafeDeclareStrictTypesRector;
 use Rector\TypeDeclarationDocblocks\Rector\ClassMethod\AddReturnDocblockForCommonObjectDenominatorRector;
@@ -45,17 +40,12 @@ return RectorConfig::configure()
         SeparateMultiUseImportsRector::class,
         NewlineBetweenClassLikeStmtsRector::class,
         NewlineAfterStatementRector::class,
-        EncapsedStringsToSprintfRector::class,
 
         // More opinionated than wanted.
-        ExplicitBoolCompareRector::class,
         ObjectExplicitBoolCompareRector::class,
         SimplifyEmptyCheckOnEmptyArrayRector::class,
-        DisallowedEmptyRuleFixerRector::class,
         EmptyOnNullableObjectToInstanceOfRector::class,
         FlipTypeControlToUseExclusiveTypeRector::class,
-        ChangeOrIfContinueToMultiContinueRector::class,
-        ReturnBinaryOrToEarlyReturnRector::class,
         CatchExceptionNameMatchingTypeRector::class,
         AddReturnDocblockForCommonObjectDenominatorRector::class,
         ArrowFunctionDelegatingCallToFirstClassCallableRector::class,

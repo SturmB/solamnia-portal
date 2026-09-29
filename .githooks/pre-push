@@ -1,12 +1,15 @@
 #!/usr/bin/env sh
 #
 # Run the slower correctness checks before code leaves the machine:
-# static analysis + the full test suite. Formatting is already handled at commit.
+# static analysis, Rector, and the full test suite. Formatting is already handled at commit.
 
 set -e
 
 echo "→ PHPStan"
 composer stan
+
+echo "→ Rector"
+composer rector:check
 
 echo "→ Tests"
 php artisan test

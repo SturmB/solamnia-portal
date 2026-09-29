@@ -4,7 +4,7 @@ use App\Models\Campaign;
 use App\Models\Subscriber;
 use Illuminate\Support\Facades\URL;
 
-it('opts out a subscriber via a valid signed unsubscribe link, no login', function () {
+it('opts out a subscriber via a valid signed unsubscribe link, no login', function (): void {
     $subscriber = Subscriber::factory()->create(['unsubscribed_at' => null]);
 
     $url = URL::signedRoute('unsubscribe', ['subscriber' => $subscriber]);
@@ -14,7 +14,7 @@ it('opts out a subscriber via a valid signed unsubscribe link, no login', functi
     expect($subscriber->refresh()->unsubscribed_at)->not->toBeNull();
 });
 
-it('opts out via a one-click POST to the same signed URL (RFC 8058 List-Unsubscribe)', function () {
+it('opts out via a one-click POST to the same signed URL (RFC 8058 List-Unsubscribe)', function (): void {
     $subscriber = Subscriber::factory()->create(['unsubscribed_at' => null]);
 
     $url = URL::signedRoute('unsubscribe', ['subscriber' => $subscriber]);
@@ -24,7 +24,7 @@ it('opts out via a one-click POST to the same signed URL (RFC 8058 List-Unsubscr
     expect($subscriber->refresh()->unsubscribed_at)->not->toBeNull();
 });
 
-it('renders campaign HTML in the browser via a valid signed link, unauthenticated', function () {
+it('renders campaign HTML in the browser via a valid signed link, unauthenticated', function (): void {
     $subscriber = Subscriber::factory()->create();
     $campaign = Campaign::factory()->create(['subject' => 'Spring Update']);
 
@@ -35,7 +35,7 @@ it('renders campaign HTML in the browser via a valid signed link, unauthenticate
         ->assertSee('Spring Update', false);
 });
 
-it('rejects re-targeting the unsubscribe link at another subscriber with 403', function () {
+it('rejects re-targeting the unsubscribe link at another subscriber with 403', function (): void {
     $subscriber = Subscriber::factory()->create();
     $attacker = Subscriber::factory()->create();
 
@@ -47,7 +47,7 @@ it('rejects re-targeting the unsubscribe link at another subscriber with 403', f
     expect($attacker->refresh()->unsubscribed_at)->toBeNull();
 });
 
-it('rejects a tampered signature with 403 on the view-in-browser route', function () {
+it('rejects a tampered signature with 403 on the view-in-browser route', function (): void {
     $subscriber = Subscriber::factory()->create();
     $campaign = Campaign::factory()->create();
 

@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\Storage;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->actingAs(User::factory()->create());
 });
 
-it('creates a Campaign from Markdown through the panel', function () {
+it('creates a Campaign from Markdown through the panel', function (): void {
     livewire(CreateCampaign::class)
         ->fillForm([
             'subject' => 'Spring Update',
@@ -31,7 +31,7 @@ it('creates a Campaign from Markdown through the panel', function () {
         ->body_markdown->toBe('# Hello friends');
 });
 
-it('shows a preview that reflects the submitted Markdown', function () {
+it('shows a preview that reflects the submitted Markdown', function (): void {
     livewire(CreateCampaign::class)
         ->fillForm([
             'subject' => 'Spring Update',
@@ -40,7 +40,7 @@ it('shows a preview that reflects the submitted Markdown', function () {
         ->assertSee('Distinctive Preview Heading');
 });
 
-it('test-send delivers exactly one email, to the Admin', function () {
+it('test-send delivers exactly one email, to the Admin', function (): void {
     Mail::fake();
 
     $admin = auth()->user();
@@ -54,7 +54,7 @@ it('test-send delivers exactly one email, to the Admin', function () {
         && $mail->campaign->is($campaign));
 });
 
-it('stores an uploaded body image on the public disk with public visibility', function () {
+it('stores an uploaded body image on the public disk with public visibility', function (): void {
     Storage::fake('public');
 
     // Livewire mints a genuine temporary upload the way the browser would,
@@ -77,7 +77,7 @@ it('stores an uploaded body image on the public disk with public visibility', fu
     expect(Storage::disk('public')->getVisibility($path))->toBe('public');
 });
 
-it('schedules a campaign for a chosen send time', function () {
+it('schedules a campaign for a chosen send time', function (): void {
     $campaign = Campaign::factory()->create(); // draft — no scheduled_at
 
     livewire(EditCampaign::class, ['record' => $campaign->id])

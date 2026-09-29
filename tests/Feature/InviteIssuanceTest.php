@@ -10,14 +10,14 @@ use Illuminate\Support\Facades\Mail;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     Mail::fake();
     // An apostrophe on purpose: the inviter's name is HTML-escaped in the email body.
     $this->admin = User::factory()->create(['name' => "Chris O'Conner", 'is_admin' => true]);
     $this->actingAs($this->admin);
 });
 
-it('issues a pending Invite from the panel and emails the link', function () {
+it('issues a pending Invite from the panel and emails the link', function (): void {
     livewire(CreateInvite::class)
         ->fillForm([
             'email' => 'sturm@example.com',
@@ -50,7 +50,7 @@ it('issues a pending Invite from the panel and emails the link', function () {
         ->assertSee('Pending');
 });
 
-it('stores and mails the email lowercased however the Admin typed it', function () {
+it('stores and mails the email lowercased however the Admin typed it', function (): void {
     livewire(CreateInvite::class)
         ->fillForm(['email' => 'Sturm@Example.com', 'suggested_name' => 'Sturm'])
         ->call('create')
@@ -61,7 +61,7 @@ it('stores and mails the email lowercased however the Admin typed it', function 
     Mail::assertSent(InviteMail::class, fn (InviteMail $mail): bool => $mail->hasTo('sturm@example.com'));
 });
 
-it('refuses an email that belongs to an existing Member', function (string $typed) {
+it('refuses an email that belongs to an existing Member', function (string $typed): void {
     User::factory()->create(['email' => 'sturm@example.com']);
 
     livewire(CreateInvite::class)
@@ -73,7 +73,7 @@ it('refuses an email that belongs to an existing Member', function (string $type
     Mail::assertNothingSent();
 })->with(['sturm@example.com', 'Sturm@Example.com']);
 
-it('refuses an email that already has a pending Invite', function (string $typed) {
+it('refuses an email that already has a pending Invite', function (string $typed): void {
     Invite::factory()->create(['email' => 'sturm@example.com']);
 
     livewire(CreateInvite::class)
@@ -84,7 +84,7 @@ it('refuses an email that already has a pending Invite', function (string $typed
     expect(Invite::count())->toBe(1);
 })->with(['sturm@example.com', 'Sturm@Example.com']);
 
-it('allows re-issuing once the earlier Invite is no longer pending', function (string $state) {
+it('allows re-issuing once the earlier Invite is no longer pending', function (string $state): void {
     Invite::factory()->{$state}()->create(['email' => 'sturm@example.com']);
 
     livewire(CreateInvite::class)

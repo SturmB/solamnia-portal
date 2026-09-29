@@ -26,7 +26,7 @@ class SubscriberFactory extends Factory
 
     public function unsubscribed(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'unsubscribed_at' => now(),
         ]);
     }

@@ -38,7 +38,7 @@ class Invite extends Model
      * The query-side twin of status() === Pending: live links only. "Pending"
      * depends on the clock, so it cannot be a database constraint.
      *
-     * @param  Builder<Invite>  $query
+     * @param  Builder<static>  $query
      */
     #[Scope]
     protected function pending(Builder $query): void
