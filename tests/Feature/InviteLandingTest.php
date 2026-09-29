@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 
 it('renders the friendly page with a 200 for a dead token', function (string $state): void {
     $raw = Str::random(64);
-    Invite::factory()->{$state}()->create(['token' => hash('sha256', $raw)]);
+    Invite::factory()->{$state}()->create(['plain_token' => $raw]);
 
     $this->get(route('invites.show', $raw))
         ->assertOk()
