@@ -5,5 +5,5 @@ Before planning or editing, find the row whose globs match the file's path and r
 | Applies to | Rule file |
 | --- | --- |
 | tests/Feature/** | .ai/rules/feature.md |
+| **/*.php | .ai/rules/general.md |
 | app/Models/*.php | .ai/rules/models.md |
-| **/*.php | .ai/rules/php.md |
