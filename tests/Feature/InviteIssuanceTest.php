@@ -94,3 +94,11 @@ it('allows re-issuing once the earlier Invite is no longer pending', function (s
 
     expect(Invite::count())->toBe(2);
 })->with(['expired', 'revoked', 'accepted']);
+
+it('keeps the raw token recoverable after issuance', function (): void {
+    $invite = Invite::issue('sturm@example.com', 'Sturm', User::factory()->create());
+
+    $refreshedInvite = $invite->fresh();
+    expect($refreshedInvite->plain_token)->not->toBeNull()
+        ->and(hash('sha256', $refreshedInvite->plain_token))->toBe($invite->token);
+});
