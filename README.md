@@ -23,7 +23,7 @@ hand-holding.
   opt-out handling, and idempotent scheduled delivery.
 - Pest coverage for campaign rendering and delivery, authentication, signed URLs
   behind a reverse proxy, profile settings, and panel access.
-- PHPStan, Pint, Prettier, and automated tests in CI across PHP 8.4 and 8.5.
+- PHPStan, Pint, Prettier, and automated tests in CI on PHP 8.5.
 - A container pipeline that publishes immutable and rolling images to GHCR, plus
   a production Compose stack with Laravel, a scheduler, and MySQL 8.4.
 - Architecture decision records and a project-wide domain language for keeping
@@ -55,9 +55,9 @@ model.
 
 ## Stack
 
-- **Application:** PHP 8.4/8.5 · Laravel 13 · Livewire 4 · Flux UI 2 ·
+- **Application:** PHP 8.5 · Laravel 13 · Livewire 4 · Flux UI 2 ·
   Filament 5
-- **Quality:** Pest 4 · Larastan/PHPStan · Laravel Pint · Prettier
+- **Quality:** Pest 4 · Larastan/PHPStan · Rector · Laravel Pint · Prettier
 - **Frontend:** Tailwind CSS 4 · Vite 8 · MJML
 - **Delivery:** GitHub Actions · Docker · GHCR · MySQL 8.4 · Cloudflare Tunnel
 - **Integrations:** Resend · Pushover · planned Authelia/LLDAP federation
@@ -66,7 +66,7 @@ model.
 
 ### Prerequisites
 
-- PHP 8.4 or 8.5 with Composer
+- PHP 8.5 with Composer
 - Node.js 22 and npm
 - SQLite for the default local configuration
 - Valid Flux UI Composer credentials for the licensed dependency
