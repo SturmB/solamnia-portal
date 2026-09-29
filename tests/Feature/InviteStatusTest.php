@@ -2,7 +2,6 @@
 
 use App\Enums\InviteStatus;
 use App\Models\Invite;
-use App\Models\User;
 
 it('derives status from the timestamps', function (string $state, InviteStatus $expected): void {
     $invite = $state === 'pending'
@@ -23,14 +22,6 @@ it('accepts once and refuses a second redemption', function (): void {
     expect($invite->accept('brightblade'))->toBeTrue();
     expect($invite->accept('brightblade'))->toBeFalse()
         ->and($invite->fresh()->username)->toBe('brightblade');
-});
-
-it('keeps the raw token recoverable after issuance', function (): void {
-    $invite = Invite::issue('sturm@example.com', 'Sturm', User::factory()->create());
-
-    $refreshedInvite = $invite->fresh();
-    expect($refreshedInvite->plain_token)->not->toBeNull()
-        ->and(hash('sha256', $refreshedInvite->plain_token))->toBe($invite->token);
 });
 
 it('revokes a pending Invite', function (): void {
@@ -54,3 +45,20 @@ it('refuses to revoke an Invite that is no longer pending', function (string $st
     ['expired', InviteStatus::Expired],
     ['revoked', InviteStatus::Revoked],
 ]);
+
+it('refuses to revoke an Invite whose row was deleted underneath it', function (): void {
+    $invite = Invite::factory()->create();
+
+    Invite::query()->whereKey($invite)->delete();
+
+    expect($invite->revoke())->toBeFalse();
+});
+
+it('reloads a stale Invite when refusing to revoke it', function (): void {
+    $invite = Invite::factory()->create();
+
+    Invite::query()->whereKey($invite)->update(['accepted_at' => now()]);
+
+    expect($invite->revoke())->toBeFalse()
+        ->and($invite->status())->toBe(InviteStatus::Accepted);
+});

@@ -30,7 +30,7 @@ beforeEach(function (): void {
     $this->invite = Invite::factory()->create([
         'email' => 'sturm@example.com',
         'suggested_name' => 'Sturm',
-        'token' => hash('sha256', $this->rawToken),
+        'plain_token' => $this->rawToken,
     ]);
 
     Http::fake(['api.pushover.net/*' => Http::response()]);
@@ -204,7 +204,7 @@ it('continues to grouping when the user already exists from a failed attempt', f
 it('shows the friendly page instead of provisioning for a dead or unknown token', function (?string $state): void {
     $rawToken = Str::random(64);
     if ($state !== null) {
-        Invite::factory()->{$state}()->create(['token' => hash('sha256', $rawToken)]);
+        Invite::factory()->{$state}()->create(['plain_token' => $rawToken]);
     }
 
     $this->post(route('invites.accept', $rawToken), [

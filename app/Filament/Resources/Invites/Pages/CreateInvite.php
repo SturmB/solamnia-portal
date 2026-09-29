@@ -3,12 +3,10 @@
 namespace App\Filament\Resources\Invites\Pages;
 
 use App\Filament\Resources\Invites\InviteResource;
-use App\Mail\InviteMail;
 use App\Models\Invite;
 use App\Models\User;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Mail;
 
 class CreateInvite extends CreateRecord
 {
@@ -27,7 +25,7 @@ class CreateInvite extends CreateRecord
 
         $invite = Invite::issue($data['email'], $data['suggested_name'], $admin);
 
-        Mail::to($invite->email)->send(new InviteMail($invite));
+        $invite->sendLink();
 
         return $invite;
     }

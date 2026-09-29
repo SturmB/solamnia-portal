@@ -3,16 +3,20 @@
 namespace App\Models;
 
 use App\Enums\InviteStatus;
+use App\Mail\InviteMail;
 use Database\Factories\InviteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use LogicException;
 
 /**
  * @property string|null $plain_token
@@ -51,9 +55,9 @@ class Invite extends Model
     /**
      * Resolve the raw token from a URL to its Invite, whatever its state.
      */
-    public static function findByPlainTextToken(string $plainTextToken): ?self
+    public static function findByPlainToken(string $plainToken): ?self
     {
-        return self::where('token', hash('sha256', $plainTextToken))->first();
+        return self::where('token', hash('sha256', $plainToken))->first();
     }
 
     public function status(): InviteStatus
@@ -80,6 +84,17 @@ class Invite extends Model
         $invite->save();
 
         return $invite;
+    }
+
+    /**
+     * Mail the accept link to the invitee. Legacy Invites hold no raw token,
+     * so there is no link to send.
+     */
+    public function sendLink(): void
+    {
+        throw_if($this->plain_token === null, new LogicException('This Invite has no raw token, so its link cannot be sent.'));
+
+        Mail::to($this->email)->send(new InviteMail($this));
     }
 
     /**
@@ -113,7 +128,11 @@ class Invite extends Model
         $affectedRowCount = static::query()->pending()->whereKey($this)
             ->update(['revoked_at' => Carbon::now()]);
 
-        $this->refresh();
+        try {
+            $this->refresh();
+        } catch (ModelNotFoundException) {
+            return false;
+        }
 
         return $affectedRowCount === 1;
     }

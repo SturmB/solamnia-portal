@@ -17,14 +17,13 @@ class InviteFactory extends Factory
      */
     public function definition(): array
     {
-        $raw = Str::random(64);
-
         return [
             'email' => fake()->unique()->safeEmail(),
             'suggested_name' => fake()->firstName(),
             'invited_by' => User::factory(),
-            'plain_token' => $raw,
-            'token' => hash('sha256', $raw),
+            'plain_token' => Str::random(64),
+            // Legacy Invites hold no raw token; they still need a unique hash.
+            'token' => fn (array $attributes): string => hash('sha256', $attributes['plain_token'] ?? Str::random(64)),
             'expires_at' => now()->addDays(14),
         ];
     }
