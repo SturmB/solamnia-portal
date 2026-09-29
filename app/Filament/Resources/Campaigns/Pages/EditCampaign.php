@@ -60,7 +60,7 @@ class EditCampaign extends EditRecord
                     /** @var Campaign $campaign */
                     $campaign = $this->getRecord();
 
-                    $admin = auth()->user();
+                    $admin = auth()->user() ?? abort(401);
 
                     Mail::to($admin)->send(new CampaignMail($campaign));
 

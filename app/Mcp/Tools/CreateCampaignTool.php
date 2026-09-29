@@ -22,10 +22,10 @@ class CreateCampaignTool extends Tool
     {
         $campaign = Campaign::create($request->validate(Campaign::rules()));
 
-        return Response::text(json_encode([
+        return Response::json([
             'id' => $campaign->id,
             'status' => $campaign->status()->value,
-        ], JSON_UNESCAPED_SLASHES));
+        ]);
     }
 
     /**

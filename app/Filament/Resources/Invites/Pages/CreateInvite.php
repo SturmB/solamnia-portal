@@ -18,7 +18,7 @@ class CreateInvite extends CreateRecord
 
     /**
      * Route the form through Invite::issue() so the token, expiry and inviter
-     * are minted in one place, then send the link with the raw token.
+     * are minted in one place, then send the link.
      */
     protected function handleRecordCreation(array $data): Model
     {
@@ -27,7 +27,7 @@ class CreateInvite extends CreateRecord
 
         $invite = Invite::issue($data['email'], $data['suggested_name'], $admin);
 
-        Mail::to($invite->email)->send(new InviteMail($invite, $invite->plain_token));
+        Mail::to($invite->email)->send(new InviteMail($invite));
 
         return $invite;
     }

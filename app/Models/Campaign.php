@@ -81,10 +81,10 @@ class Campaign extends Model
     {
         $dom = HTMLDocument::createFromString("<body>{$bodyHtml}</body>", LIBXML_NOERROR, 'UTF-8');
 
-        /** @var list<array{kind: 'image', src: string, alt: string}|array{kind: 'text'|'story', html: string}> $blocks */
+        /** @var list<array{kind: 'image', src: string, alt: string, href: string|null}|array{kind: 'text'|'story', html: string}> $blocks */
         $blocks = [];
 
-        foreach ($dom->body->childNodes as $node) {
+        foreach ($dom->body->childNodes ?? [] as $node) {
             if (! $node instanceof Element) {
                 continue;
             }
@@ -162,7 +162,7 @@ class Campaign extends Model
      */
     private function standaloneImage(Element $node): ?array
     {
-        if (strtolower($node->localName) !== 'p' || trim($node->textContent) !== '') {
+        if (strtolower($node->localName) !== 'p' || trim($node->textContent ?? '') !== '') {
             return null;
         }
 

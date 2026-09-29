@@ -39,8 +39,8 @@ it('issues a pending Invite from the panel and emails the link', function (): vo
         $html = $mail->render();
 
         return $mail->hasTo('sturm@example.com')
-            && $invite->token === hash('sha256', $mail->token)
-            && str_contains($html, route('invites.show', $mail->token))
+            && $invite->token === hash('sha256', $mail->invite->plain_token)
+            && str_contains($html, route('invites.show', $invite->plain_token))
             && str_contains($html, e($this->admin->name))
             && str_contains($html, $invite->expires_at->format('F j, Y'));
     });

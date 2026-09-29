@@ -23,11 +23,21 @@ it('re-sends the same link without rotating the token or extending expiry', func
         ->assertNotified();
 
     Mail::assertSent(InviteMail::class, fn (InviteMail $mail): bool => $mail->hasTo($invite->email)
-            && $mail->token === $invite->plain_token);
+            && str_contains($mail->render(), route('invites.show', $invite->plain_token)));
 
     $refreshedInvite = $invite->fresh();
     expect($refreshedInvite->token)->toBe($invite->token)
         ->and($refreshedInvite->expires_at)->toEqual($invite->expires_at);
+});
+
+it('re-sends an Invite whose inviter has since been deleted', function (): void {
+    $invite = Invite::factory()->create(['invited_by' => null]);
+
+    livewire(ListInvites::class)
+        ->callAction(TestAction::make('resend')->table($invite))
+        ->assertNotified();
+
+    Mail::assertSent(InviteMail::class, fn (InviteMail $mail): bool => str_contains($mail->render(), 'The Admin has invited you'));
 });
 
 it('copies the link without rotating the token or extending expiry', function (): void {

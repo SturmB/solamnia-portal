@@ -17,7 +17,7 @@ class InviteMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public Invite $invite, public string $token) {}
+    public function __construct(public Invite $invite) {}
 
     /**
      * Get the message envelope.
@@ -35,8 +35,9 @@ class InviteMail extends Mailable
     public function content(): Content
     {
         $mjml = view('mail.invite', [
-            'acceptUrl' => route('invites.show', $this->token),
-            'inviterName' => $this->invite->inviter->name,
+            'acceptUrl' => route('invites.show', $this->invite->plain_token),
+            // The inviter is nulled when their account is deleted; the Invite outlives them.
+            'inviterName' => $this->invite->inviter->name ?? 'The Admin',
             'expiresAt' => $this->invite->expires_at,
         ])->render();
 
