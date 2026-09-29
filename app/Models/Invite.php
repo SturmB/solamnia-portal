@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InviteStatus;
+use App\Mail\InviteMail;
 use Database\Factories\InviteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -12,7 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use LogicException;
 
 /**
  * @property string|null $plain_token
@@ -80,6 +83,19 @@ class Invite extends Model
         $invite->save();
 
         return $invite;
+    }
+
+    /**
+     * Mail the accept link to the invitee. Legacy Invites hold no raw token,
+     * so there is no link to send.
+     */
+    public function sendLink(): void
+    {
+        if ($this->plain_token === null) {
+            throw new LogicException('This Invite has no raw token, so its link cannot be sent.');
+        }
+
+        Mail::to($this->email)->send(new InviteMail($this));
     }
 
     /**

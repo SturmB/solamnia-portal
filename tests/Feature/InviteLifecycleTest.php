@@ -77,3 +77,12 @@ it('offers only revoke on a legacy Invite with no raw token', function (): void 
         ->assertActionHidden(TestAction::make('copyLink')->table($invite))
         ->assertActionVisible(TestAction::make('revoke')->table($invite));
 });
+
+it('refuses to send the link for a legacy Invite with no raw token', function (): void {
+    $invite = Invite::factory()->create(['plain_token' => null]);
+
+    expect(fn () => $invite->sendLink())
+        ->toThrow(LogicException::class, 'no raw token');
+
+    Mail::assertNothingSent();
+});

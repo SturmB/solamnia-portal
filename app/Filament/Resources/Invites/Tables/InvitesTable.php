@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Invites\Tables;
 
 use App\Enums\InviteStatus;
-use App\Mail\InviteMail;
 use App\Models\Invite;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\TextEntry;
@@ -11,7 +10,6 @@ use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Mail;
 
 class InvitesTable
 {
@@ -62,7 +60,7 @@ class InvitesTable
                     ->visible($canResend)
                     ->icon(Heroicon::OutlinedEnvelope)
                     ->action(function (Invite $record): void {
-                        Mail::to($record->email)->send(new InviteMail($record));
+                        $record->sendLink();
                         Notification::make()
                             ->title('Invite re-sent')
                             ->success()
