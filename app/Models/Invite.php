@@ -54,9 +54,9 @@ class Invite extends Model
     /**
      * Resolve the raw token from a URL to its Invite, whatever its state.
      */
-    public static function findByPlainTextToken(string $plainTextToken): ?self
+    public static function findByPlainToken(string $plainToken): ?self
     {
-        return self::where('token', hash('sha256', $plainTextToken))->first();
+        return self::where('token', hash('sha256', $plainToken))->first();
     }
 
     public function status(): InviteStatus

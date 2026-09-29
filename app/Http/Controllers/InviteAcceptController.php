@@ -25,7 +25,7 @@ class InviteAcceptController extends Controller
     {
         $request->merge(['username' => Str::lower($request->string('username'))]);
 
-        $invite = Invite::findByPlainTextToken($token);
+        $invite = Invite::findByPlainToken($token);
         if ($invite?->status() !== InviteStatus::Pending) {
             return view('invite.invalid');
         }
