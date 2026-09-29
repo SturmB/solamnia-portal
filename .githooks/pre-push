@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
 #
-# Run the PHP half of the CI gate before code leaves the machine: Rector,
-# Pint, PHPStan and the test suite, via `composer test`. CI runs the same
-# composer scripts step by step, plus Prettier and an asset build that this
-# hook skips. Add new checks to `composer test`, not here.
+# Run the CI gate's checks before code leaves the machine: Rector, Pint,
+# Prettier, PHPStan and the test suite, via `composer test`. CI runs the same
+# checks step by step, plus an asset build that this hook skips. Add new
+# checks to `composer test`, not here.
 
 set -e
 

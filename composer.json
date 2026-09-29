@@ -84,6 +84,7 @@
             "@php artisan config:clear --ansi",
             "@rector:check",
             "@lint:check",
+            "npm run format:check",
             "@stan",
             "@php artisan test"
         ],
