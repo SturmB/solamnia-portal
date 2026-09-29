@@ -91,9 +91,7 @@ class Invite extends Model
      */
     public function sendLink(): void
     {
-        if ($this->plain_token === null) {
-            throw new LogicException('This Invite has no raw token, so its link cannot be sent.');
-        }
+        throw_if($this->plain_token === null, new LogicException('This Invite has no raw token, so its link cannot be sent.'));
 
         Mail::to($this->email)->send(new InviteMail($this));
     }
