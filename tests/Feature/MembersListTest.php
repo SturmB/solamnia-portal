@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Queue;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
-    $this->admin = User::factory()->create(['is_admin' => true]);
+    $this->admin = User::factory()->admin()->create();
     $this->actingAs($this->admin);
 });
 

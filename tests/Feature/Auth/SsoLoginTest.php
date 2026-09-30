@@ -24,9 +24,8 @@ function autheliaUser(array $overrides = []): OidcUser
 }
 
 test('an existing account is bound by email on first sso login', function (): void {
-    $admin = User::factory()->create([
+    $admin = User::factory()->admin()->create([
         'email' => 'admin@example.com',
-        'is_admin' => true,
     ]);
 
     Socialite::fake('authelia', autheliaUser([

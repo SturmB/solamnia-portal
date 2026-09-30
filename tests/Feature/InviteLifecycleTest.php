@@ -11,7 +11,7 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
     Mail::fake();
-    $this->admin = User::factory()->create(['is_admin' => true]);
+    $this->admin = User::factory()->admin()->create();
     $this->actingAs($this->admin);
 });
 

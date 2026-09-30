@@ -4,9 +4,7 @@ use App\Models\User;
 use Filament\Facades\Filament;
 
 test('an admin can access the admin panel', function (): void {
-    $user = User::factory()->create([
-        'is_admin' => true,
-    ]);
+    $user = User::factory()->admin()->create();
     $panel = Filament::getPanel('admin');
 
     expect($user->canAccessPanel($panel))->toBeTrue();
