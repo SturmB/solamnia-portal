@@ -166,7 +166,7 @@ it('refuses to ingest a file that is not an image', function (): void {
 it('test-sends a Campaign to the admin Member through the existing mailable', function (): void {
     Mail::fake();
 
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     User::factory()->create(); // a non-admin who must not receive it
     $campaign = Campaign::factory()->create();
 

@@ -13,7 +13,7 @@ use function Pest\Livewire\livewire;
 beforeEach(function (): void {
     Mail::fake();
     // An apostrophe on purpose: the inviter's name is HTML-escaped in the email body.
-    $this->admin = User::factory()->create(['name' => "Chris O'Conner", 'is_admin' => true]);
+    $this->admin = User::factory()->admin()->create(['name' => "Chris O'Conner"]);
     $this->actingAs($this->admin);
 });
 

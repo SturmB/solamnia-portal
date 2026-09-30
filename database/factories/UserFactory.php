@@ -59,6 +59,16 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the user is the Admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'is_admin' => true,
+        ]);
+    }
+
+    /**
      * A Member federated via Authelia: no local password, bound by oidc_sub.
      */
     public function sso(): static
