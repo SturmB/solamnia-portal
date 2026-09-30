@@ -11,16 +11,24 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Seeds the two local personas for manual testing.
+     *
+     * The Admin (admin@example.com) exercises the admin panel; the Member
+     * (member@example.com) exercises the dashboard and settings as a
+     * non-admin. SSO cannot run locally, so both carry the factory password
+     * ("password") and sign in through the break-glass login at /backup/login.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::factory()->create([
+            'name' => 'Test Admin',
+            'email' => 'admin@example.com',
+            'is_admin' => true,
+        ]);
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'is_admin' => true,
+            'name' => 'Test Member',
+            'email' => 'member@example.com',
         ]);
     }
 }

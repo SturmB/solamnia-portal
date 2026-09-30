@@ -16,7 +16,7 @@ it('seeds a persona who can sign in with the factory password', function (string
     expect($user->is_admin)->toBe($isAdmin);
 })->with([
     'admin' => [
-        'email' => 'test@example.com',
+        'email' => 'admin@example.com',
         'isAdmin' => true,
     ],
     'member' => [
