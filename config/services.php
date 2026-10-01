@@ -44,6 +44,8 @@ return [
         'base_url' => env('LLDAP_BASE_URL'),
         'username' => env('LLDAP_USERNAME'),
         'password' => env('LLDAP_PASSWORD'),
+        'ldap_url' => env('LLDAP_LDAP_URL'),
+        'base_dn' => env('LLDAP_BASE_DN'),
     ],
 
     'plex' => [

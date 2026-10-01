@@ -6,10 +6,12 @@ use App\Exceptions\LldapException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use SensitiveParameter;
 
 /**
- * The portal's provisioning surface into LLDAP over its GraphQL API, using the
- * dedicated service account (never the directory superuser). A JWT is fetched
+ * The portal's provisioning surface into LLDAP, using the dedicated service
+ * account (never the directory superuser): GraphQL for users and groups, LDAP
+ * for the one thing GraphQL can't do, setting a password. A JWT is fetched
  * per request: acceptances are rare, so caching it buys nothing.
  */
 class Lldap
@@ -45,6 +47,28 @@ class Lldap
             'mutation ($userId: String!, $groupId: Int!) { addUserToGroup(userId: $userId, groupId: $groupId) { ok } }',
             ['userId' => $id, 'groupId' => $this->groupId($groupName)],
         );
+    }
+
+    /**
+     * Set a Member's password with LDAP Password Modify (RFC 3062), bound as the
+     * service account. The password never enters an exception message.
+     */
+    public function setPassword(string $id, #[SensitiveParameter] string $password): void
+    {
+        $ldap = app(LdapConnection::class);
+
+        if (! $ldap->bind($this->dn(config('services.lldap.username')), config('services.lldap.password'))) {
+            throw new LldapException("LLDAP LDAP bind failed: {$ldap->error()}");
+        }
+
+        if (! $ldap->exopPasswd($this->dn($id), $password)) {
+            throw new LldapException("LLDAP could not set the password for '{$id}': {$ldap->error()}");
+        }
+    }
+
+    private function dn(string $id): string
+    {
+        return 'uid='.ldap_escape($id, flags: LDAP_ESCAPE_DN).',ou=people,'.config('services.lldap.base_dn');
     }
 
     /**
