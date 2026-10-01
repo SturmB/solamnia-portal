@@ -7,7 +7,7 @@
 # runtime (intl, etc.), so dependency resolution matches production exactly.
 FROM serversideup/php:8.5-cli AS vendor
 USER root
-RUN install-php-extensions intl
+RUN install-php-extensions intl ldap
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install \
@@ -26,7 +26,7 @@ RUN npm run build
 # ── Stage 3: runtime (production-tuned php-fpm + nginx) ──────────────────────
 FROM serversideup/php:8.5-fpm-nginx
 USER root
-RUN install-php-extensions intl
+RUN install-php-extensions intl ldap
 
 # Campaign emails render MJML by shelling out to Node at REQUEST time
 # (Spatie\Mjml runs node_modules/mjml). Ship a real `node` binary — the renderer
