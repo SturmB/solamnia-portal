@@ -34,11 +34,11 @@ An Admin-issued authorization for one person — bound to their email address �
 to become a Member. It expires (about two weeks), is revocable while pending,
 and single-use means **one successful redemption**: a failed provisioning
 attempt leaves it live. Accepting it provisions the Member into LLDAP (the
-invitee chooses their own permanent username and display name), auto-enrolls
-them as a Subscriber, and requests their media-server access (Plex today —
-provider-agnostic, like Membership itself). The portal never handles the new
-Member's password; the initial password is set through Authelia's reset flow
-(ADR-0006).
+invitee chooses their own permanent username, display name, and password in one
+form), auto-enrolls them as a Subscriber, requests their media-server access
+(Plex today — provider-agnostic, like Membership itself), and sends them
+straight into SSO. The portal passes the initial password to LLDAP and never
+keeps it; later resets go through Authelia (ADR-0007).
 _Avoid_: signup link, registration code, voucher.
 
 **Newsletter**:
@@ -122,8 +122,12 @@ SSO federates to infrastructure the portal does not own, so four steps are done
 3. **Switch Authelia's notifier from `filesystem` to SMTP.** _(Done — the
    live config sends through Resend.)_ Left as `filesystem`, password-reset
    mail is written to `/config/notification.txt` instead of being sent — so a
-   Member who cannot log in has no way to recover, and the Invite flow's
-   set-password handoff (ADR-0006) never arrives.
+   Member who forgets their password has no way to recover. Two tweaks live
+   beside it on the host: `identity_validation.reset_password.jwt_lifespan:
+'30 minutes'` (the 5-minute default expires in slow or spam-filtered
+   inboxes), and `assets/locales/en/portal.json`, which retitles the reset
+   page "Enter your username to get a password link" so people stop typing a
+   new password into its Username field.
 
 4. **Restart Authelia** so steps 2–3 take effect. This drops the sessions of
    every federated service (Immich, Mealie, Audiobookshelf, Calibre-Web) —

@@ -1,3 +1,7 @@
+---
+status: superseded by ADR-0007
+---
+
 # Initial passwords are set through Authelia's reset flow
 
 Invite acceptance provisions a Member into LLDAP but never sets a password.
