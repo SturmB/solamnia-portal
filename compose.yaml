@@ -20,6 +20,8 @@ services:
     # Web app: php-fpm + nginx, reached only through the Cloudflare Tunnel.
     app:
         image: ghcr.io/sturmb/solamnia-portal:latest
+        # PID 1 is s6; SIGTERM starts shutdown and s6 sends SIGQUIT to nginx/FPM.
+        stop_signal: SIGTERM
         restart: unless-stopped
         env_file: .env
         environment:
