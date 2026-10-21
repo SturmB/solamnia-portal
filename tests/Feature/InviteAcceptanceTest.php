@@ -5,15 +5,17 @@ use App\Jobs\ShareMediaLibraries;
 use App\Models\Invite;
 use App\Models\Subscriber;
 use App\Models\User;
+use App\Services\LdapConnection;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use Mockery\MockInterface;
 
 /**
  * LLDAP answers the happy path: no such user, create it, find `members`, add.
  */
-function fakeLldapProvisioning(): void
+function fakeLldapProvisioning(): MockInterface
 {
     Http::fake([
         'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
@@ -23,6 +25,11 @@ function fakeLldapProvisioning(): void
             ->push(['data' => ['groups' => [['id' => 3, 'displayName' => 'members']]]])
             ->push(['data' => ['addUserToGroup' => ['ok' => true]]]),
     ]);
+
+    return test()->mock(LdapConnection::class, function (MockInterface $mock): void {
+        $mock->shouldReceive('bind')->andReturnTrue();
+        $mock->shouldReceive('exopPasswd')->andReturnTrue();
+    });
 }
 
 beforeEach(function (): void {
@@ -42,6 +49,9 @@ beforeEach(function (): void {
         'services.lldap.base_url' => 'http://lldap',
         'services.pushover.token' => 'pushover-token',
         'services.pushover.user' => 'pushover-user',
+        'services.lldap.username' => 'solamnia-portal-svc',
+        'services.lldap.password' => 'svc-secret',
+        'services.lldap.base_dn' => 'dc=solamnia,dc=tv',
     ]);
 });
 
@@ -59,6 +69,7 @@ it('rejects a badly formed username and touches nothing', function (string $user
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => $username,
         'name' => 'Sturm',
+        'password' => 'correct horse battery staple',
     ])->assertRedirectBackWithErrors('username');
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
@@ -70,16 +81,17 @@ it('rejects a badly formed username and touches nothing', function (string $user
     'too long' => str_repeat('a', 33),
 ]);
 
-it('provisions the Member into LLDAP and stamps the Invite', function (): void {
-    fakeLldapProvisioning();
+it('provisions the Member, sets their password, and hands off to SSO', function (): void {
+    $ldap = fakeLldapProvisioning();
 
     $this->post(route('invites.accept', $this->rawToken), [
-        'username' => 'Brightblade', // capitalised on purpose: proves normalisation
+        'username' => 'Brightblade', // capitalized on purpose: proves normalization
         'name' => 'Sturm Brightblade',
-    ])
-        ->assertOk()
-        ->assertSee('brightblade')
-        ->assertSee('http://auth/reset-password/step1', escape: false);
+        'password' => 'correct horse battery staple',
+    ])->assertRedirectToRoute('auth.redirect');
+
+    $ldap->shouldHaveReceived('exopPasswd')
+        ->with('uid=brightblade,ou=people,dc=solamnia,dc=tv', 'correct horse battery staple');
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Accepted)
         ->and($this->invite->fresh()->username)->toBe('brightblade');
@@ -111,6 +123,7 @@ it('queues the media-server invite after acceptance', function (): void {
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])->assertOk();
 
     Queue::assertPushed(ShareMediaLibraries::class, fn (ShareMediaLibraries $job): bool => $job->email === 'sturm@example.com');
@@ -123,6 +136,7 @@ it('mentions the coming media-server email only when the seam is configured', fu
     $response = $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])->assertOk();
 
     $mentioned ? $response->assertSee('Plex') : $response->assertDontSee('Plex');
@@ -142,6 +156,7 @@ it('rejects a username that already exists in LLDAP', function (): void {
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])->assertSessionHasErrors('username');
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
@@ -161,6 +176,7 @@ it('leaves the Invite pending and renders the retry page when LLDAP fails', func
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])
         ->assertOk()
         ->assertSee('try again');
@@ -193,6 +209,7 @@ it('continues to grouping when the user already exists from a failed attempt', f
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])->assertOk();
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Accepted)
@@ -210,6 +227,7 @@ it('shows the friendly page instead of provisioning for a dead or unknown token'
     $this->post(route('invites.accept', $rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])
         ->assertOk()
         ->assertSee('no longer valid');
@@ -228,6 +246,7 @@ it('maps a duplicate-user error on create to the taken error', function (): void
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])->assertSessionHasErrors('username');
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
@@ -240,6 +259,7 @@ it('renders the retry page when LLDAP is unreachable', function (): void {
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])
         ->assertOk()
         ->assertSee('try again');
@@ -254,6 +274,7 @@ it('writes the eager shadow row after acceptance', function (): void {
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])->assertOk();
 
     $shadow = User::where('email', 'sturm@example.com')->sole();
@@ -271,6 +292,7 @@ it('creates a Subscriber after acceptance when none exists', function (): void {
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])->assertOk();
 
     $subscriber = Subscriber::where('email', 'sturm@example.com')->sole();
@@ -289,6 +311,7 @@ it('adopts an existing unsubscribed Subscriber without resubscribing them', func
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])->assertOk();
 
     expect(Subscriber::count())->toBe(1)
@@ -304,6 +327,7 @@ it('keeps the success response when a follow-up throws, and reports it', functio
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
     ])
         ->assertOk()
         ->assertSee('brightblade');
