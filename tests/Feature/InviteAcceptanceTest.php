@@ -435,3 +435,29 @@ it('keeps the password out of the logs when an unexpected error is reported', fu
         ->toContain('LDAP on fire')
         ->not->toContain('correct horse');
 });
+
+it('pre-fills a valid username suggested by the Invite', function (string $suggestedName, string $expected): void {
+    $this->invite->update(['suggested_name' => $suggestedName]);
+
+    $this->get(route('invites.show', $this->rawToken))
+        ->assertOk()
+        ->assertSee('value="'.$expected.'"', escape: false);
+})->with([
+    'two words' => ['Sturm Brightblade', 'sturm-brightblade'],
+    'accented' => ['Éowyn', 'eowyn'],
+    'leading digit' => ['7 Seas', 'seas'],
+    'too long' => ['Tasslehoff Burrfoot of the Kender Lands', 'tasslehoff-burrfoot-of-the-kende'],
+    'nothing usable' => ['李', ''],
+]);
+
+it('keeps the typed username over the suggestion after a failed submit', function (): void {
+    $this->from(route('invites.show', $this->rawToken))
+        ->post(route('invites.accept', $this->rawToken), [
+            'username' => '7seasons',
+            'name' => 'Sturm',
+            'password' => 'eleven-char',
+        ]);
+
+    $this->get(route('invites.show', $this->rawToken))
+        ->assertSee('value="7seasons"', escape: false);
+});
