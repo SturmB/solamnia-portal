@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\MediaServer;
 use App\Enums\InviteStatus;
 use App\Exceptions\LldapException;
 use App\Jobs\ShareMediaLibraries;
@@ -11,6 +10,7 @@ use App\Models\Subscriber;
 use App\Models\User;
 use App\Services\Lldap;
 use App\Services\Pushover;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -21,7 +21,7 @@ class InviteAcceptController extends Controller
 {
     public function __construct(private readonly Pushover $pushover) {}
 
-    public function __invoke(Request $request, string $token, Lldap $lldap, MediaServer $mediaServer): View
+    public function __invoke(Request $request, string $token, Lldap $lldap): View|RedirectResponse
     {
         $request->merge(['username' => Str::lower($request->string('username'))]);
 
@@ -40,6 +40,10 @@ class InviteAcceptController extends Controller
                 'required',
                 'string',
                 'max:255',
+            ],
+            'password' => [
+                'required',
+                'string',
             ],
         ], [
             'username.regex' => 'The username must start with a lowercase letter and contain only lowercase letters, numbers, dots, underscores, or hyphens.',
@@ -62,6 +66,8 @@ class InviteAcceptController extends Controller
                     throw $e->isDuplicateUser() ? $this->usernameTaken() : $e;
                 }
             }
+
+            $lldap->setPassword($username, $validated['password']);
 
             $lldap->addUserToGroup($username, Lldap::MEMBERS_GROUP);
         } catch (LldapException $e) {
@@ -117,11 +123,7 @@ class InviteAcceptController extends Controller
             "{$invite->email} is now the Member {$username}. They still need to set a password through Authelia.",
         );
 
-        return view('invite.accepted', [
-            'username' => $username,
-            'resetUrl' => rtrim(config('services.authelia.base_url'), '/').'/reset-password/step1',
-            'mediaServerConfigured' => $mediaServer->isConfigured(),
-        ]);
+        return to_route('auth.redirect');
     }
 
     private function usernameTaken(): ValidationException

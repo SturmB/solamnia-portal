@@ -15,7 +15,7 @@ use Mockery\MockInterface;
 /**
  * LLDAP answers the happy path: no such user, create it, find `members`, add.
  */
-function fakeLldapProvisioning(): MockInterface
+function fakeLldapProvisioning(): void
 {
     Http::fake([
         'lldap/auth/simple/login' => Http::response(['token' => 'jwt-abc']),
@@ -25,11 +25,6 @@ function fakeLldapProvisioning(): MockInterface
             ->push(['data' => ['groups' => [['id' => 3, 'displayName' => 'members']]]])
             ->push(['data' => ['addUserToGroup' => ['ok' => true]]]),
     ]);
-
-    return test()->mock(LdapConnection::class, function (MockInterface $mock): void {
-        $mock->shouldReceive('bind')->andReturnTrue();
-        $mock->shouldReceive('exopPasswd')->andReturnTrue();
-    });
 }
 
 beforeEach(function (): void {
@@ -53,6 +48,11 @@ beforeEach(function (): void {
         'services.lldap.password' => 'svc-secret',
         'services.lldap.base_dn' => 'dc=solamnia,dc=tv',
     ]);
+
+    $this->ldap = $this->mock(LdapConnection::class, function (MockInterface $mock): void {
+        $mock->shouldReceive('bind')->andReturnTrue();
+        $mock->shouldReceive('exopPasswd')->andReturnTrue();
+    });
 });
 
 it('renders the invite acceptance form', function (): void {
@@ -82,7 +82,7 @@ it('rejects a badly formed username and touches nothing', function (string $user
 ]);
 
 it('provisions the Member, sets their password, and hands off to SSO', function (): void {
-    $ldap = fakeLldapProvisioning();
+    fakeLldapProvisioning();
 
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'Brightblade', // capitalized on purpose: proves normalization
@@ -90,7 +90,7 @@ it('provisions the Member, sets their password, and hands off to SSO', function 
         'password' => 'correct horse battery staple',
     ])->assertRedirectToRoute('auth.redirect');
 
-    $ldap->shouldHaveReceived('exopPasswd')
+    $this->ldap->shouldHaveReceived('exopPasswd')
         ->with('uid=brightblade,ou=people,dc=solamnia,dc=tv', 'correct horse battery staple');
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Accepted)
@@ -124,7 +124,7 @@ it('queues the media-server invite after acceptance', function (): void {
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
         'password' => 'correct horse battery staple',
-    ])->assertOk();
+    ])->assertRedirectToRoute('auth.redirect');
 
     Queue::assertPushed(ShareMediaLibraries::class, fn (ShareMediaLibraries $job): bool => $job->email === 'sturm@example.com');
 });
@@ -137,7 +137,7 @@ it('mentions the coming media-server email only when the seam is configured', fu
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
         'password' => 'correct horse battery staple',
-    ])->assertOk();
+    ])->assertRedirectToRoute('auth.redirect');
 
     $mentioned ? $response->assertSee('Plex') : $response->assertDontSee('Plex');
 })->with([
@@ -210,7 +210,7 @@ it('continues to grouping when the user already exists from a failed attempt', f
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
         'password' => 'correct horse battery staple',
-    ])->assertOk();
+    ])->assertRedirectToRoute('auth.redirect');
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Accepted)
         ->and($this->invite->fresh()->username)->toBe('brightblade');
@@ -275,7 +275,7 @@ it('writes the eager shadow row after acceptance', function (): void {
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
         'password' => 'correct horse battery staple',
-    ])->assertOk();
+    ])->assertRedirectToRoute('auth.redirect');
 
     $shadow = User::where('email', 'sturm@example.com')->sole();
 
@@ -293,7 +293,7 @@ it('creates a Subscriber after acceptance when none exists', function (): void {
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
         'password' => 'correct horse battery staple',
-    ])->assertOk();
+    ])->assertRedirectToRoute('auth.redirect');
 
     $subscriber = Subscriber::where('email', 'sturm@example.com')->sole();
 
@@ -312,7 +312,7 @@ it('adopts an existing unsubscribed Subscriber without resubscribing them', func
         'username' => 'brightblade',
         'name' => 'Sturm Brightblade',
         'password' => 'correct horse battery staple',
-    ])->assertOk();
+    ])->assertRedirectToRoute('auth.redirect');
 
     expect(Subscriber::count())->toBe(1)
         ->and($unsubscribed->fresh()->unsubscribed_at)->not->toBeNull()
@@ -329,8 +329,7 @@ it('keeps the success response when a follow-up throws, and reports it', functio
         'name' => 'Sturm Brightblade',
         'password' => 'correct horse battery staple',
     ])
-        ->assertOk()
-        ->assertSee('brightblade');
+        ->assertRedirectToRoute('auth.redirect');
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Accepted)
         ->and($model::where('email', 'sturm@example.com')->exists())->toBeFalse()
