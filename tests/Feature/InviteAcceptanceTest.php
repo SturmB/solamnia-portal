@@ -35,7 +35,14 @@ beforeEach(function (): void {
         'plain_token' => $this->rawToken,
     ]);
 
-    Http::fake(['api.pushover.net/*' => Http::response()]);
+    Http::fake([
+        'api.pushover.net/*' => Http::response(),
+        // Every range lookup reports one breached password: "password1234", seen 1,000 times.
+        'api.pwnedpasswords.com/*' => Http::response('password1234'
+                |> sha1(...)
+                |> strtoupper(...)
+                |> (fn (string $hash): string => substr($hash, 5).':1000')),
+    ]);
     Http::preventStrayRequests();
     Queue::fake();
 
@@ -343,3 +350,30 @@ it('keeps the success response when a follow-up throws, and reports it', functio
     'users row' => [User::class, Subscriber::class],
     'Subscriber' => [Subscriber::class, User::class],
 ]);
+
+it('rejects a weak password inline and touches nothing', function (string $password): void {
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+        'password' => $password,
+    ])->assertRedirectBackWithErrors('password');
+
+    expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
+    $this->ldap->shouldNotHaveReceived('exopPasswd');
+    Http::assertNotSent(fn ($request): bool => Str::contains($request->url(), 'lldap'));
+})->with([
+    'too short' => 'eleven-char',
+    'breached' => 'password1234',
+]);
+
+it('never flashes the password back into the form', function (): void {
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+        'password' => 'eleven-char',
+    ]);
+
+    expect(session()->getOldInput())
+        ->toHaveKey('username')
+        ->not->toHaveKey('password');
+});
