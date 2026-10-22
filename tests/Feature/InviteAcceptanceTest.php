@@ -6,6 +6,8 @@ use App\Models\Invite;
 use App\Models\Subscriber;
 use App\Models\User;
 use App\Services\LdapConnection;
+use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -223,6 +225,8 @@ it('continues to grouping when the user already exists from a failed attempt', f
         ->and($this->invite->fresh()->username)->toBe('brightblade');
     Http::assertNotSent(fn ($request) => Str::contains($request['query'] ?? '', 'createUser'));
     Http::assertSent(fn ($request) => Str::contains($request['query'] ?? '', 'addUserToGroup'));
+    $this->ldap->shouldHaveReceived('exopPasswd')
+        ->with('uid=brightblade,ou=people,dc=solamnia,dc=tv', 'correct horse battery staple');
 });
 
 it('shows the friendly page instead of provisioning for a dead or unknown token', function (?string $state): void {
@@ -376,4 +380,58 @@ it('never flashes the password back into the form', function (): void {
     expect(session()->getOldInput())
         ->toHaveKey('username')
         ->not->toHaveKey('password');
+});
+
+it('leaves the Invite pending and offers a retry when setting the password fails', function (): void {
+    $this->mock(LdapConnection::class, function (MockInterface $mock): void {
+        $mock->shouldReceive('bind')->andReturnTrue();
+        $mock->shouldReceive('exopPasswd')->andReturnFalse();
+        $mock->shouldReceive('error')->andReturn('Insufficient access');
+    });
+    fakeLldapProvisioning();
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
+    ])
+        ->assertOk()
+        ->assertSee('try again');
+
+    expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
+    Http::assertNotSent(fn ($request): bool => Str::contains($request['query'] ?? '', 'addUserToGroup'));
+    Http::assertSent(fn ($request): bool => Str::contains($request['message'] ?? '', 'Insufficient access'));
+});
+
+it('keeps the password out of the logs when an unexpected error is reported', function (): void {
+    app()->instance(LdapConnection::class, new class extends LdapConnection
+    {
+        public function __construct() {}
+
+        public function bind(string $dn, #[SensitiveParameter] string $password): bool
+        {
+            return true;
+        }
+
+        public function exopPasswd(string $dn, #[SensitiveParameter] string $newPassword): bool
+        {
+            throw new RuntimeException('LDAP on fire');
+        }
+    });
+    fakeLldapProvisioning();
+
+    $logged = '';
+    Event::listen(MessageLogged::class, function (MessageLogged $log) use (&$logged): void {
+        $logged .= $log->message.($log->context['exception'] ?? '');
+    });
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
+    ])->assertServerError();
+
+    expect($logged)
+        ->toContain('LDAP on fire')
+        ->not->toContain('correct horse');
 });
