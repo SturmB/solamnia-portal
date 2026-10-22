@@ -138,20 +138,21 @@ it('queues the media-server invite after acceptance', function (): void {
     Queue::assertPushed(ShareMediaLibraries::class, fn (ShareMediaLibraries $job): bool => $job->email === 'sturm@example.com');
 });
 
-it('mentions the coming media-server email only when the seam is configured', function (?string $token, bool $mentioned): void {
-    config(['services.plex.token' => $token]);
-    fakeLldapProvisioning();
+it('mentions the coming Plex invite only when the media server is configured', function (?string $token, ?string $inviter, ?string $expected): void {
+    config([
+        'services.plex.token' => $token,
+        'services.plex.inviter_email' => $inviter,
+    ]);
 
-    $response = $this->post(route('invites.accept', $this->rawToken), [
-        'username' => 'brightblade',
-        'name' => 'Sturm Brightblade',
-        'password' => 'correct horse battery staple',
-    ])->assertRedirectToRoute('auth.redirect');
+    $response = $this->get(route('invites.show', $this->rawToken))->assertOk();
 
-    $mentioned ? $response->assertSee('Plex') : $response->assertDontSee('Plex');
+    $expected === null
+        ? $response->assertDontSee('Plex')
+        : $response->assertSee($expected);
 })->with([
-    'configured' => ['plex-token', true],
-    'unconfigured' => [null, false],
+    'with an inviter' => ['plex-token', 'owner@example.com', 'Plex will email you an invite from owner@example.com'],
+    'without an inviter' => ['plex-token', '', 'Plex will email you an invite from Plex'],
+    'unconfigured' => [null, 'owner@example.com', null],
 ]);
 
 it('rejects a username that already exists in LLDAP', function (): void {
