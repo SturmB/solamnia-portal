@@ -80,7 +80,7 @@ it('rejects a badly formed username and touches nothing', function (string $user
     ])->assertRedirectBackWithErrors('username');
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending);
-    Http::assertNothingSent();
+    Http::assertNotSent(fn ($request): bool => Str::contains($request->url(), 'lldap'));
 })->with([
     'too short' => 'ab',
     'starts with a digit' => '1sturm',

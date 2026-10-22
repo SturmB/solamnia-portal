@@ -13,6 +13,7 @@ use App\Services\Pushover;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Throwable;
@@ -44,6 +45,7 @@ class InviteAcceptController extends Controller
             'password' => [
                 'required',
                 'string',
+                Password::min(12)->uncompromised(),
             ],
         ], [
             'username.regex' => 'The username must start with a lowercase letter and contain only lowercase letters, numbers, dots, underscores, or hyphens.',
