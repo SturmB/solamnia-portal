@@ -2,8 +2,8 @@
      9px radius; focus is a violet-text outline. Errors are text, never colour alone. --}}
 <x-layouts::public title="You're invited" heading="You're invited">
     <p>
-        This invite is for <strong class="font-medium">{{ $invite->email }}</strong>. Pick the name
-        you'll go by across Solamnia.
+        This invite is for <strong class="font-medium">{{ $invite->email }}</strong>. Choose how you'll sign in to
+        Solamnia.
     </p>
 
     <form method="POST" action="{{ route('invites.accept', $token) }}" class="grid gap-[1.15rem]">
@@ -35,15 +35,43 @@
                 class="border-edge focus-visible:outline-violet-text w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1">
         </div>
 
+        <div class="grid gap-2">
+            <label for="password" class="text-[0.95rem] font-medium">Password</label>
+            <div class="relative">
+                <input type="password" name="password" id="password" autocomplete="new-password" required
+                    minlength="12" aria-describedby="password-hint"
+                    class="border-edge focus-visible:outline-violet-text w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] py-[0.7rem] pl-[0.9rem] pr-20 text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1">
+                <button type="button" data-password-toggle aria-controls="password"
+                    class="text-muted hover:text-ink focus-visible:outline-violet-text absolute inset-y-0 right-0 rounded-[9px] px-[0.9rem] text-[0.85rem] font-medium focus-visible:outline-2">
+                    <span data-password-toggle-label>Show</span><span class="sr-only"> password</span>
+                </button>
+            </div>
+            <p id="password-hint" class="text-muted text-[0.85rem]">
+                At least 12 characters. Passwords known from data breaches are refused.
+            </p>
+        </div>
+
         <button type="submit"
             class="bg-violet text-night-deep duration-250 focus-visible:ring-violet-text focus-visible:ring-offset-night mt-2 inline-flex items-center justify-self-start rounded-full px-8 py-3 font-bold transition hover:-translate-y-px hover:bg-[oklch(0.68_0.20_300)] hover:shadow-[0_0_32px_oklch(0.62_0.21_300/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-            Choose username
+            Create my account
         </button>
     </form>
+
     @if ($mediaServerConfigured)
         <p class="mt-2">
             Plex will email you an invite{{ $inviterAddress ? " from {$inviterAddress}" : '' }}. Accept it with this
             same address.
         </p>
     @endif
+
+    <script>
+        document.querySelector('[data-password-toggle]').addEventListener('click', (event) => {
+            const button = event.currentTarget;
+            const input = document.getElementById(button.getAttribute('aria-controls'));
+            const showing = input.type === 'text';
+
+            input.type = showing ? 'password' : 'text';
+            button.querySelector('[data-password-toggle-label]').textContent = showing ? 'Show' : 'Hide';
+        });
+    </script>
 </x-layouts::public>
