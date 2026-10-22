@@ -151,7 +151,7 @@ it('mentions the coming Plex invite only when the media server is configured', f
         : $response->assertSee($expected);
 })->with([
     'with an inviter' => ['plex-token', 'owner@example.com', 'Plex will email you an invite from owner@example.com'],
-    'without an inviter' => ['plex-token', '', 'Plex will email you an invite from Plex'],
+    'without an inviter' => ['plex-token', '', 'Plex will email you an invite.'],
     'unconfigured' => [null, 'owner@example.com', null],
 ]);
 

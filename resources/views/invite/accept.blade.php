@@ -40,4 +40,10 @@
             Choose username
         </button>
     </form>
+    @if ($mediaServerConfigured)
+        <p class="mt-2">
+            Plex will email you an invite{{ $inviterAddress ? " from {$inviterAddress}" : '' }}. Accept it with this
+            same address.
+        </p>
+    @endif
 </x-layouts::public>
