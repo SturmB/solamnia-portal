@@ -71,6 +71,10 @@ it('renders the invite acceptance form', function (): void {
         ->assertSee('name="username"', escape: false)
         ->assertSee('id="username"', escape: false)
         ->assertSee('value="Sturm"', escape: false)
+        ->assertSee('type="password"', escape: false)
+        ->assertSee('name="password"', escape: false)
+        ->assertSee('autocomplete="new-password"', escape: false)
+        ->assertSee('Create my account')
         ->assertSee(route('invites.accept', $this->rawToken), escape: false);
 });
 
@@ -407,6 +411,11 @@ it('leaves the Invite pending and offers a retry when setting the password fails
 it('keeps the password out of the logs when an unexpected error is reported', function (): void {
     app()->instance(LdapConnection::class, new class extends LdapConnection
     {
+        /**
+         * Skips the real constructor, which reads the LDAP URL and opens a connection.
+         *
+         * @noinspection PhpMissingParentConstructorInspection
+         */
         public function __construct() {}
 
         public function bind(string $dn, #[SensitiveParameter] string $password): bool
