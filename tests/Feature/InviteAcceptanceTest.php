@@ -447,6 +447,7 @@ it('pre-fills a valid username suggested by the Invite', function (string $sugge
     'accented' => ['Éowyn', 'eowyn'],
     'leading digit' => ['7 Seas', 'seas'],
     'too long' => ['Tasslehoff Burrfoot of the Kender Lands', 'tasslehoff-burrfoot-of-the-kende'],
+    'too short' => ['Al', ''],
     'nothing usable' => ['李', ''],
 ]);
 

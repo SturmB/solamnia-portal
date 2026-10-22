@@ -119,6 +119,20 @@ class Invite extends Model
     }
 
     /**
+     * A username built from the suggested name that passes the username rule,
+     * or empty if none can be made.
+     */
+    public function suggestedUsername(): string
+    {
+        $username = Str::slug($this->suggested_name)
+            |> (fn (string $name): string => ltrim($name, '0..9-'))
+            |> (fn (string $name): string => substr($name, 0, 32))
+            |> (fn (string $name): string => rtrim($name, '-'));
+
+        return Str::length($username) >= 3 ? $username : '';
+    }
+
+    /**
      * Stamp revoked-at in one conditional update so a stale row cannot be
      * revoked: false means the Invite was no longer pending (accepted,
      * expired, or already revoked) and nothing was written.
