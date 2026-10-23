@@ -122,7 +122,7 @@ class InviteAcceptController extends Controller
 
         $this->pushover->send(
             "{$username} accepted their invite",
-            "{$invite->email} is now the Member {$username}. They still need to set a password through Authelia.",
+            "{$invite->email} is now the Member {$username}.",
         );
 
         return to_route('auth.redirect');

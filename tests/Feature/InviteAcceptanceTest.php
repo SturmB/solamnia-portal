@@ -128,7 +128,8 @@ it('provisions the Member, sets their password, and hands off to SSO', function 
         ]);
 
     Http::assertSent(fn ($request): bool => Str::contains($request->url(), 'pushover')
-        && Str::contains($request['message'], 'brightblade'));
+        && Str::contains($request['message'], 'brightblade')
+        && ! Str::contains($request['message'], 'password'));
 });
 
 it('queues the media-server invite after acceptance', function (): void {
@@ -194,7 +195,8 @@ it('leaves the Invite pending and renders the retry page when LLDAP fails', func
         'password' => 'correct horse battery staple',
     ])
         ->assertOk()
-        ->assertSee('try again');
+        ->assertSee('try again')
+        ->assertSee('type your password again');
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending)
         ->and($this->invite->fresh()->username)->toBeNull();
