@@ -30,6 +30,8 @@ class Invite extends Model
     /** @use HasFactory<InviteFactory> */
     use HasFactory;
 
+    public const string USERNAME_PATTERN = '/^[a-z][a-z0-9._-]{2,31}$/';
+
     /**
      * @return BelongsTo<User, $this>
      */
@@ -129,7 +131,7 @@ class Invite extends Model
             |> (fn (string $name): string => substr($name, 0, 32))
             |> (fn (string $name): string => rtrim($name, '-'));
 
-        return Str::length($username) >= 3 ? $username : '';
+        return preg_match(self::USERNAME_PATTERN, $username) ? $username : '';
     }
 
     /**
