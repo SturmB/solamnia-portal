@@ -472,3 +472,22 @@ it('keeps the typed username over the suggestion after a failed submit', functio
     $this->get(route('invites.show', $this->rawToken))
         ->assertSee('value="7seasons"', escape: false);
 });
+
+it('marks the invalid field and links its error for screen readers', function (string $field, array $input): void {
+    $this->from(route('invites.show', $this->rawToken))
+        ->post(route('invites.accept', $this->rawToken), [
+            'username' => 'sturm',
+            'name' => 'Sturm',
+            'password' => 'correct horse battery staple',
+            ...$input,
+        ]);
+
+    $this->get(route('invites.show', $this->rawToken))
+        ->assertSee("id=\"{$field}-error\"", escape: false)
+        ->assertSee("aria-describedby=\"{$field}-error", escape: false)
+        ->assertSee('aria-invalid="true"', escape: false);
+})->with([
+    'username' => ['username', ['username' => '7seasons']],
+    'display name' => ['name', ['name' => '']],
+    'password' => ['password', ['password' => 'eleven-char']],
+]);
