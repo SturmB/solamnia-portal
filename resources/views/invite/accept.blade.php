@@ -13,11 +13,16 @@
             <label for="username" class="text-[0.95rem] font-medium">Username <span
                     class="text-muted">(permanent)</span></label>
             <input type="text" name="username" id="username" autocomplete="username" required
-                value="{{ old('username', $invite->suggestedUsername()) }}" aria-describedby="username-hint"
+                value="{{ old('username', $invite->suggestedUsername()) }}"
+                aria-describedby="{{ $errors->has('username') ? 'username-error ' : '' }}username-hint"
                 @error('username') aria-invalid="true" @enderror
-                class="border-edge focus-visible:outline-violet-text w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1">
+                class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-ink aria-[invalid=true]:ring-ink w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
             @error('username')
-                <p class="text-[0.85rem]" role="alert">{{ $message }}</p>
+                <p id="username-error" role="alert"
+                    class="text-ink flex items-start gap-1.5 text-[0.85rem] font-semibold">
+                    <flux:icon.exclamation-circle variant="micro" aria-hidden="true" class="mt-0.5" />
+                    {{ $message }}
+                </p>
             @enderror
             <p id="username-hint" class="text-muted text-[0.85rem]">
                 3 to 32 characters, starting with a letter: lowercase letters, digits,
@@ -32,20 +37,36 @@
             <label for="name" class="text-[0.95rem] font-medium">Display name</label>
             <input type="text" name="name" id="name" autocomplete="name" required maxlength="255"
                 value="{{ old('name', $invite->suggested_name) }}"
-                class="border-edge focus-visible:outline-violet-text w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1">
+                @error('name') aria-describedby="name-error" aria-invalid="true" @enderror
+                class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-ink aria-[invalid=true]:ring-ink w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
+            @error('name')
+                <p id="name-error" role="alert" class="text-ink flex items-start gap-1.5 text-[0.85rem] font-semibold">
+                    <flux:icon.exclamation-circle variant="micro" aria-hidden="true" class="mt-0.5" />
+                    {{ $message }}
+                </p>
+            @enderror
         </div>
 
         <div class="grid gap-2">
             <label for="password" class="text-[0.95rem] font-medium">Password</label>
             <div class="relative">
                 <input type="password" name="password" id="password" autocomplete="new-password" required
-                    minlength="12" aria-describedby="password-hint"
-                    class="border-edge focus-visible:outline-violet-text w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] py-[0.7rem] pl-[0.9rem] pr-20 text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1">
+                    minlength="12"
+                    aria-describedby="{{ $errors->has('password') ? 'password-error ' : '' }}password-hint"
+                    @error('password') aria-invalid="true" @enderror
+                    class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-ink aria-[invalid=true]:ring-ink w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] py-[0.7rem] pl-[0.9rem] pr-20 text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
                 <button type="button" data-password-toggle aria-controls="password"
                     class="text-muted hover:text-ink focus-visible:outline-violet-text absolute inset-y-0 right-0 rounded-[9px] px-[0.9rem] text-[0.85rem] font-medium focus-visible:outline-2">
                     <span data-password-toggle-label>Show</span><span class="sr-only"> password</span>
                 </button>
             </div>
+            @error('password')
+                <p id="password-error" role="alert"
+                    class="text-ink flex items-start gap-1.5 text-[0.85rem] font-semibold">
+                    <flux:icon.exclamation-circle variant="micro" aria-hidden="true" class="mt-0.5" />
+                    {{ $message }}
+                </p>
+            @enderror
             <p id="password-hint" class="text-muted text-[0.85rem]">
                 At least 12 characters. Passwords known from data breaches are refused.
             </p>
@@ -65,13 +86,13 @@
     @endif
 
     <script>
-        document.querySelector('[data-password-toggle]').addEventListener('click', (event) => {
+        document.querySelector("[data-password-toggle]").addEventListener("click", (event) => {
             const button = event.currentTarget;
-            const input = document.getElementById(button.getAttribute('aria-controls'));
-            const showing = input.type === 'text';
+            const input = document.getElementById(button.getAttribute("aria-controls"));
+            const showing = input.type === "text";
 
-            input.type = showing ? 'password' : 'text';
-            button.querySelector('[data-password-toggle-label]').textContent = showing ? 'Show' : 'Hide';
+            input.type = showing ? "password" : "text";
+            button.querySelector("[data-password-toggle-label]").textContent = showing ? "Show" : "Hide";
         });
     </script>
 </x-layouts::public>
