@@ -75,7 +75,8 @@ it('renders the invite acceptance form', function (): void {
         ->assertSee('name="password"', escape: false)
         ->assertSee('autocomplete="new-password"', escape: false)
         ->assertSee('Create my account')
-        ->assertSee(route('invites.accept', $this->rawToken), escape: false);
+        ->assertSee(route('invites.accept', $this->rawToken), escape: false)
+        ->assertDontSee('data-error-summary', escape: false);
 });
 
 it('rejects a badly formed username and touches nothing', function (string $username): void {
@@ -491,3 +492,15 @@ it('marks the invalid field and links its error for screen readers', function (s
     'display name' => ['name', ['name' => '']],
     'password' => ['password', ['password' => 'eleven-char']],
 ]);
+
+it('summarises the errors at the top of the form', function (): void {
+    $this->from(route('invites.show', $this->rawToken))
+        ->post(route('invites.accept', $this->rawToken), [
+            'username' => '7seasons',
+            'name' => 'Sturm',
+            'password' => 'eleven-char',
+        ]);
+
+    $this->get(route('invites.show', $this->rawToken))
+        ->assertSeeInOrder(['data-error-summary', 'href="#username"', 'href="#password"', 'id="username"'], escape: false);
+});
