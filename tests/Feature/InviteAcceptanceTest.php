@@ -196,7 +196,8 @@ it('leaves the Invite pending and renders the retry page when LLDAP fails', func
     ])
         ->assertOk()
         ->assertSee('try again')
-        ->assertSee('type your password again');
+        ->assertSee('type your password again')
+        ->assertSee(route('invites.show', [$this->rawToken, 'username' => 'brightblade']), escape: false);
 
     expect($this->invite->fresh()->status())->toBe(InviteStatus::Pending)
         ->and($this->invite->fresh()->username)->toBeNull();
@@ -474,6 +475,11 @@ it('keeps the typed username over the suggestion after a failed submit', functio
 
     $this->get(route('invites.show', $this->rawToken))
         ->assertSee('value="7seasons"', escape: false);
+});
+
+it('pre-fills the username carried back from the retry page', function (): void {
+    $this->get(route('invites.show', [$this->rawToken, 'username' => 'brightblade']))
+        ->assertSee('value="brightblade"', escape: false);
 });
 
 it('marks the invalid field and links its error for screen readers', function (string $field, array $input): void {

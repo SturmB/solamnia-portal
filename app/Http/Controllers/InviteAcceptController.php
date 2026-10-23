@@ -85,6 +85,7 @@ class InviteAcceptController extends Controller
             return view('invite.retry', [
                 'invite' => $invite,
                 'token' => $token,
+                'username' => $username,
             ]);
         }
 

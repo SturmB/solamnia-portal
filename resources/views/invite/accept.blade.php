@@ -30,7 +30,7 @@
             <label for="username" class="text-[0.95rem] font-medium">Username <span
                     class="text-muted">(permanent)</span></label>
             <input type="text" name="username" id="username" autocomplete="username" required
-                value="{{ old('username', $invite->suggestedUsername()) }}"
+                value="{{ old('username', $suggestedUsername) }}"
                 aria-describedby="{{ $errors->has('username') ? 'username-error ' : '' }}username-hint"
                 @error('username') aria-invalid="true" @enderror
                 class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-error aria-[invalid=true]:ring-error w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
