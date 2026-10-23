@@ -12,7 +12,8 @@ use SensitiveParameter;
  * The portal's provisioning surface into LLDAP, using the dedicated service
  * account (never the directory superuser): GraphQL for users and groups, LDAP
  * for the one thing GraphQL can't do, setting a password. A JWT is fetched
- * per request: acceptances are rare, so caching it buys nothing.
+ * per request: acceptances are rare, so caching it buys nothing. A user's
+ * `id` in LLDAP is their username.
  */
 class Lldap
 {

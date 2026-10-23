@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\MediaServer;
 use App\Enums\InviteStatus;
 use App\Exceptions\LldapException;
 use App\Jobs\ShareMediaLibraries;
@@ -11,8 +10,10 @@ use App\Models\Subscriber;
 use App\Models\User;
 use App\Services\Lldap;
 use App\Services\Pushover;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Throwable;
@@ -21,7 +22,7 @@ class InviteAcceptController extends Controller
 {
     public function __construct(private readonly Pushover $pushover) {}
 
-    public function __invoke(Request $request, string $token, Lldap $lldap, MediaServer $mediaServer): View
+    public function __invoke(Request $request, string $token, Lldap $lldap): View|RedirectResponse
     {
         $request->merge(['username' => Str::lower($request->string('username'))]);
 
@@ -34,12 +35,17 @@ class InviteAcceptController extends Controller
             'username' => [
                 'required',
                 'string',
-                'regex:/^[a-z][a-z0-9._-]{2,31}$/',
+                'regex:'.Invite::USERNAME_PATTERN,
             ],
             'name' => [
                 'required',
                 'string',
                 'max:255',
+            ],
+            'password' => [
+                'required',
+                'string',
+                Password::min(12)->uncompromised(),
             ],
         ], [
             'username.regex' => 'The username must start with a lowercase letter and contain only lowercase letters, numbers, dots, underscores, or hyphens.',
@@ -63,6 +69,8 @@ class InviteAcceptController extends Controller
                 }
             }
 
+            $lldap->setPassword($username, $validated['password']);
+
             $lldap->addUserToGroup($username, Lldap::MEMBERS_GROUP);
         } catch (LldapException $e) {
             // ponytail: a user created *and* grouped by an earlier attempt whose stamp then
@@ -77,6 +85,7 @@ class InviteAcceptController extends Controller
             return view('invite.retry', [
                 'invite' => $invite,
                 'token' => $token,
+                'username' => $username,
             ]);
         }
 
@@ -114,14 +123,10 @@ class InviteAcceptController extends Controller
 
         $this->pushover->send(
             "{$username} accepted their invite",
-            "{$invite->email} is now the Member {$username}. They still need to set a password through Authelia.",
+            "{$invite->email} is now the Member {$username}.",
         );
 
-        return view('invite.accepted', [
-            'username' => $username,
-            'resetUrl' => rtrim(config('services.authelia.base_url'), '/').'/reset-password/step1',
-            'mediaServerConfigured' => $mediaServer->isConfigured(),
-        ]);
+        return to_route('auth.redirect');
     }
 
     private function usernameTaken(): ValidationException

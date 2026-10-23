@@ -30,6 +30,8 @@ class Invite extends Model
     /** @use HasFactory<InviteFactory> */
     use HasFactory;
 
+    public const string USERNAME_PATTERN = '/^[a-z][a-z0-9._-]{2,31}$/';
+
     /**
      * @return BelongsTo<User, $this>
      */
@@ -116,6 +118,20 @@ class Invite extends Model
 
             return $pending->save();
         });
+    }
+
+    /**
+     * A username built from the suggested name that passes the username rule,
+     * or empty if none can be made.
+     */
+    public function suggestedUsername(): string
+    {
+        $username = Str::slug($this->suggested_name)
+            |> (fn (string $name): string => ltrim($name, '0..9-'))
+            |> (fn (string $name): string => substr($name, 0, 32))
+            |> (fn (string $name): string => rtrim($name, '-'));
+
+        return preg_match(self::USERNAME_PATTERN, $username) ? $username : '';
     }
 
     /**

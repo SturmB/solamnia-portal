@@ -53,6 +53,7 @@ return [
         'client_identifier' => env('PLEX_CLIENT_IDENTIFIER', 'solamnia-portal'),
         'machine_identifier' => env('PLEX_MACHINE_IDENTIFIER'),
         'library_section_ids' => env('PLEX_LIBRARY_SECTION_IDS'),
+        'inviter_email' => env('PLEX_INVITER_EMAIL'),
     ],
 
     'authelia' => [
