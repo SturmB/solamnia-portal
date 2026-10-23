@@ -16,6 +16,7 @@ colors:
   violet-text: "oklch(0.80 0.13 300)"
   aurora-green: "oklch(0.82 0.19 165)"
   aurora-rose: "oklch(0.72 0.16 350)"
+  error: "oklch(0.78 0.14 25)"
   edge: "oklch(0.42 0.05 290 / 0.35)"
   edge-top: "oklch(0.70 0.06 290 / 0.28)"
 typography:
@@ -109,7 +110,8 @@ already belong; nothing is sold, nothing shouts.
 ## 2. Colors: The Solar Wind Palette
 
 Night and ink carry the interface; violet carries every action; green and
-rose exist only inside the light.
+rose exist only inside the light; error red marks form validation and
+nothing else.
 
 ### Primary
 - **Aurora Violet** (`oklch(0.62 0.21 300)`, token `violet`): THE action
@@ -126,6 +128,16 @@ rose exist only inside the light.
   hue drift and the pre-baked email gradients. Never UI chrome, never status,
   never text.
 
+### Error — form validation only
+- **Error Red** (`oklch(0.78 0.14 25)`, token `error`): a soft coral, kept
+  well clear of aurora rose's hue (350) so it never reads as part of the sky,
+  and light enough for ≈10:1 on night. It marks a rejected form submission in
+  exactly three places: the inline field error (text and glyph), the invalid
+  input's border (`aria-invalid`), and the error summary that opens the form.
+  Always paired with a glyph and a text message, never the message itself
+  (the Colorblind-Safe State Rule). Escalated past the One Voice Rule because
+  hue-free errors went unnoticed in live testing.
+
 ### Neutral
 - **Night** (`oklch(0.13 0.03 250)`): the page ground; a blue-black polar
   sky. **Night Deep** (`oklch(0.10 0.03 250)`): text on violet fills.
@@ -141,16 +153,20 @@ rose exist only inside the light.
 ### Named Rules
 **The One Voice Rule.** Violet is the only chromatic color in UI chrome. If a
 screen seems to need a second color, that's a deliberate design decision to
-escalate — never an ad-hoc hue.
+escalate — never an ad-hoc hue. Error Red is the one escalation so far, and
+it is confined to form validation.
 
 **The Light-Only Rule.** Green and rose belong to the aurora and the email
 gradients. The moment either appears on a button, badge, or label, it's a bug.
+Error Red is a separate token, not rose; it is allowed on form errors only.
 
 **The Colorblind-Safe State Rule.** At least one Member has red-green color
 deficiency. State (success / warning / error) is **never** encoded by
-red-vs-green hue alone — status is a plain-ink text label (with an icon or
-glyph, e.g. "☾ Maintenance — back Sunday"). The violet shimmer is texture on
-top of the label, never the message.
+red-vs-green hue alone — status is a text label (with an icon or glyph, e.g.
+"☾ Maintenance — back Sunday"). Status labels are plain ink, except form
+errors, which may be Error Red because the glyph and text already carry the
+message. The violet shimmer is texture on top of the label, never the
+message.
 
 ## 3. Typography
 
@@ -267,6 +283,13 @@ mathematically.
 - **States:** `readonly` renders muted; hints are muted 0.85rem with ink
   `<strong>`; live hints (password strength) update as *text*, announced via
   `aria-live="polite"` — never color alone.
+- **Errors:** the invalid input gets a 2px `error` border (1px border + 1px
+  ring, so text doesn't shift). The message sits below the input in `error`,
+  0.85rem semibold, after a micro exclamation-circle glyph, and is linked via
+  `aria-describedby`. A rejected submit also opens the form with an error
+  summary: a 2px `error`-bordered panel listing the invalid fields as links,
+  focused on load (`autofocus`, `tabindex="-1"`) and carrying `role="alert"`
+  so it's announced once.
 
 ### Navigation
 - Sticky top bar: 66%-alpha night + the one 14px backdrop blur, 1px `edge`
@@ -320,6 +343,9 @@ media block per concern.
 ### Don't:
 - **Don't** use green or rose in UI chrome, badges, status, or text — the
   Light-Only Rule. And **don't** encode success/error as green-vs-red, ever.
+- **Don't** spread Error Red beyond form validation — no red badges, banners,
+  service status, or destructive buttons. Outside a form, state stays a
+  plain-ink label with a glyph.
 - **Don't** default to the "media server → Plex amber/gold" palette; the
   wonder is the polar sky, not Plex's brand.
 - **Don't** let it read as corporate SaaS, sterile enterprise-admin gray, or

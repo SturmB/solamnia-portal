@@ -502,5 +502,6 @@ it('summarises the errors at the top of the form', function (): void {
         ]);
 
     $this->get(route('invites.show', $this->rawToken))
-        ->assertSeeInOrder(['data-error-summary', 'href="#username"', 'href="#password"', 'id="username"'], escape: false);
+        ->assertSeeInOrder(['data-error-summary', 'href="#username"', 'href="#password"', 'id="username"'], escape: false)
+        ->assertDontSee('href="#name"', escape: false);
 });

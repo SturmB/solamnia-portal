@@ -9,6 +9,23 @@
     <form method="POST" action="{{ route('invites.accept', $token) }}" class="grid gap-[1.15rem]">
         @csrf
 
+        @if ($errors->any())
+            <div data-error-summary tabindex="-1" autofocus role="alert" aria-labelledby="error-summary-heading"
+                class="border-error grid gap-2 rounded-[9px] border-2 p-4 focus:outline-none">
+                <p id="error-summary-heading" class="text-error flex items-center gap-2 font-bold">
+                    <flux:icon.exclamation-circle variant="mini" aria-hidden="true" />
+                    Check these fields:
+                </p>
+                <ul class="grid gap-1 text-[0.95rem]">
+                    @foreach (['username' => 'Username', 'name' => 'Display name', 'password' => 'Password'] as $field => $label)
+                        @error($field)
+                            <li><a href="#{{ $field }}" class="underline">{{ $label }}</a></li>
+                        @enderror
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="grid gap-2">
             <label for="username" class="text-[0.95rem] font-medium">Username <span
                     class="text-muted">(permanent)</span></label>
@@ -16,10 +33,9 @@
                 value="{{ old('username', $invite->suggestedUsername()) }}"
                 aria-describedby="{{ $errors->has('username') ? 'username-error ' : '' }}username-hint"
                 @error('username') aria-invalid="true" @enderror
-                class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-ink aria-[invalid=true]:ring-ink w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
+                class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-error aria-[invalid=true]:ring-error w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
             @error('username')
-                <p id="username-error" role="alert"
-                    class="text-ink flex items-start gap-1.5 text-[0.85rem] font-semibold">
+                <p id="username-error" class="text-error flex items-start gap-1.5 text-[0.85rem] font-semibold">
                     <flux:icon.exclamation-circle variant="micro" aria-hidden="true" class="mt-0.5" />
                     {{ $message }}
                 </p>
@@ -38,9 +54,9 @@
             <input type="text" name="name" id="name" autocomplete="name" required maxlength="255"
                 value="{{ old('name', $invite->suggested_name) }}"
                 @error('name') aria-describedby="name-error" aria-invalid="true" @enderror
-                class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-ink aria-[invalid=true]:ring-ink w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
+                class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-error aria-[invalid=true]:ring-error w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] px-[0.9rem] py-[0.7rem] text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
             @error('name')
-                <p id="name-error" role="alert" class="text-ink flex items-start gap-1.5 text-[0.85rem] font-semibold">
+                <p id="name-error" class="text-error flex items-start gap-1.5 text-[0.85rem] font-semibold">
                     <flux:icon.exclamation-circle variant="micro" aria-hidden="true" class="mt-0.5" />
                     {{ $message }}
                 </p>
@@ -54,15 +70,14 @@
                     minlength="12"
                     aria-describedby="{{ $errors->has('password') ? 'password-error ' : '' }}password-hint"
                     @error('password') aria-invalid="true" @enderror
-                    class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-ink aria-[invalid=true]:ring-ink w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] py-[0.7rem] pl-[0.9rem] pr-20 text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
+                    class="border-edge focus-visible:outline-violet-text aria-[invalid=true]:border-error aria-[invalid=true]:ring-error w-full rounded-[9px] border bg-[oklch(0.11_0.03_252)] py-[0.7rem] pl-[0.9rem] pr-20 text-base focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-1 aria-[invalid=true]:ring-1">
                 <button type="button" data-password-toggle aria-controls="password"
                     class="text-muted hover:text-ink focus-visible:outline-violet-text absolute inset-y-0 right-0 rounded-[9px] px-[0.9rem] text-[0.85rem] font-medium focus-visible:outline-2">
                     <span data-password-toggle-label>Show</span><span class="sr-only"> password</span>
                 </button>
             </div>
             @error('password')
-                <p id="password-error" role="alert"
-                    class="text-ink flex items-start gap-1.5 text-[0.85rem] font-semibold">
+                <p id="password-error" class="text-error flex items-start gap-1.5 text-[0.85rem] font-semibold">
                     <flux:icon.exclamation-circle variant="micro" aria-hidden="true" class="mt-0.5" />
                     {{ $message }}
                 </p>

@@ -90,6 +90,9 @@
         0.8 0.13 300
     ); /* links, focus rings, actionable text */
 
+    /* Error — form validation only; always paired with a glyph and text (DESIGN.md §2) */
+    --color-error: oklch(0.78 0.14 25);
+
     /* Lit edges — 1px panel borders (green/rose live ONLY in the shader) */
     --color-edge: oklch(0.42 0.05 290 / 0.35);
     --color-edge-top: oklch(0.7 0.06 290 / 0.28);
