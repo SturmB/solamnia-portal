@@ -16,8 +16,8 @@
         <mj-section padding="8px 32px 36px">
             <mj-column>
                 <mj-text>
-                    {{ $inviterName }} has invited you to join Solamnia. Accept the invite to
-                    choose your username and take your seat.
+                    {{ $inviterName }} has invited you to join Solamnia. Accept the invite to choose a username and
+                    password so you can take your seat.
                 </mj-text>
                 {{-- Violet fill with night-deep text (DESIGN.md): white-on-violet fails AA. --}}
                 <mj-button href="{{ $acceptUrl }}" background-color="#a264f6" color="#050a17" border-radius="999px"
