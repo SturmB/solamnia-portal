@@ -102,3 +102,10 @@ it('keeps the raw token recoverable after issuance', function (): void {
     expect($refreshedInvite->plain_token)->not->toBeNull()
         ->and(hash('sha256', $refreshedInvite->plain_token))->toBe($invite->token);
 });
+
+it('tells the invitee they will choose a username and password', function (): void {
+    $invite = Invite::factory()->create();
+
+    new InviteMail($invite)
+        ->assertSeeInHtml('username and password');
+});
