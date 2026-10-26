@@ -7,6 +7,7 @@ use App\Mail\InviteMail;
 use App\Models\Invite;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 use function Pest\Livewire\livewire;
 
@@ -101,4 +102,10 @@ it('keeps the raw token recoverable after issuance', function (): void {
     $refreshedInvite = $invite->fresh();
     expect($refreshedInvite->plain_token)->not->toBeNull()
         ->and(hash('sha256', $refreshedInvite->plain_token))->toBe($invite->token);
+});
+
+it('tells the invitee they will choose a username and password', function (): void {
+    $html = new InviteMail(Invite::factory()->create())->render();
+
+    expect(Str::squish($html))->toContain('username and password');
 });

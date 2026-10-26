@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\MediaServer;
 use App\Enums\InviteStatus;
 use App\Exceptions\LldapException;
 use App\Jobs\ShareMediaLibraries;
 use App\Models\Invite;
 use App\Models\Subscriber;
 use App\Models\User;
+use App\Notifications\MediaServerInviteComing;
 use App\Services\Lldap;
 use App\Services\Pushover;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +24,7 @@ class InviteAcceptController extends Controller
 {
     public function __construct(private readonly Pushover $pushover) {}
 
-    public function __invoke(Request $request, string $token, Lldap $lldap): View|RedirectResponse
+    public function __invoke(Request $request, string $token, Lldap $lldap, MediaServer $mediaServer): View|RedirectResponse
     {
         $request->merge(['username' => Str::lower($request->string('username'))]);
 
@@ -93,7 +95,7 @@ class InviteAcceptController extends Controller
             return view('invite.invalid');
         }
 
-        rescue(
+        $member = rescue(
             fn () => User::where('email', $invite->email)->firstOr(fn () => User::forceCreate([
                 'name' => $name,
                 'email' => $invite->email,
@@ -120,6 +122,16 @@ class InviteAcceptController extends Controller
                 $e,
             ),
         );
+
+        if ($member !== null && $mediaServer->isConfigured()) {
+            rescue(
+                fn () => $member->notify(new MediaServerInviteComing),
+                fn (Throwable $e) => $this->reportFollowUp(
+                    "Could not leave the media-server notice for {$invite->email} ({$username}). Tell them to watch for the Plex email.",
+                    $e,
+                ),
+            );
+        }
 
         $this->pushover->send(
             "{$username} accepted their invite",

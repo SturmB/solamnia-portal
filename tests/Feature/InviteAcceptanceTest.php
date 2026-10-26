@@ -5,11 +5,14 @@ use App\Jobs\ShareMediaLibraries;
 use App\Models\Invite;
 use App\Models\Subscriber;
 use App\Models\User;
+use App\Notifications\MediaServerInviteComing;
 use App\Services\LdapConnection;
 use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Mockery\MockInterface;
@@ -364,6 +367,24 @@ it('keeps the success response when a follow-up throws, and reports it', functio
     'Subscriber' => [Subscriber::class, User::class],
 ]);
 
+it('keeps the success response when the media-server notice fails, and reports it', function (): void {
+    Exceptions::fake();
+    config(['services.plex.token' => 'plex-token']);
+    DatabaseNotification::creating(fn () => throw new RuntimeException('Inbox on fire'));
+    fakeLldapProvisioning();
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
+    ])->assertRedirectToRoute('auth.redirect');
+
+    Exceptions::assertReported(RuntimeException::class);
+    Http::assertSent(fn ($request): bool => Str::contains($request->url(), 'pushover')
+        && $request['priority'] === 1
+        && Str::contains($request['message'], 'Inbox on fire'));
+});
+
 it('rejects a weak password inline and touches nothing', function (string $password): void {
     $this->post(route('invites.accept', $this->rawToken), [
         'username' => 'brightblade',
@@ -513,3 +534,25 @@ it('summarises the errors at the top of the form', function (): void {
         ->assertSeeInOrder(['data-error-summary', 'href="#username"', 'href="#password"', 'id="username"'], escape: false)
         ->assertDontSee('href="#name"', escape: false);
 });
+
+it('notifies the invitee about a separate media server email', function (?string $token): void {
+    fakeLldapProvisioning();
+    Notification::fake();
+
+    config(['services.plex.token' => $token]);
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
+    ])->assertRedirectToRoute('auth.redirect');
+
+    $shadow = User::where('email', 'sturm@example.com')->sole();
+
+    $token === null
+        ? Notification::assertNothingSent()
+        : Notification::assertSentTo($shadow, MediaServerInviteComing::class);
+})->with([
+    'plex configured' => 'plex-token',
+    'plex not configured' => null,
+]);
