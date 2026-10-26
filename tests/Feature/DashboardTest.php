@@ -24,7 +24,7 @@ test('an sso member passes the verified middleware', function (): void {
         ->assertOk();
 });
 
-it('shows the media-server notice, naming the inviter and the Admin when configured', function (?string $inviter, ?string $admin, string $expected): void {
+it('shows the media-server notice, naming the inviter and the Admin when configured', function (?string $inviter, ?string $admin, array $expected): void {
     config([
         'services.plex.inviter_email' => $inviter,
         'app.admin_contact_email' => $admin,
@@ -41,11 +41,17 @@ it('shows the media-server notice, naming the inviter and the Admin when configu
     'with an inviter and an Admin address' => [
         'owner@example.com',
         'admin@example.com',
-        'from Plex, from owner@example.com',
+        [
+            'from Plex, from owner@example.com',
+            'contact the Admin at admin@example.com',
+        ],
     ],
     'with neither' => [
         null,
         null,
-        'contact the Admin.',
+        [
+            'coming from Plex. Accept',
+            'contact the Admin.',
+        ],
     ],
 ]);

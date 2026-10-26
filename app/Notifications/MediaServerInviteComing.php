@@ -3,20 +3,11 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class MediaServerInviteComing extends Notification
 {
     use Queueable;
-
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct()
-    {
-        //
-    }
 
     /**
      * Get the notification's delivery channels.
@@ -25,18 +16,7 @@ class MediaServerInviteComing extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
-    }
-
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+        return ['database'];
     }
 
     /**
@@ -46,8 +26,14 @@ class MediaServerInviteComing extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $inviter = config('services.plex.inviter_email');
+        $admin = config('app.admin_contact_email');
+
+        $fromInviter = $inviter ? ", from {$inviter}" : '';
+        $atAddress = $admin ? " at {$admin}" : '';
+
         return [
-            //
+            'message' => "One more email is coming from Plex{$fromInviter}. Accept it with this same address to see the libraries. If it hasn't arrived within an hour, contact the Admin{$atAddress}.",
         ];
     }
 }
