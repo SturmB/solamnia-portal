@@ -22,7 +22,7 @@ class MediaServerInviteComing extends Notification
     /**
      * Get the array representation of the notification.
      *
-     * @return array<string, mixed>
+     * @return array{heading: string, message: string}
      */
     public function toArray(object $notifiable): array
     {
