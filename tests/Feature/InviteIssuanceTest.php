@@ -107,6 +107,5 @@ it('keeps the raw token recoverable after issuance', function (): void {
 it('tells the invitee they will choose a username and password', function (): void {
     $html = new InviteMail(Invite::factory()->create())->render();
 
-    // Prettier re-wraps Blade copy on commit; mail clients collapse that whitespace, so the test does too.
     expect(Str::squish($html))->toContain('username and password');
 });
