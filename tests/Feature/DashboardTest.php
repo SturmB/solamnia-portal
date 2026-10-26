@@ -91,3 +91,12 @@ it("will not let a Member dismiss someone else's notice", function (): void {
         ->get(route('dashboard'))
         ->assertSee('One more email is on its way');
 });
+
+it('shows no notice to a Member without notifications', function (): void {
+    $member = User::factory()->sso()->create();
+
+    $this->actingAs($member)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertDontSee('One more email is on its way');
+});
