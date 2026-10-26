@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\MediaServerInviteComing;
 use App\Services\LdapConnection;
 use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
@@ -365,6 +366,24 @@ it('keeps the success response when a follow-up throws, and reports it', functio
     'users row' => [User::class, Subscriber::class],
     'Subscriber' => [Subscriber::class, User::class],
 ]);
+
+it('keeps the success response when the media-server notice fails, and reports it', function (): void {
+    Exceptions::fake();
+    config(['services.plex.token' => 'plex-token']);
+    DatabaseNotification::creating(fn () => throw new RuntimeException('Inbox on fire'));
+    fakeLldapProvisioning();
+
+    $this->post(route('invites.accept', $this->rawToken), [
+        'username' => 'brightblade',
+        'name' => 'Sturm Brightblade',
+        'password' => 'correct horse battery staple',
+    ])->assertRedirectToRoute('auth.redirect');
+
+    Exceptions::assertReported(RuntimeException::class);
+    Http::assertSent(fn ($request): bool => Str::contains($request->url(), 'pushover')
+        && $request['priority'] === 1
+        && Str::contains($request['message'], 'Inbox on fire'));
+});
 
 it('rejects a weak password inline and touches nothing', function (string $password): void {
     $this->post(route('invites.accept', $this->rawToken), [
