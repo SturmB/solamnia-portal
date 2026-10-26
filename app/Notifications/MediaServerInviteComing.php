@@ -33,6 +33,7 @@ class MediaServerInviteComing extends Notification
         $atAddress = $admin ? " at {$admin}" : '';
 
         return [
+            'heading' => 'One more email is on its way',
             'message' => "One more email is coming from Plex{$fromInviter}. Accept it with this same address to see the libraries. If it hasn't arrived within an hour, contact the Admin{$atAddress}.",
         ];
     }

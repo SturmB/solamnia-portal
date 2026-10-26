@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CampaignViewController;
+use App\Http\Controllers\DismissNotificationController;
 use App\Http\Controllers\InviteAcceptController;
 use App\Http\Controllers\InviteShowController;
 use App\Http\Controllers\SsoCallbackController;
@@ -32,6 +33,7 @@ Route::get('auth/callback', SsoCallbackController::class)
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::post('notifications/{id}/dismiss', DismissNotificationController::class)->name('notifications.dismiss');
 });
 
 require __DIR__.'/settings.php';
