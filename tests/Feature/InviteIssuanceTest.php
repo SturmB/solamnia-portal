@@ -7,6 +7,7 @@ use App\Mail\InviteMail;
 use App\Models\Invite;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 use function Pest\Livewire\livewire;
 
@@ -104,8 +105,8 @@ it('keeps the raw token recoverable after issuance', function (): void {
 });
 
 it('tells the invitee they will choose a username and password', function (): void {
-    $invite = Invite::factory()->create();
+    $html = new InviteMail(Invite::factory()->create())->render();
 
-    new InviteMail($invite)
-        ->assertSeeInHtml('username and password');
+    // Prettier re-wraps Blade copy on commit; mail clients collapse that whitespace, so the test does too.
+    expect(Str::squish($html))->toContain('username and password');
 });
