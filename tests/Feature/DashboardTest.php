@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Notifications\MediaServerInviteComing;
 
 test('guests are redirected to the login page', function (): void {
     $response = $this->get(route('dashboard'));
@@ -22,3 +23,29 @@ test('an sso member passes the verified middleware', function (): void {
         ->get(route('dashboard'))
         ->assertOk();
 });
+
+it('shows the media-server notice, naming the inviter and the Admin when configured', function (?string $inviter, ?string $admin, string $expected): void {
+    config([
+        'services.plex.inviter_email' => $inviter,
+        'app.admin_contact_email' => $admin,
+    ]);
+
+    $member = User::factory()->sso()->create();
+    $member->notify(new MediaServerInviteComing);
+
+    $this->actingAs($member)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee($expected);
+})->with([
+    'with an inviter and an Admin address' => [
+        'owner@example.com',
+        'admin@example.com',
+        'from Plex, from owner@example.com',
+    ],
+    'with neither' => [
+        null,
+        null,
+        'contact the Admin.',
+    ],
+]);
