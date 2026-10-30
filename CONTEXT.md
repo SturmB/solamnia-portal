@@ -63,18 +63,18 @@ _Avoid_: KB (in prose), docs, help center.
 ## Deploying the Campaign send sweep
 
 Campaign sends run through `campaigns:send-due`, driven by Laravel's scheduler
-(see ADR-0003). Two host-level prerequisites — **without the crontab line,
-nothing sends**:
+(see ADR-0003, as amended). The `scheduler` service in `compose.yaml` runs
+`php artisan schedule:work`, which fires the sweep every minute — **without
+that service running, nothing sends**. Do **not** add a host crontab for
+`schedule:run`: it would run the sweep a second time every minute.
 
-1. Add the single crontab line that runs the scheduler every minute:
+The stack's `worker` service (`queue:work`) handles only the media-server share
+job (after Invite acceptance, or an Admin retry); Campaign sending never uses
+the queue.
 
-    ```cron
-    * * * * * cd /path/to/portal && php artisan schedule:run >> /dev/null 2>&1
-    ```
-
-2. Set `PUSHOVER_TOKEN` and `PUSHOVER_USER` (see `.env.example`) so the
-   success/failure notification fires — the only signal that a send happened or
-   that the cron has stopped.
+One prerequisite: set `PUSHOVER_TOKEN` and `PUSHOVER_USER` (see `.env.example`)
+so the success/failure notification fires — the only signal that a send
+happened or that the scheduler has stopped.
 
 ## Deploying SSO login
 

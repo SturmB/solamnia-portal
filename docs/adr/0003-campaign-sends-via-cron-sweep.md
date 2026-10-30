@@ -1,4 +1,36 @@
-# Campaign sends run via a cron sweep, with no persistent workers
+---
+status: accepted
+---
+
+# Campaign sends run inline via a per-minute scheduler sweep
+
+## Amendment (2026-10-30)
+
+The **trigger** and the **"no persistent processes"** stance below no longer
+match production. The rest of the decision stands.
+
+- **What changed.** No host crontab is used. The canonical Compose stack runs a
+  `scheduler` service (the app image with its entrypoint swapped to
+  `php artisan schedule:work`) that fires `campaigns:send-due` every minute. A
+  separate `worker` service runs `php artisan queue:work`, but only for the
+  media-server share job (dispatched after an Invite is accepted, or by the
+  Admin's retry action).
+- **Why.** The portal is deployed as a Docker (Dockge) stack, so a host crontab
+  would have to `docker exec` into it, coupling the host to the stack's
+  internals and hiding a moving part outside `compose.yaml`. Sibling services
+  keep the stack self-contained, and they cost almost nothing: measured on
+  2026-10-30, `scheduler` used ~6 MiB and `worker` ~49 MiB, both at ~0% CPU
+  when idle.
+- **Unchanged.** Campaigns are still sent **inline** by `campaigns:send-due`,
+  never through the queue. "Send now" is still scheduling for now (one code
+  path), there is still no per-recipient retry, and a Pushover still fires on
+  every send. "Add a queue worker then" below still holds for Campaign sends:
+  the existing `worker` doesn't change it.
+
+The original title was "Campaign sends run via a cron sweep, with no persistent
+workers". Read "cron" below as "the `scheduler` service".
+
+## Original decision
 
 All Campaign sends — immediate and scheduled — go through a single per-minute,
 cron-driven sweep: a host crontab line runs `php artisan schedule:run`, which
