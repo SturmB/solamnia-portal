@@ -7,6 +7,7 @@ use App\Mail\CampaignMail;
 use App\Models\Campaign;
 use App\Models\User;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -87,4 +88,8 @@ it('schedules a campaign for a chosen send time', function (): void {
 
     expect($campaign->refresh()->scheduled_at)->not->toBeNull()
         ->and($campaign->status())->toBe(CampaignStatus::Scheduled);
+});
+
+it('uses a supported timezone for campaign scheduling without legacy aliases', function (): void {
+    expect(DateTimeZone::listIdentifiers())->toContain(FilamentTimezone::get());
 });
