@@ -57,8 +57,47 @@ Filament panel. Normally logs in via SSO like any Member; a local password
 login is retained as break-glass for when Authelia is unavailable.
 
 **Knowledge Base**:
-Admin-authored troubleshooting articles, visible to Members only.
+Admin-authored troubleshooting Articles, visible to Members only.
 _Avoid_: KB (in prose), docs, help center.
+
+**Article**:
+A single Admin-authored entry in the Knowledge Base. Members see it once it is
+published; until then it exists only for the Admin.
+_Avoid_: post, page, doc.
+
+**Newsletter archive**:
+The Member-only collection of every sent Campaign, readable inside the portal —
+including Campaigns sent before the Member joined. Draft and scheduled
+Campaigns are never part of it.
+_Avoid_: back issues, past emails.
+
+**Service**:
+A Solamnia application opened to Members (requests, audiobooks, recipes, …).
+The portal points Members at Services and, while it is itself up, shows whether
+each one is up right now. That live view is a convenience; the authoritative
+record of outages is the Status page (ADR-0002).
+_Avoid_: app, site, server.
+
+**Services hub**:
+The Member's home in the portal: the list of Services, each with a way to open
+it. It is what the dashboard shows.
+_Avoid_: launcher, service grid.
+
+**Status page**:
+The external, public page at status.solamnia.tv reporting whether Solamnia's
+Services are up. It lives off the homelab so it survives the outage it reports
+(ADR-0002). It is the one place to look when the portal itself is down.
+_Avoid_: uptime page, health page.
+
+**Leaving**:
+A Member ending their own Membership, from the portal. Their directory identity,
+their portal record, and their Subscriber enrollment all go; the Admin is told
+so they can withdraw media-server access by hand. The Admin cannot leave.
+_Avoid_: delete account, unsubscribe (that is Subscriber-only), cancel.
+
+**Removal**:
+The Admin ending someone else's Membership. The counterpart to Leaving.
+_Avoid_: ban, kick, delete user.
 
 ## Deploying the Campaign send sweep
 
