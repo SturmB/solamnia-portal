@@ -31,7 +31,9 @@ become the main source of friction.
 - The portal now owns password strength (minimum 12 characters, breached
   passwords rejected), because neither Authelia nor LLDAP has a policy set.
 - Login stays SSO-only. Forgotten passwords still go through Authelia's reset
-  flow; the portal never offers password changes.
+  flow; the portal never offers password changes. _(Superseded by ADR-0008:
+  Members now change their password in the portal. The reset-flow half
+  stands.)_
 
 ## Considered and rejected
 

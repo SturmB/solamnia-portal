@@ -69,7 +69,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Store timestamps in UTC (app timezone) but display/enter them as Eastern in
         // Filament — date pickers and columns render in this zone; the DB stays UTC.
-        FilamentTimezone::set('America/Louisville');
+        FilamentTimezone::set('America/Kentucky/Louisville');
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),

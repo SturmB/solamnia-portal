@@ -3,6 +3,9 @@
      aurora.js, guide/index.html). Tokens below are extracted from it verbatim.
      The portal code itself has NOT been ported yet (app.css is still starter-kit
      zinc); re-run /impeccable document in scan mode after the port to confirm. -->
+<!-- Services hub direction updated 2026-11-11: approved shape variant B
+     supersedes the original p07 dashboard layout and animated shimmer.
+     See The Frequency Band and Navigation below; implementation is separate. -->
 ---
 name: Solamnia Member Portal
 description: A members-only homelab portal under a living aurora sky — dark, personal, quietly luminous.
@@ -116,11 +119,12 @@ nothing else.
 ### Primary
 - **Aurora Violet** (`oklch(0.62 0.21 300)`, token `violet`): THE action
   color. Primary button fills (with night-deep text — white-on-violet fails
-  AA), the nav's current-page tick, the dashboard shimmer, selection
+  AA), the nav's current-page tick, selection
   (`oklch(0.62 0.21 300 / 0.45)`).
 - **Lifted Violet** (`oklch(0.80 0.13 300)`, token `violet-text`): violet
   raised to AA for text — links, actionable text, and every focus ring
-  (2px outline, 3px offset).
+  (2px outline, 3px offset). Also used for static uptime-history marks,
+  subordinate to the service's Open link.
 
 ### Secondary — inside the light only
 - **Aurora Green** (`oklch(0.82 0.19 165)`) and **Aurora Rose**
@@ -165,8 +169,9 @@ deficiency. State (success / warning / error) is **never** encoded by
 red-vs-green hue alone — status is a text label (with an icon or glyph, e.g.
 "☾ Maintenance — back Sunday"). Status labels are plain ink, except form
 errors, which may be Error Red because the glyph and text already carry the
-message. The violet shimmer is texture on top of the label, never the
-message.
+message. Uptime-history marks also differ by shape and have a text
+equivalent; color alone never distinguishes successful, failed, or missing
+observations.
 
 ## 3. Typography
 
@@ -298,14 +303,76 @@ mathematically.
   2px violet underline via `aria-current="page"` (section pages use
   `aria-current="location"`). Footer: a flat "constellation map" of muted
   links above a fine-print line, `edge` top border.
+- **Service status link:** a deliberately more prominent footer action,
+  labelled **Service status ↗**, linking to `https://status.solamnia.tv`
+  (external UptimeRobot, separate from the hub's internal Kuma data).
+  Use `violet-text`, Satoshi 500 at ≈0.95rem, a 1px `edge-top` outline,
+  8px corners, and a generous target of at least 44px high. Right-align on
+  desktop opposite the fine print; stack naturally on mobile. Supporting
+  copy **Having trouble connecting?** may precede it on desktop. Preserve
+  a visible keyboard focus ring and AA contrast on both public and signed-in
+  layouts (#102).
 
 ### The Frequency Band (services list)
-Services render as a vertical band of rows inside one panel — **deliberately
-not a card grid**: name (Clash 600) / description (muted) / status label /
-shimmer, `edge` hairlines between rows, collapsing to a stacked grid under
-720px. The shimmer (`.pulse`) is a 64×14px masked violet gradient sliding on
-a 4.5–6.2s loop (desynced per row) when Online; static neutral when idle;
-frozen under reduced motion. Status is always also a text label.
+**Approved direction: variant B, services first (2026-11-11, #114).**
+The dashboard leads with **Your services** as its page heading (Clash 600,
+≈2.1rem). Omit the greeting, introductory sentence, and newsletter/help
+sidebar. Existing dismissible media-server notices remain above the hub.
+Keep the quiet Aurora background at app intensity (0.25).
+
+Services occupy one full-width panel within the existing ≈70rem content
+container. Preserve the night surface, 14px corners, 1px lit border, inset
+top rim, and fine row dividers; the band needs no outer drop shadow.
+Desktop rows align name (Clash 600), short description (muted Satoshi),
+current status with recent history beneath it, and **Open →** at the right.
+Keep Open visually stronger than the history marks, with a generous target
+and a service-specific accessible name such as **Open Audiobooks**.
+
+Use prominence order, consistently across viewport sizes:
+
+1. **Plex** — Watch movies and shows
+2. **Requests** — Request a movie or show
+3. **E-books** — Find your next read
+4. **Audiobooks** — Listen to your next book
+5. **Recipes** — Find something good to cook
+
+The config-defined order is intentional, not an alphabetical sort. Plex
+opens `https://app.plex.tv`. Under 720px, each row puts the service name and
+Open link first, description next, and status/history below. Preserve all
+five services, readable labels, visible focus, and usable touch targets.
+
+**Current state and recent uptime history (#115).** Replace the animated
+shimmer entirely with static, meaningful marks. Current state remains a
+plain-ink label plus glyph: **Up**, **Down**, or **Status unknown**. Keep
+Open usable even when a service is down or monitoring is unavailable.
+
+- Prefer **24 hourly marks covering the last 24 completed hours**, oldest
+  on the left, newest on the right; current state is shown separately.
+  Each mark represents an hour, not an individual heartbeat. Daily marks
+  are a possible later scale, not a reason to relabel minute samples.
+- An hour with complete expected observations and no failure uses a tall
+  violet mark. An hour containing a failure uses a short ink mark; missing
+  or incomplete coverage without a known failure uses a distinct outlined
+  mark. Never infer uninterrupted uptime from absent data. Provide a small
+  shape-and-text legend and an accessible summary of the history.
+- Omit the **Recent checks · oldest → newest** heading from the preview.
+  Instead, use a compact shared scale such as **24 hours ago → Now** with
+  **1 mark = 1 hour**, so the marks retain a clear meaning. Exact interval
+  and status details must be available on keyboard focus and touch as well
+  as hover; avoid making every mark a separate tab stop.
+- Kuma supplies the data. Confirm that the installed version can provide
+  enough timestamped history and that retrieval is reasonably inexpensive
+  before implementing hourly aggregation. Its recent-heartbeat response
+  alone does not guarantee a full day. If reliable hourly history is not
+  available at reasonable cost, omit the strip and show current state only.
+  If Kuma fails, show **Status unknown** rather than fabricated history.
+
+This approved design supersedes the earlier **live state only, no history**
+direction. #99/#115 and ADR-0002's 2026-11-11 amendment record the hourly
+history preference and current-status fallback.
+#114 remains the service-link hub; status/history is separate work in #115,
+and the external footer link is #102. Preview uptime values are sample data,
+never production defaults.
 
 ### Chips / Pills (KB most-read, breadcrumb search affordance)
 Panel background, 1px `edge` border, pill radius, 0.92rem; hover lifts border
@@ -313,8 +380,8 @@ to `edge-top`. Not-yet-published items are visibly inert (muted, "· soon"
 suffix) — never a dead end.
 
 ### Motion vocabulary
-Ambient motion is the shader plus the dashboard shimmer — nothing else moves
-continuously. Headings may carry a one-time `data-reveal` (8px rise +
+Ambient motion is the shader alone; service status and history remain static.
+Headings may carry a one-time `data-reveal` (8px rise +
 exposure bloom from brightness 1.9 → 1, 0.6–1.4s,
 `cubic-bezier(0.2, 0.7, 0.2, 1)`), gated on an `html.js` class so nothing
 hides without JavaScript, unobserved after firing. State transitions run
@@ -336,7 +403,8 @@ media block per concern.
 - **Do** guarantee text contrast with the scrim system (global gradient +
   local pools); body text clears 4.5:1 everywhere, always.
 - **Do** pair state with a text label (and icon/glyph) so red-green-colorblind
-  Members are never left guessing — the shimmer is texture, not the message.
+  Members are never left guessing; history also uses distinct shapes and a
+  text equivalent.
 - **Do** keep panels near-opaque with 1px lit edges; reserve backdrop blur
   for the sticky nav alone.
 
@@ -355,7 +423,7 @@ media block per concern.
 - **Don't** put Clash Display on body copy, buttons, inputs, or data — the
   Sky-Voice Rule.
 - **Don't** blur panels, stack decorative glass, or add continuous motion
-  beyond the shader and the shimmer; no orchestrated page-load sequences
+  beyond the shader; no orchestrated page-load sequences
   inside the app.
 - **Don't** run the shader in email — the aurora band there is the pre-baked
   CSS gradient, table-safe.
