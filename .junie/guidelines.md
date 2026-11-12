@@ -3,7 +3,7 @@
 
 This project runs on **lerd**, a Podman-based PHP development environment. It is framework-agnostic: Laravel, Symfony, WordPress, Drupal, Magento, CakePHP and any custom framework are all driven by a framework definition (YAML), never by lerd hardcoding a framework's name. Use the `lerd` MCP server to manage it from the chat.
 
-The MCP surface is **thirteen grouped tools**, each driven by an `action` argument: `site`, `service`, `db`, `env`, `runtime`, `worker`, `exec`, `framework`, `diag`, `logs`, `request`, `worktree`, `workspace`. Always pass `action`. Most actions also accept an optional `path` that defaults to the directory the assistant was opened in (then `LERD_SITE_PATH` if set), so you can usually omit it. Start by calling `site` with `action: "list"` to discover sites.
+The MCP surface is **fourteen grouped tools**, each driven by an `action` argument: `site`, `service`, `db`, `env`, `runtime`, `worker`, `exec`, `framework`, `diag`, `logs`, `request`, `worktree`, `workspace`, `plugin`. Always pass `action`. Most actions also accept an optional `path` that defaults to the directory the assistant was opened in (then `LERD_SITE_PATH` if set), so you can usually omit it. Start by calling `site` with `action: "list"` to discover sites.
 
 ### Architecture
 
@@ -97,7 +97,7 @@ Actions: `list` (CALL FIRST), `start`, `stop`, `add`, `remove`, `health`, `heal`
 - `add` saves a custom worker to `.lerd.yaml` (or the user overlay with `global: true`); does not auto-start
 - `health` reports unhealthy units (read-only); `heal` resets and restarts them (`unit` for one, omit for all); `mode_get` reports the macOS worker runtime, `mode_set` switches it (`mode`: exec|container)
 - a worker's health `state` is one of `failed` (the unit died), `expected-but-stopped` (it should be running and isn't), or `unreachable` — the unit is happily active but the server it publishes no longer accepts connections, a dev server that wedged without exiting. All three are heal-able; `heal` restarts the unit. Per-worktree units (`lerd-<worker>-<site>-<branch>`) are covered by the same pass, so a dead per-worktree Vite heals like any other. A worker with a `schedule` is a oneshot driven by a timer and is idle between ticks by design, which is healthy
-- Stripe secret is read from `.env` (STRIPE_SECRET / STRIPE_SECRET_KEY / STRIPE_API_KEY); `stripe_config` sets webhook_path / secret_env_key in `.lerd.yaml`
+- Stripe secret comes from `.env` (STRIPE_SECRET / STRIPE_SECRET_KEY / STRIPE_API_KEY); `stripe_config` sets webhook_path / secret_env_key / project_name (CLI login over .env) in `.lerd.yaml`
 - **Auto-reload (CLI-only)**: `lerd horizon:reload [on|off]` and `lerd octane:reload [on|off]` (FrankenPHP worker mode) restart workers on file changes; both need the project's `chokidar` npm package
 - **Idle-suspend (CLI-only)**: `lerd idle on/off` toggles activity-driven suspension globally; suspended workers stop after the idle timeout (`lerd idle timeout <dur>`) and resume on the next request/CLI/MCP/file-save. `lerd idle pin/unpin <site>` exempts a site; `lerd idle status` reports policy and last-active. A worker shown as suspended is healthy, not failed, so do not `heal` it. `lerd idle services on` sleeps idle services too; any request or tool call wakes one, so never `start` or reinstall it
 
@@ -164,8 +164,14 @@ Actions: `list`, `create`, `rename`, `delete`, `assign`, `move`.
 - `assign` takes `sites` (names or domains) and a `workspace`, creating it if new; `workspace: "none"` ungroups them. `move` reorders a workspace with a zero-based `position`
 - `delete` drops the workspace and ungroups its members; no site is touched
 
+#### `plugin` — build a plugin for the user
+Actions: `guide`, `new`, `list`, `install`.
+- when the user wants lerd to do something it does not, build a plugin; read `guide` first (Claude Code: `plugins.md` beside this skill). A framework or service for everyone goes in the stores
+- `new` scaffolds into the plugins folder, edits apply at once; `list` shows what loaded and why not; `install` copies a local folder only
+
 ### Key conventions
 
+- **PHP navigation, LSP before grep**: `lerd lsp` (plugin `lerd-php`, deferred `LSP` tool: load it) for definitions, callers, types; facade calls via its `@method` line; grep last. None in Claude Code? Suggest `lerd mcp:enable-global`, restart
 - **After a browser test**: take each response's `X-Lerd-Rid` (dumps on) and run `request` `lenses`; fix any `issues`. `browser_toggle` first adds JS errors
 - Discover before acting: `site` `list` for sites, `worker` `list` for a site's workers, `service` `preset_list` before `preset_install`, `exec` `vendor_bins` before `vendor_run`
 - **SQLite has no service**, so every `db` action refuses on a sqlite project, naming the file. That is the out-of-the-box Laravel state: move it with `db` `move` or target a service explicitly, and do not read the refusal as a broken database
