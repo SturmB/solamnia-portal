@@ -1,5 +1,5 @@
 <x-layouts::app :title="__('Dashboard')">
-    <div class="flex h-full w-full flex-1 flex-col gap-4">
+    <div class="max-w-280 mx-auto flex h-full w-full flex-1 flex-col gap-4">
         @foreach (auth()->user()->unreadNotifications as $notification)
             <flux:callout icon="envelope" :heading="$notification->data['heading'] ?? null"
                 :text="$notification->data['message']">
@@ -12,7 +12,7 @@
                 </x-slot>
             </flux:callout>
         @endforeach
-        <section aria-labelledby="services-heading" class="mx-auto w-full max-w-[70rem]">
+        <section aria-labelledby="services-heading" class="w-full">
             <h1 id="services-heading"
                 class="font-display text-ink mb-6 text-[clamp(1.5rem,1.1rem+1.6vw,2.1rem)] font-semibold leading-tight tracking-[-0.01em]">
                 Your services
