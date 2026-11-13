@@ -100,6 +100,11 @@ The default `.env.example` uses local SQLite and log-based mail delivery. Live
 mail, notifications, identity infrastructure, and production deployment require
 separate protected configuration; no credentials belong in the repository.
 
+### Signing in locally
+
+SSO can't run locally. Run `php artisan db:seed`, then sign in at `/backup/login`
+as `member@example.com` or `admin@example.com` (password: `password`).
+
 ## Delivery and verification
 
 Every push to `main` runs the test and formatting workflows. The container
