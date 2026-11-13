@@ -117,3 +117,19 @@ it('lists every configured Service with an Open link', function (): void {
         ->assertSee('aria-label="Open Requests"', escape: false)
         ->assertDontSee('app.plex.tv');
 });
+
+it('lists the shipped Services in prominence order', function (): void {
+    $member = User::factory()->sso()->create();
+
+    $this->actingAs($member)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSeeInOrder([
+            'Watch movies and shows',
+            'Request a movie or show',
+            'Find your next read',
+            'Listen to your next book',
+            'Find something good to cook',
+        ])
+        ->assertSee('href="https://app.plex.tv"', escape: false);
+});
