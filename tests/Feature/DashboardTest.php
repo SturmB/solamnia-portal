@@ -100,3 +100,20 @@ it('shows no notice to a Member without notifications', function (): void {
         ->assertOk()
         ->assertDontSee('One more email is on its way');
 });
+
+it('lists every configured Service with an Open link', function (): void {
+    config(['portal.services' => [
+        ['name' => 'Requests', 'description' => 'Request a movie or show', 'url' => 'https://requests.example.test'],
+        ['name' => 'E-books', 'description' => 'Find your next read', 'url' => 'https://books.example.test'],
+    ]]);
+
+    $member = User::factory()->sso()->create();
+
+    $this->actingAs($member)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSeeInOrder(['Request a movie or show', 'Find your next read'])
+        ->assertSee('href="https://requests.example.test"', escape: false)
+        ->assertSee('aria-label="Open Requests"', escape: false)
+        ->assertDontSee('app.plex.tv');
+});
