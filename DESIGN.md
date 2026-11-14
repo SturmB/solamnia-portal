@@ -6,7 +6,8 @@
 <!-- Services hub direction updated 2026-11-11: approved shape variant B
      supersedes the original p07 dashboard layout and animated shimmer.
      See The Frequency Band and Navigation below; implementation is separate. -->
----
+<!-- Knowledge Base direction resolved 2026-11-13 (#98 shape pass): see
+     The Reading Column below; it supersedes the p07 KB pages. -->---
 name: Solamnia Member Portal
 description: A members-only homelab portal under a living aurora sky — dark, personal, quietly luminous.
 colors:
@@ -374,14 +375,71 @@ history preference and current-status fallback.
 and the external footer link is #102. Preview uptime values are sample data,
 never production defaults.
 
-### Chips / Pills (KB most-read, breadcrumb search affordance)
+### The Reading Column (Knowledge Base)
+**Approved direction (2026-11-13, #98 shape pass).** Supersedes the p07
+prototype's KB pages: categories, "Most read" chips, related articles, and
+"· soon" placeholders are deferred, and the breadcrumb is gone. Members
+arrive rarely and stuck — phone in one hand, remote in the other — so the
+KB is quiet, scannable, and always one click from asking Chris. Aurora 0.1
+on both pages; **no other motion** (no `data-reveal` anywhere in the KB).
+
+**Index (`/kb`).** The shared ≈70rem content container, matching the
+dashboard. Page heading **Knowledge base** at headline size (≈2.1rem), no
+intro sentence. Search is a full-width input with no wrapping panel; results
+update as you type (debounced substring match on title + body), and a muted
+count line beneath it ("4 articles" / "1 article matches 'plex'") is
+announced via `aria-live="polite"`. Articles form one list panel in the
+Frequency Band's row language (14px corners, 1px lit edge, inset top rim,
+fine dividers). Each row is a single link: title in Satoshi 500 ink, then
+≈110 characters of muted excerpt from the start of the body with Markdown
+stripped — so articles should open with a real sentence, not a heading.
+Sorted alphabetically by title: predictable for rare visitors.
+- **No match:** "Nothing on that. **Ask Chris** — the answer usually exists
+  before the article does." (mail subject pre-filled with the query).
+- **No published articles:** "Nothing written yet. **Ask Chris** in the
+  meantime."
+
+**Article (`/kb/{slug}`).** A ≈46rem reading column, centred. Top row: a
+**← Knowledge base** back link left, the search pill right (Chips / Pills;
+it opens the index with the input focused); the row stacks under 720px.
+Title in Clash 600 capped at ≈2.5rem with `text-wrap: balance`, then
+"Updated {Month Year}" in muted. Body at ink 0.88, ≈68ch measure. Space
+above a heading is clearly larger than below it, so headings bind to their
+own section. Markdown coverage:
+- `##` Clash 600 ≈1.4rem (never headline size inside prose); `###` Satoshi
+  700 1.1rem.
+- **Ordered lists are steps:** each numeral sits in a small ring in
+  `violet-text`, top-aligned with the step's first line; wrapped lines
+  indent past the marker; generous space between steps. Easy to find your
+  place again after looking at the TV.
+- Unordered lists: small muted dots. Links: `violet-text`, underlined.
+- Inline code and menu paths: mono on a slightly darker well. Code blocks:
+  the input well (`oklch(0.11 0.03 252)`), 1px `edge` border, horizontal
+  scroll.
+- Blockquote renders as a **note**: panel tint with a full 1px `edge`
+  border — never a side stripe.
+- Images: max column width, 9px radius, `edge` border. Tables: wrapped for
+  horizontal scroll, headers in the Label style.
+- Raw HTML in a body is escaped, never rendered.
+
+Every article ends with "Didn't fix it? **Ask Chris** →", a `mailto:` to
+`admin_contact_email` with the subject "About: {title}". If that address is
+unset, keep the sentence and drop the link. An unpublished article is a
+plain not-found.
+
+Navigation: **Knowledge base** in the header bar and mobile drawer;
+`aria-current="page"` on the index, `"location"` on an article.
+Keyboard-navigable with the global focus ring; AA contrast throughout,
+including excerpts and step rings. Add a table of contents only once
+articles regularly pass about six sections.
+
+### Chips / Pills (KB search affordance)
 Panel background, 1px `edge` border, pill radius, 0.92rem; hover lifts border
-to `edge-top`. Not-yet-published items are visibly inert (muted, "· soon"
-suffix) — never a dead end.
+to `edge-top`.
 
 ### Motion vocabulary
 Ambient motion is the shader alone; service status and history remain static.
-Headings may carry a one-time `data-reveal` (8px rise +
+Outside the Knowledge Base, headings may carry a one-time `data-reveal` (8px rise +
 exposure bloom from brightness 1.9 → 1, 0.6–1.4s,
 `cubic-bezier(0.2, 0.7, 0.2, 1)`), gated on an `html.js` class so nothing
 hides without JavaScript, unobserved after firing. State transitions run
