@@ -82,3 +82,32 @@ test('a non-admin cannot reach the article screens', function (): void {
         ->get(ArticleResource::getUrl('index'))
         ->assertForbidden();
 });
+
+test("a new article's slug is filled from its title", function (): void {
+    livewire(CreateArticle::class)
+        ->fillForm(['title' => "A movie or show won't play"])
+        ->assertSchemaStateSet(['slug' => 'a-movie-or-show-wont-play']);
+});
+
+test("editing an article's title keeps its slug", function (): void {
+    $article = Article::factory()->create(['slug' => 'plex-buffering']);
+
+    livewire(EditArticle::class, ['record' => $article->getRouteKey()])
+        ->fillForm(['title' => 'Fixing playback that keeps pausing'])
+        ->assertSchemaStateSet(['slug' => 'plex-buffering']);
+});
+
+test('a duplicate slug is rejected', function (): void {
+    Article::factory()->create(['slug' => 'plex-buffering']);
+
+    livewire(CreateArticle::class)
+        ->fillForm([
+            'title' => 'Plex buffering',
+            'slug' => 'plex-buffering',
+            'body_markdown' => 'Restart the Plex app on your TV.',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['slug' => 'unique']);
+
+    expect(Article::count())->toBe(1);
+});
