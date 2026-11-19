@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Articles\Pages\CreateArticle;
 use App\Models\Article;
 use App\Models\User;
 

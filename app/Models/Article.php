@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['title', 'slug', 'body_markdown'])]
+#[Fillable(['title', 'slug', 'body_markdown', 'is_published'])]
 class Article extends Model
 {
     /** @use HasFactory<ArticleFactory> */
