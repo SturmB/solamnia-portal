@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Articles\ArticleResource;
 use App\Filament\Resources\Articles\Pages\CreateArticle;
 use App\Filament\Resources\Articles\Pages\EditArticle;
 use App\Models\Article;
@@ -16,14 +17,14 @@ test('the admin can create an article', function (): void {
     livewire(CreateArticle::class)
         ->fillForm([
             'title' => "A movie or show won't play",
-            'slug' => 'a-movie-or-show-won-t-play',
+            'slug' => 'a-movie-or-show-wont-play',
             'body_markdown' => 'Restart the Plex app on your TV, then try the title again.',
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
     expect(Article::sole())->title->toBe("A movie or show won't play")
-        ->slug->toBe('a-movie-or-show-won-t-play')
+        ->slug->toBe('a-movie-or-show-wont-play')
         ->body_markdown->toBe('Restart the Plex app on your TV, then try the title again.')
         ->is_published->toBeFalse();
 });
@@ -74,4 +75,10 @@ test('the admin can delete an article', function (): void {
         ->callAction(DeleteAction::class);
 
     $this->assertModelMissing($article);
+});
+
+test('a non-admin cannot reach the article screens', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->get(ArticleResource::getUrl('index'))
+        ->assertForbidden();
 });
