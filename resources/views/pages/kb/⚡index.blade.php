@@ -33,7 +33,9 @@ new #[Title('Knowledge base')] class extends Component {
     #[Computed]
     public function askChrisUrl(): string
     {
-        return 'mailto:' . config('app.admin_contact_email') . '?subject=' . rawurlencode("Knowledge base: {$this->search}");
+        $subject = $this->search === '' ? 'Knowledge base' : "Knowledge base: {$this->search}";
+
+        return 'mailto:' . config('app.admin_contact_email') . '?subject=' . rawurlencode($subject);
     }
 };
 ?>
@@ -57,6 +59,12 @@ new #[Title('Knowledge base')] class extends Component {
             Nothing on that.
             <a href="{{ $this->askChrisUrl }}" class="text-violet-text font-semibold underline">Ask Chris</a>
             — the answer usually exists before the article does.
+        </p>
+    @else
+        <p>
+            Nothing written yet.
+            <a href="{{ $this->askChrisUrl }}" class="text-violet-text font-semibold underline">Ask Chris</a>
+            in the meantime.
         </p>
     @endif
 </section>
