@@ -26,6 +26,10 @@
                 wire:navigate>
                 {{ __('Dashboard') }}
             </flux:navbar.item>
+            <flux:navbar.item icon="book-open" :href="route('kb.index')" :current="request()->routeIs('kb.*')"
+                wire:navigate>
+                {{ __('Knowledge base') }}
+            </flux:navbar.item>
         </flux:navbar>
 
         <flux:spacer />
@@ -45,6 +49,10 @@
             <flux:sidebar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                 wire:navigate>
                 {{ __('Dashboard') }}
+            </flux:sidebar.item>
+            <flux:sidebar.item icon="book-open" :href="route('kb.index')" :current="request()->routeIs('kb.*')"
+                wire:navigate>
+                {{ __('Knowledge base') }}
             </flux:sidebar.item>
         </flux:sidebar.nav>
     </flux:sidebar>
