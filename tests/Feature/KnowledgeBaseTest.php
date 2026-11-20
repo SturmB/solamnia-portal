@@ -86,3 +86,15 @@ test('a search with no matches offers to ask Chris', function (): void {
         ->assertSee('Nothing on that.')
         ->assertSeeHtml('mailto:admin@example.com?subject=Knowledge%20base%3A%20roku');
 });
+
+test('an empty knowledge base offers to ask Chris', function (): void {
+    config(['app.admin_contact_email' => 'admin@example.com']);
+    Article::factory()->create();
+
+    $this->actingAs(User::factory()->sso()->create());
+
+    Livewire::test('pages::kb.index')
+        ->assertSee('Nothing written yet.')
+        ->assertSeeHtml('mailto:admin@example.com?subject=Knowledge%20base"')
+        ->assertDontSee('Nothing on that.');
+});
