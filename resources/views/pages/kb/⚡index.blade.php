@@ -51,7 +51,10 @@ new #[Title('Knowledge base')] class extends Component {
     @if ($this->articles->isNotEmpty())
         <ul role="list">
             @foreach ($this->articles as $article)
-                <li>{{ $article->title }}</li>
+                <li>
+                    {{ $article->title }}
+                    <p class="text-muted">{{ $article->excerpt }}</p>
+                </li>
             @endforeach
         </ul>
     @elseif ($this->search !== '')
