@@ -29,3 +29,25 @@ test('members see only published articles, sorted by title', function (): void {
         ])
         ->assertDontSee('Draft: new media server');
 });
+
+test('search finds articles by words in the title or body', function (): void {
+    Article::factory()->published()->create(['title' => 'Adding subtitles in Plex']);
+    Article::factory()->published()->create([
+        'title' => 'Wi-Fi keeps dropping',
+        'body_markdown' => 'Restart the router, then reopen Plex.',
+    ]);
+    Article::factory()->published()->create([
+        'title' => 'Requesting a movie',
+        'body_markdown' => 'Use the Requests service.',
+    ]);
+    Article::factory()->create(['title' => 'Draft: Plex on the new server']);
+
+    $this->actingAs(User::factory()->sso()->create());
+
+    Livewire::test('pages::kb.index')
+        ->set('search', 'plex')
+        ->assertSee('Adding subtitles in Plex')
+        ->assertSee('Wi-Fi keeps dropping')
+        ->assertDontSee('Requesting a movie')
+        ->assertDontSee('Draft: Plex on the new server');
+});
