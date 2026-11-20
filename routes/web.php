@@ -34,6 +34,7 @@ Route::get('auth/callback', SsoCallbackController::class)
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::view('dashboard', 'dashboard')->name('dashboard');
     Route::post('notifications/{id}/dismiss', DismissNotificationController::class)->name('notifications.dismiss');
+    Route::livewire('kb', 'pages::kb.index')->name('kb.index');
 });
 
 require __DIR__.'/settings.php';
