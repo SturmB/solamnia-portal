@@ -72,4 +72,17 @@ test('the count line says how many articles are shown', function (string $search
     'no search' => ['', '3 articles'],
     'one match' => ['subtitles', '1 article matches “subtitles”'],
     'several matches' => ['plex', '2 articles match “plex”'],
+    'no matches' => ['roku', 'No articles match “roku”'],
 ]);
+
+test('a search with no matches offers to ask Chris', function (): void {
+    config(['app.admin_contact_email' => 'admin@example.com']);
+    Article::factory()->published()->create();
+
+    $this->actingAs(User::factory()->sso()->create());
+
+    Livewire::test('pages::kb.index')
+        ->set('search', 'roku')
+        ->assertSee('Nothing on that.')
+        ->assertSeeHtml('mailto:admin@example.com?subject=Knowledge%20base%3A%20roku');
+});
