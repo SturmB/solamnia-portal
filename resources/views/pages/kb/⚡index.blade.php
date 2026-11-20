@@ -40,20 +40,24 @@ new #[Title('Knowledge base')] class extends Component {
 };
 ?>
 
-<section class="w-full">
-    <h1>Knowledge base</h1>
+<section class="max-w-280 mx-auto w-full">
+    <h1
+        class="font-display text-ink mb-6 text-[clamp(1.5rem,1.1rem+1.6vw,2.1rem)] font-semibold leading-tight tracking-[-0.01em]">
+        Knowledge base
+    </h1>
 
-    <flux:input type="search" icon="magnifying-glass" wire:model.live.debounce.300ms="search"
+    <flux:input type="search" icon="magnifying-glass" wire:model.live.debounce.300ms="search" placeholder="Search articles"
         aria-label="Search articles" />
 
-    <p class="text-muted" aria-live="polite">{{ $this->countLine }}</p>
+    <p class="text-muted mb-4 mt-2 text-sm" aria-live="polite">{{ $this->countLine }}</p>
 
     @if ($this->articles->isNotEmpty())
-        <ul role="list">
+        <ul role="list"
+            class="bg-panel border-edge divide-edge divide-y rounded-[14px] border shadow-[inset_0_1px_0_0_var(--color-edge-top)]">
             @foreach ($this->articles as $article)
-                <li>
-                    {{ $article->title }}
-                    <p class="text-muted">{{ $article->excerpt }}</p>
+                <li class="px-6 py-4">
+                    <h2 class="text-ink font-medium">{{ $article->title }}</h2>
+                    <p class="text-muted mt-1">{{ $article->excerpt }}</p>
                 </li>
             @endforeach
         </ul>
