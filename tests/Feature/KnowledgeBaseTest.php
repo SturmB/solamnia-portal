@@ -51,3 +51,25 @@ test('search finds articles by words in the title or body', function (): void {
         ->assertDontSee('Requesting a movie')
         ->assertDontSee('Draft: Plex on the new server');
 });
+
+test('the count line says how many articles are shown', function (string $search, string $expected): void {
+    Article::factory()->published()->create(['title' => 'Adding subtitles in Plex']);
+    Article::factory()->published()->create([
+        'title' => 'Wi-Fi keeps dropping',
+        'body_markdown' => 'Restart the router, then reopen Plex.',
+    ]);
+    Article::factory()->published()->create([
+        'title' => 'Requesting a movie',
+        'body_markdown' => 'Use the Requests service.',
+    ]);
+
+    $this->actingAs(User::factory()->sso()->create());
+
+    Livewire::test('pages::kb.index')
+        ->set('search', $search)
+        ->assertSee($expected);
+})->with([
+    'no search' => ['', '3 articles'],
+    'one match' => ['subtitles', '1 article matches “subtitles”'],
+    'several matches' => ['plex', '2 articles match “plex”'],
+]);
