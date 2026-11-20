@@ -98,3 +98,9 @@ test('an empty knowledge base offers to ask Chris', function (): void {
         ->assertSeeHtml('mailto:admin@example.com?subject=Knowledge%20base"')
         ->assertDontSee('Nothing on that.');
 });
+
+test('the header links to the knowledge base', function (): void {
+    $this->actingAs(User::factory()->sso()->create())
+        ->get(route('dashboard'))
+        ->assertSee(route('kb.index'));
+});
