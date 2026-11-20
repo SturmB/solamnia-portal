@@ -104,3 +104,17 @@ test('the header links to the knowledge base', function (): void {
         ->get(route('dashboard'))
         ->assertSee(route('kb.index'));
 });
+
+test('each article shows a plain-text excerpt of its body', function (): void {
+    Article::factory()->published()->create([
+        'body_markdown' => "**Restart** the [router](https://example.com) & wait a minute.\n\n"
+            .str_repeat('Then try again. ', 10).'THE END',
+    ]);
+
+    $this->actingAs(User::factory()->sso()->create());
+
+    Livewire::test('pages::kb.index')
+        ->assertSee('Restart the router & wait a minute.')
+        ->assertDontSee('**Restart**')
+        ->assertDontSee('THE END');
+});
