@@ -19,8 +19,8 @@ class ArticleFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $title = fake()->sentence(),
-            'slug' => Str::slug($title),
+            'title' => fake()->sentence(),
+            'slug' => fn (array $attributes): string => Str::slug($attributes['title']),
             'body_markdown' => fake()->paragraph(),
         ];
     }
