@@ -118,3 +118,32 @@ test('each article shows a plain-text excerpt of its body', function (): void {
         ->assertDontSee('**Restart**')
         ->assertDontSee('THE END');
 });
+
+test('members can read a published article', function (): void {
+    $article = Article::factory()->published()->create();
+
+    $this->actingAs(User::factory()->sso()->create())
+        ->get(route('kb.show', $article))
+        ->assertOk()
+        ->assertSee($article->title);
+});
+
+test('an unpublished article is not found', function (): void {
+    $article = Article::factory()->create();
+
+    $this->actingAs(User::factory()->sso()->create())
+        ->get(route('kb.show', $article))
+        ->assertNotFound();
+});
+
+test('article markdown renders with raw html escaped', function (): void {
+    $article = Article::factory()->published()->create([
+        'body_markdown' => "**Restart** the router <script>alert('x')</script>\n\n[Click me](javascript:alert('x'))",
+    ]);
+
+    $this->actingAs(User::factory()->sso()->create())
+        ->get(route('kb.show', $article))
+        ->assertSee('<strong>Restart</strong>', false)
+        ->assertDontSee("<script>alert('x')</script>", false)
+        ->assertDontSee('href="javascript:', false);
+});
