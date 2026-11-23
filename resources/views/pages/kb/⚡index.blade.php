@@ -31,11 +31,17 @@ new #[Title('Knowledge base')] class extends Component {
     }
 
     #[Computed]
-    public function askChrisUrl(): string
+    public function askChrisUrl(): ?string
     {
+        $email = config('app.admin_contact_email');
+
+        if (blank($email)) {
+            return null;
+        }
+
         $subject = $this->search === '' ? 'Knowledge base' : "Knowledge base: {$this->search}";
 
-        return 'mailto:' . config('app.admin_contact_email') . '?subject=' . rawurlencode($subject);
+        return "mailto:{$email}?subject=" . rawurlencode($subject);
     }
 };
 ?>
@@ -66,13 +72,21 @@ new #[Title('Knowledge base')] class extends Component {
     @elseif ($this->search !== '')
         <p>
             Nothing on that.
-            <a href="{{ $this->askChrisUrl }}" class="text-violet-text font-semibold underline">Ask Chris</a>
+            @if ($this->askChrisUrl)
+                <a href="{{ $this->askChrisUrl }}" class="text-violet-text font-semibold underline">Ask Chris</a>
+            @else
+                Ask Chris
+            @endif
             — the answer usually exists before the article does.
         </p>
     @else
         <p>
             Nothing written yet.
-            <a href="{{ $this->askChrisUrl }}" class="text-violet-text font-semibold underline">Ask Chris</a>
+            @if ($this->askChrisUrl)
+                <a href="{{ $this->askChrisUrl }}" class="text-violet-text font-semibold underline">Ask Chris</a>
+            @else
+                Ask Chris
+            @endif
             in the meantime.
         </p>
     @endif
