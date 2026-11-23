@@ -99,6 +99,19 @@ test('an empty knowledge base offers to ask Chris', function (): void {
         ->assertDontSee('Nothing on that.');
 });
 
+test('without a contact email the knowledge base has no ask link', function (): void {
+    config(['app.admin_contact_email' => null]);
+
+    $this->actingAs(User::factory()->sso()->create());
+
+    Livewire::test('pages::kb.index')
+        ->assertSee('Ask Chris')
+        ->assertDontSeeHtml('mailto:')
+        ->set('search', 'roku')
+        ->assertSee('Ask Chris')
+        ->assertDontSeeHtml('mailto:');
+});
+
 test('the header links to the knowledge base', function (): void {
     $this->actingAs(User::factory()->sso()->create())
         ->get(route('dashboard'))
