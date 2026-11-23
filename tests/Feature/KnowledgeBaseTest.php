@@ -2,6 +2,7 @@
 
 use App\Models\Article;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 test('guests are redirected to the login page', function (): void {
@@ -81,10 +82,11 @@ test('a search with no matches offers to ask Chris', function (): void {
 
     $this->actingAs(User::factory()->sso()->create());
 
-    Livewire::test('pages::kb.index')
-        ->set('search', 'roku')
-        ->assertSee('Nothing on that.')
-        ->assertSeeHtml('mailto:admin@example.com?subject=Knowledge%20base%3A%20roku');
+    $html = Livewire::test('pages::kb.index')->set('search', 'roku')->html();
+
+    expect(Str::squish($html))
+        ->toContain('Nothing on that.')
+        ->toContain('mailto:admin@example.com?subject=Knowledge%20base%3A%20roku');
 });
 
 test('an empty knowledge base offers to ask Chris', function (): void {
@@ -93,10 +95,12 @@ test('an empty knowledge base offers to ask Chris', function (): void {
 
     $this->actingAs(User::factory()->sso()->create());
 
-    Livewire::test('pages::kb.index')
-        ->assertSee('Nothing written yet.')
-        ->assertSeeHtml('mailto:admin@example.com?subject=Knowledge%20base"')
-        ->assertDontSee('Nothing on that.');
+    $html = Livewire::test('pages::kb.index')->html();
+
+    expect(Str::squish($html))
+        ->toContain('Nothing written yet.')
+        ->toContain('mailto:admin@example.com?subject=Knowledge%20base"')
+        ->not->toContain('Nothing on that.');
 });
 
 test('without a contact email the knowledge base has no ask link', function (): void {
@@ -104,12 +108,11 @@ test('without a contact email the knowledge base has no ask link', function (): 
 
     $this->actingAs(User::factory()->sso()->create());
 
-    Livewire::test('pages::kb.index')
-        ->assertSee('Ask Chris')
-        ->assertDontSeeHtml('mailto:')
-        ->set('search', 'roku')
-        ->assertSee('Ask Chris')
-        ->assertDontSeeHtml('mailto:');
+    $component = Livewire::test('pages::kb.index');
+    expect(Str::squish($component->html()))->toContain('Ask Chris')->not->toContain('mailto:');
+
+    $component->set('search', 'roku');
+    expect(Str::squish($component->html()))->toContain('Ask Chris')->not->toContain('mailto:');
 });
 
 test('the header links to the knowledge base', function (): void {
@@ -175,9 +178,11 @@ test('an article shows when it was last updated', function (): void {
         'updated_at' => '2026-03-14',
     ]);
 
-    $this->actingAs(User::factory()->sso()->create())
+    $html = $this->actingAs(User::factory()->sso()->create())
         ->get(route('kb.show', $article))
-        ->assertSee('Updated March 2026');
+        ->getContent();
+
+    expect(Str::squish($html))->toContain('Updated March 2026');
 });
 
 test('an article offers to ask Chris about it', function (): void {
@@ -191,14 +196,17 @@ test('an article offers to ask Chris about it', function (): void {
         ->assertSee('mailto:admin@example.com?subject=About%3A%20Wi-Fi%20keeps%20dropping', false);
 });
 
-test('without a contact email the ask-chris line has no link', function (): void {
+test('without a contact email an article has no ask link', function (): void {
     config(['app.admin_contact_email' => null]);
     $article = Article::factory()->published()->create();
 
-    $this->actingAs(User::factory()->sso()->create())
+    $html = $this->actingAs(User::factory()->sso()->create())
         ->get(route('kb.show', $article))
-        ->assertSee('Didn’t fix it?', false)
-        ->assertDontSee('mailto:', false);
+        ->getContent();
+
+    expect(Str::squish($html))
+        ->toContain('Didn’t fix it?')
+        ->not->toContain('mailto:');
 });
 
 test('an article links to a focused search', function (): void {
