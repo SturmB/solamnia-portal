@@ -30,6 +30,8 @@ class ArticleForm
                     ->unique(),
                 MarkdownEditor::make('body_markdown')
                     ->required()
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsDirectory('kb')
                     ->columnSpanFull(),
                 Toggle::make('is_published'),
             ]);
