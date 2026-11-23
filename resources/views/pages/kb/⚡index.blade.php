@@ -47,7 +47,7 @@ new #[Title('Knowledge base')] class extends Component {
     </h1>
 
     <flux:input type="search" icon="magnifying-glass" wire:model.live.debounce.300ms="search" placeholder="Search articles"
-        aria-label="Search articles" />
+        aria-label="Search articles" :autofocus="request()->boolean('focus')" />
 
     <p class="text-muted mb-4 mt-2 text-sm" aria-live="polite">{{ $this->countLine }}</p>
 
