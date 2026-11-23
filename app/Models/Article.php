@@ -39,6 +39,16 @@ class Article extends Model
             |> (fn (string $text): string => Str::limit($text, 110, '…', preserveWords: true)));
     }
 
+    /**
+     * The body as HTML for the article page, with raw HTML escaped and unsafe links disabled.
+     *
+     * @return Attribute<string, never>
+     */
+    protected function bodyHtml(): Attribute
+    {
+        return Attribute::get(fn (): string => Str::markdown($this->body_markdown, ['html_input' => 'escape', 'allow_unsafe_links' => false]));
+    }
+
     protected function casts(): array
     {
         return [
