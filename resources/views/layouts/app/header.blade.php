@@ -13,7 +13,7 @@
     @include('partials.head')
 </head>
 
-<body class="bg-night text-ink min-h-screen font-sans" data-aurora="0.25">
+<body class="bg-night text-ink min-h-screen font-sans" data-aurora="{{ request()->routeIs('kb.*') ? '0.1' : '0.25' }}">
     {{-- The living sky, rendered by resources/js/aurora.js. @persist keeps the
          one canvas (and its GL context) alive across wire:navigate. --}}
     @persist('aurora')
