@@ -216,3 +216,14 @@ test('article tables are wrapped so they can scroll', function (): void {
         ->get(route('kb.show', $article))
         ->assertSee('<div class="kb-table"><table>', false);
 });
+
+test('the kb nav items say where you are', function (Closure $url, string $expected): void {
+    $html = $this->actingAs(User::factory()->sso()->create())
+        ->get($url())
+        ->getContent();
+
+    expect(substr_count($html, $expected))->toBe(2);
+})->with([
+    'on the index' => [fn (): string => route('kb.index'), 'aria-current="page"'],
+    'on an article' => [fn (): string => route('kb.show', Article::factory()->published()->create()), 'aria-current="location"'],
+]);
