@@ -147,3 +147,12 @@ test('article markdown renders with raw html escaped', function (): void {
         ->assertDontSee("<script>alert('x')</script>", false)
         ->assertDontSee('href="javascript:', false);
 });
+
+test('each article in the list links to its page', function (): void {
+    $article = Article::factory()->published()->create();
+
+    $this->actingAs(User::factory()->sso()->create());
+
+    Livewire::test('pages::kb.index')
+        ->assertSeeHtml('href="'.route('kb.show', $article).'"');
+});
