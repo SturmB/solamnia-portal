@@ -106,6 +106,10 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+    :focus-visible {
+        outline: 2px solid var(--color-violet-text);
+        outline-offset: 3px;
+    }
 }
 
 /* ---- The Velvet House (DESIGN.md §5): the ground shared by the two brand-register
@@ -156,12 +160,13 @@
         );
 }
 
+/*noinspection CssInvalidHtmlTagReference*/
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }
 
 [data-flux-label] {
-    @apply !mb-0 !leading-tight;
+    @apply mb-0! leading-tight!;
 }
 
 input:focus[data-flux-control],
@@ -217,4 +222,143 @@ body:has(#aurora)::before {
         ),
         var(--color-night);
     background-attachment: fixed;
+}
+
+/* ---- The Reading Column (DESIGN.md: Knowledge Base). Styles the article body,
+   which is rendered Markdown and so can't carry utility classes. ---- */
+.kb-prose {
+    max-width: 68ch;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: color-mix(in oklch, var(--color-ink) 88%, transparent);
+    --well: oklch(0.11 0.03 252);
+
+    & > * + * {
+        margin-top: 1em;
+    }
+
+    & h2,
+    & h3 {
+        color: var(--color-ink);
+        line-height: 1.2;
+        margin-top: 2.25em;
+    }
+
+    & :is(h2, h3) + * {
+        margin-top: 0.5em;
+    }
+
+    & h2 {
+        /*noinspection CssNoGenericFontName*/
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 1.4rem;
+    }
+
+    & h3 {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    & strong {
+        color: var(--color-ink);
+        font-weight: 700;
+    }
+
+    & a {
+        color: var(--color-violet-text);
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+    }
+
+    & ul {
+        list-style: disc;
+        padding-left: 1.25em;
+
+        & li::marker {
+            color: var(--color-muted);
+            font-size: 0.8em;
+        }
+    }
+
+    & ol {
+        counter-reset: step;
+
+        & > li {
+            counter-increment: step;
+            position: relative;
+            padding-left: 2.5em;
+
+            &::before {
+                content: counter(step);
+                position: absolute;
+                left: 0;
+                top: 0.15em;
+                display: grid;
+                place-items: center;
+                width: 1.6em;
+                height: 1.6em;
+                border: 1px solid var(--color-violet-text);
+                border-radius: 999px;
+                color: var(--color-violet-text);
+                font-size: 0.85em;
+                font-weight: 700;
+            }
+
+            & + li {
+                margin-top: 0.9em;
+            }
+        }
+    }
+
+    & blockquote {
+        background: var(--color-panel);
+        border: 1px solid var(--color-edge);
+        border-radius: 9px;
+        padding: 0.9em 1.1em;
+    }
+
+    & code {
+        /*noinspection CssNoGenericFontName*/
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+        background: var(--well);
+        border-radius: 5px;
+        padding: 0.1em 0.35em;
+    }
+
+    & pre {
+        background: var(--well);
+        border: 1px solid var(--color-edge);
+        border-radius: 9px;
+        padding: 0.9em 1.1em;
+        overflow-x: auto;
+
+        & code {
+            background: none;
+            padding: 0;
+        }
+    }
+
+    & img {
+        border: 1px solid var(--color-edge);
+        border-radius: 9px;
+    }
+
+    & .kb-table {
+        overflow-x: auto;
+    }
+
+    & th,
+    & td {
+        padding: 0.5em 1.25em 0.5em 0;
+        text-align: left;
+        border-bottom: 1px solid var(--color-edge);
+    }
+
+    & th {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--color-ink);
+    }
 }

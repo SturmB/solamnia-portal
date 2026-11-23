@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 
+@php
+    $kbAriaCurrent = match (true) {
+        request()->routeIs('kb.index') => 'page',
+        request()->routeIs('kb.show') => 'location',
+        default => null,
+    };
+@endphp
+
 <head>
     @include('partials.head')
 </head>
 
-<body class="bg-night text-ink min-h-screen font-sans" data-aurora="0.25">
+<body class="bg-night text-ink min-h-screen font-sans" data-aurora="{{ request()->routeIs('kb.*') ? '0.1' : '0.25' }}">
     {{-- The living sky, rendered by resources/js/aurora.js. @persist keeps the
          one canvas (and its GL context) alive across wire:navigate. --}}
     @persist('aurora')
@@ -26,6 +34,10 @@
                 wire:navigate>
                 {{ __('Dashboard') }}
             </flux:navbar.item>
+            <flux:navbar.item icon="book-open" :href="route('kb.index')" :current="request()->routeIs('kb.*')"
+                wire:navigate :aria-current="$kbAriaCurrent">
+                {{ __('Knowledge base') }}
+            </flux:navbar.item>
         </flux:navbar>
 
         <flux:spacer />
@@ -45,6 +57,10 @@
             <flux:sidebar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                 wire:navigate>
                 {{ __('Dashboard') }}
+            </flux:sidebar.item>
+            <flux:sidebar.item icon="book-open" :href="route('kb.index')" :current="request()->routeIs('kb.*')"
+                wire:navigate :aria-current="$kbAriaCurrent">
+                {{ __('Knowledge base') }}
             </flux:sidebar.item>
         </flux:sidebar.nav>
     </flux:sidebar>

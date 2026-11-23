@@ -291,10 +291,23 @@
             gl.drawArrays(gl.TRIANGLES, 0, 3);
         }
 
+        const FROZEN = 34.5;
+
+        /* wire:navigate swaps <body> but keeps this canvas (@persist), so
+re-read the new page's intensity after each visit. */
+        document.addEventListener("livewire:navigated", () => {
+            gl.uniform1f(
+                U.u_intensity,
+                parseFloat(document.body.dataset.aurora || "0.25"),
+            );
+            if (reducedMotion) {
+                draw(FROZEN);
+            }
+        });
+
         if (reducedMotion) {
             /* One static frame, time frozen at a moment with good curtain
          separation. Re-rendered on resize; never animated. */
-            const FROZEN = 34.5;
             draw(FROZEN);
             addEventListener("resize", () => {
                 resize();
