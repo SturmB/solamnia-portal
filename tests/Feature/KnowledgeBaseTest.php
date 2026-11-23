@@ -206,3 +206,13 @@ test('the search input is focused only when asked for', function (array $query, 
     'from the pill' => [['focus' => 1], true],
     'normal visit' => [[], false],
 ]);
+
+test('article tables are wrapped so they can scroll', function (): void {
+    $article = Article::factory()->published()->create([
+        'body_markdown' => "| Quality | Speed |\n| --- | --- |\n| 4K | 25 Mbps |",
+    ]);
+
+    $this->actingAs(User::factory()->sso()->create())
+        ->get(route('kb.show', $article))
+        ->assertSee('<div class="kb-table"><table>', false);
+});
