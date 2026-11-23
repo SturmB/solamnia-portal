@@ -156,12 +156,13 @@
         );
 }
 
+/*noinspection CssInvalidHtmlTagReference*/
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }
 
 [data-flux-label] {
-    @apply !mb-0 !leading-tight;
+    @apply mb-0! leading-tight!;
 }
 
 input:focus[data-flux-control],
@@ -243,6 +244,7 @@ body:has(#aurora)::before {
     }
 
     & h2 {
+        /*noinspection CssNoGenericFontName*/
         font-family: var(--font-display);
         font-weight: 600;
         font-size: 1.4rem;
