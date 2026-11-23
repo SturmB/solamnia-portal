@@ -227,6 +227,7 @@ body:has(#aurora)::before {
     font-size: 1.0625rem;
     line-height: 1.6;
     color: color-mix(in oklch, var(--color-ink) 88%, transparent);
+    --well: oklch(0.11 0.03 252);
 
     & > * + * {
         margin-top: 1em;
@@ -311,5 +312,49 @@ body:has(#aurora)::before {
         border: 1px solid var(--color-edge);
         border-radius: 9px;
         padding: 0.9em 1.1em;
+    }
+
+    & code {
+        /*noinspection CssNoGenericFontName*/
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+        background: var(--well);
+        border-radius: 5px;
+        padding: 0.1em 0.35em;
+    }
+
+    & pre {
+        background: var(--well);
+        border: 1px solid var(--color-edge);
+        border-radius: 9px;
+        padding: 0.9em 1.1em;
+        overflow-x: auto;
+
+        & code {
+            background: none;
+            padding: 0;
+        }
+    }
+
+    & img {
+        border: 1px solid var(--color-edge);
+        border-radius: 9px;
+    }
+
+    & .kb-table {
+        overflow-x: auto;
+    }
+
+    & th,
+    & td {
+        padding: 0.5em 1.25em 0.5em 0;
+        text-align: left;
+        border-bottom: 1px solid var(--color-edge);
+    }
+
+    & th {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--color-ink);
     }
 }
