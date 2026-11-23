@@ -55,9 +55,11 @@ new #[Title('Knowledge base')] class extends Component {
         <ul role="list"
             class="bg-panel border-edge divide-edge divide-y rounded-[14px] border shadow-[inset_0_1px_0_0_var(--color-edge-top)]">
             @foreach ($this->articles as $article)
-                <li class="px-6 py-4">
-                    <h2 class="text-ink font-medium">{{ $article->title }}</h2>
-                    <p class="text-muted mt-1">{{ $article->excerpt }}</p>
+                <li>
+                    <a href="{{ route('kb.show', $article) }}" wire:navigate class="block px-6 py-4">
+                        <h2 class="text-ink font-medium">{{ $article->title }}</h2>
+                        <p class="text-muted mt-1">{{ $article->excerpt }}</p>
+                    </a>
                 </li>
             @endforeach
         </ul>
