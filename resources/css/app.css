@@ -106,6 +106,10 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+    :focus-visible {
+        outline: 2px solid var(--color-violet-text);
+        outline-offset: 3px;
+    }
 }
 
 /* ---- The Velvet House (DESIGN.md §5): the ground shared by the two brand-register
