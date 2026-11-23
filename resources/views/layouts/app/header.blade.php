@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 
+@php
+    $kbAriaCurrent = match (true) {
+        request()->routeIs('kb.index') => 'page',
+        request()->routeIs('kb.show') => 'location',
+        default => null,
+    };
+@endphp
+
 <head>
     @include('partials.head')
 </head>
@@ -27,7 +35,7 @@
                 {{ __('Dashboard') }}
             </flux:navbar.item>
             <flux:navbar.item icon="book-open" :href="route('kb.index')" :current="request()->routeIs('kb.*')"
-                wire:navigate>
+                wire:navigate :aria-current="$kbAriaCurrent">
                 {{ __('Knowledge base') }}
             </flux:navbar.item>
         </flux:navbar>
@@ -51,7 +59,7 @@
                 {{ __('Dashboard') }}
             </flux:sidebar.item>
             <flux:sidebar.item icon="book-open" :href="route('kb.index')" :current="request()->routeIs('kb.*')"
-                wire:navigate>
+                wire:navigate :aria-current="$kbAriaCurrent">
                 {{ __('Knowledge base') }}
             </flux:sidebar.item>
         </flux:sidebar.nav>
