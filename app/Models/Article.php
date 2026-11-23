@@ -46,7 +46,11 @@ class Article extends Model
      */
     protected function bodyHtml(): Attribute
     {
-        return Attribute::get(fn (): string => Str::markdown($this->body_markdown, ['html_input' => 'escape', 'allow_unsafe_links' => false]));
+        return Attribute::get(fn (): string => Str::markdown($this->body_markdown, [
+            'html_input' => 'escape',
+            'allow_unsafe_links' => false,
+            'table' => ['wrap' => ['enabled' => true, 'attributes' => ['class' => 'kb-table']]],
+        ]));
     }
 
     protected function casts(): array
