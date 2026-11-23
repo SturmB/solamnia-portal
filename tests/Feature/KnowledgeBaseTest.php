@@ -227,3 +227,13 @@ test('the kb nav items say where you are', function (Closure $url, string $expec
     'on the index' => [fn (): string => route('kb.index'), 'aria-current="page"'],
     'on an article' => [fn (): string => route('kb.show', Article::factory()->published()->create()), 'aria-current="location"'],
 ]);
+
+test('the aurora dims on kb pages', function (Closure $url, string $expected): void {
+    $this->actingAs(User::factory()->sso()->create())
+        ->get($url())
+        ->assertSee($expected, false);
+})->with([
+    'the dashboard' => [fn (): string => route('dashboard'), 'data-aurora="0.25"'],
+    'the kb index' => [fn (): string => route('kb.index'), 'data-aurora="0.1"'],
+    'an article' => [fn (): string => route('kb.show', Article::factory()->published()->create()), 'data-aurora="0.1"'],
+]);
