@@ -238,7 +238,7 @@ test('article tables are wrapped so they can scroll', function (): void {
         ->assertSee('<div class="kb-table"><table>', false);
 });
 
-test('the kb nav items say where you are', function (Closure $url, string $expected): void {
+test('the knowledge base nav items say where you are', function (Closure $url, string $expected): void {
     $html = $this->actingAs(User::factory()->sso()->create())
         ->get($url())
         ->getContent();
@@ -249,7 +249,7 @@ test('the kb nav items say where you are', function (Closure $url, string $expec
     'on an article' => [fn (): string => route('kb.show', Article::factory()->published()->create()), 'aria-current="location"'],
 ]);
 
-test('the aurora dims on kb pages', function (Closure $url, string $expected): void {
+test('the aurora dims on knowledge base pages', function (Closure $url, string $expected): void {
     $this->actingAs(User::factory()->sso()->create())
         ->get($url())
         ->assertSee($expected, false);
