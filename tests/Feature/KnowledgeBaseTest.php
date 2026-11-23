@@ -156,3 +156,34 @@ test('each article in the list links to its page', function (): void {
     Livewire::test('pages::kb.index')
         ->assertSeeHtml('href="'.route('kb.show', $article).'"');
 });
+
+test('an article shows when it was last updated', function (): void {
+    $article = Article::factory()->published()->create([
+        'updated_at' => '2026-03-14',
+    ]);
+
+    $this->actingAs(User::factory()->sso()->create())
+        ->get(route('kb.show', $article))
+        ->assertSee('Updated March 2026');
+});
+
+test('an article offers to ask Chris about it', function (): void {
+    config(['app.admin_contact_email' => 'admin@example.com']);
+    $article = Article::factory()->published()->create([
+        'title' => 'Wi-Fi keeps dropping',
+    ]);
+
+    $this->actingAs(User::factory()->sso()->create())
+        ->get(route('kb.show', $article))
+        ->assertSee('mailto:admin@example.com?subject=About%3A%20Wi-Fi%20keeps%20dropping', false);
+});
+
+test('without a contact email the ask-chris line has no link', function (): void {
+    config(['app.admin_contact_email' => null]);
+    $article = Article::factory()->published()->create();
+
+    $this->actingAs(User::factory()->sso()->create())
+        ->get(route('kb.show', $article))
+        ->assertSee('Didn’t fix it?', false)
+        ->assertDontSee('mailto:', false);
+});
