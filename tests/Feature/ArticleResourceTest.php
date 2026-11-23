@@ -6,6 +6,7 @@ use App\Filament\Resources\Articles\Pages\EditArticle;
 use App\Models\Article;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\MarkdownEditor;
 
 use function Pest\Livewire\livewire;
 
@@ -110,4 +111,11 @@ test('a duplicate slug is rejected', function (): void {
         ->assertHasFormErrors(['slug' => 'unique']);
 
     expect(Article::count())->toBe(1);
+});
+
+test('article images upload to a public disk', function (): void {
+    livewire(CreateArticle::class)
+        ->assertFormFieldExists('body_markdown', fn (MarkdownEditor $field): bool => $field->getFileAttachmentsDiskName() === 'public'
+            && $field->getFileAttachmentsVisibility() === 'public'
+            && $field->getFileAttachmentsDirectory() === 'kb');
 });
