@@ -218,3 +218,59 @@ body:has(#aurora)::before {
         var(--color-night);
     background-attachment: fixed;
 }
+
+/* ---- The Reading Column (DESIGN.md: Knowledge Base). Styles the article body,
+   which is rendered Markdown and so can't carry utility classes. ---- */
+.kb-prose {
+    max-width: 68ch;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: color-mix(in oklch, var(--color-ink) 88%, transparent);
+
+    & > * + * {
+        margin-top: 1em;
+    }
+
+    & h2,
+    & h3 {
+        color: var(--color-ink);
+        line-height: 1.2;
+        margin-top: 2.25em;
+    }
+
+    & :is(h2, h3) + * {
+        margin-top: 0.5em;
+    }
+
+    & h2 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 1.4rem;
+    }
+
+    & h3 {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    & strong {
+        color: var(--color-ink);
+        font-weight: 700;
+    }
+
+    & a {
+        color: var(--color-violet-text);
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+    }
+
+    & ul {
+        list-style: disc;
+        padding-left: 1.25em;
+
+        & li::marker {
+            color: var(--color-muted);
+            font-size: 0.8em;
+        }
+    }
+}

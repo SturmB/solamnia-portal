@@ -49,7 +49,7 @@ new class extends Component {
     </h1>
     <p class="text-muted mt-2 text-sm">Updated {{ $article->updated_at->format('F Y') }}</p>
 
-    <div class="mt-8">{!! $article->body_html !!}</div>
+    <div class="kb-prose mt-8">{!! $article->body_html !!}</div>
 
     <p class="mt-12">
         Didn’t fix it?
