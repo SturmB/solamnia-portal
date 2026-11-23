@@ -187,3 +187,22 @@ test('without a contact email the ask-chris line has no link', function (): void
         ->assertSee('Didn’t fix it?', false)
         ->assertDontSee('mailto:', false);
 });
+
+test('an article links to a focused search', function (): void {
+    $article = Article::factory()->published()->create();
+
+    $this->actingAs(User::factory()->sso()->create())
+        ->get(route('kb.show', $article))
+        ->assertSee(route('kb.index', ['focus' => 1]), false);
+});
+
+test('the search input is focused only when asked for', function (array $query, bool $focused): void {
+    $html = $this->actingAs(User::factory()->sso()->create())
+        ->get(route('kb.index', $query))
+        ->getContent();
+
+    expect(str_contains($html, 'autofocus'))->toBe($focused);
+})->with([
+    'from the pill' => [['focus' => 1], true],
+    'normal visit' => [[], false],
+]);
